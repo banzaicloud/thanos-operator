@@ -1,9 +1,8 @@
-module github.com/banzaicloud/thanos-operator
+module github.com/banzaicloud/thanos-operator/pkg/sdk
 
 go 1.13
 
 require (
-	github.com/banzaicloud/thanos-operator/pkg/sdk v0.0.0
 	github.com/go-logr/logr v0.1.0
 	github.com/onsi/ginkgo v1.8.0
 	github.com/onsi/gomega v1.5.0
@@ -11,5 +10,3 @@ require (
 	k8s.io/client-go v0.0.0-20190918160344-1fbdaa4c8d90
 	sigs.k8s.io/controller-runtime v0.4.0
 )
-
-replace github.com/banzaicloud/thanos-operator/pkg/sdk => ./pkg/sdk

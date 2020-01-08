@@ -19,8 +19,8 @@ import (
 	"flag"
 	"os"
 
-	monitoringv1alpha1 "github.com/banzaicloud/thanos-operator/api/v1alpha1"
 	"github.com/banzaicloud/thanos-operator/controllers"
+	monitoringv1alpha1 "github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"

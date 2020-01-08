@@ -23,7 +23,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	monitoringv1alpha1 "github.com/banzaicloud/thanos-operator/api/v1alpha1"
+	monitoringv1alpha1 "github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 )
 
 // ObjectStoreReconciler reconciles a ObjectStore object
