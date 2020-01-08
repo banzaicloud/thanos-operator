@@ -27,6 +27,62 @@ type ThanosSpec struct {
 	StoreGateway    *StoreGateway    `json:"storeGateway,omitempty"`
 	Rule            *Rule            `json:"rule,omitempty"`
 	ObjectStore     string           `json:"object_store,omitempty"`
+	Query           *Query           `json:"query,omitempty"`
+}
+
+type Query struct {
+	BaseObject `json:",inline"`
+	LogLevel   string `json:"logLevel,omitempty"`
+	LogFormat  string `json:"logFormat,omitempty"`
+	// Listen host:port for HTTP endpoints.
+	HttpAddress string `json:"httpAddress"`
+	// Time to wait after an interrupt received for HTTP Server.
+	HttpGracePeriod string `json:"http_grace_period"`
+	// Listen ip:port address for gRPC endpoints
+	GRPCAddress string `json:"grpcAddress"`
+	// Time to wait after an interrupt received for GRPC Server.
+	GRPCGracePeriod string `json:"grpcGracePeriod"`
+	// Prefix for API and UI endpoints. This allows thanos UI to be served on a sub-path. This
+	// option is analogous to --web.route-prefix of Promethus.
+	WebRoutePrefix string `json:"webRoutePrefix,omitempty"`
+	// Static prefix for all HTML links and redirect URLs in the UI query web interface. Actual
+	// endpoints are still served on / or the web.route-prefix. This allows thanos UI to be
+	// served behind a reverse proxy that strips a URL sub-path.
+	WebExternalPrefix string `json:"webExternalPrefix,omitempty"`
+	// Name of HTTP request header used for dynamic prefixing of UI links and redirects. This
+	// option is ignored if web.external-prefix argument is set. Security risk: enable this
+	// option only if a reverse proxy in front of thanos is resetting the header. The
+	// --web.prefix-header=X-Forwarded-Prefix option can be useful, for example, if Thanos UI is
+	// served via Traefik reverse proxy with PathPrefixStrip option enabled, which sends the
+	// stripped prefix value in X-Forwarded-Prefix header. This allows thanos UI to be served on a
+	// sub-path.
+	WebPrefixHeader string `json:"webPrefixHeader,omitempty"`
+	// Maximum time to process query by query node.
+	QueryTimeout metav1.Duration `json:"queryTimeout,omitempty"`
+	// Maximum number of queries processed concurrently by query node.
+	QueryMaxConcurrent int `json:"queryMaxConcurrent,omitempty"`
+	// Labels to treat as a replica indicator along which data is deduplicated. Still you will be
+	// able to query without deduplication using 'dedup=false' parameter.
+	QueryReplicaLabels map[string]string `json:"queryReplicaLabel,omitempty"`
+	// Query selector labels that will be exposed in info endpoint (repeated).
+	SelectorLabels map[string]string `json:"selectorLabels,omitempty"`
+	// Addresses of statically configured store API servers (repeatable). The scheme may be
+	// prefixed with 'dns+' or 'dnssrv+' to detect store API servers through respective DNS lookups.
+	Stores []string `json:"stores,omitempty"`
+	//	Interval between DNS resolutions.
+	StoreSDDNSInterval metav1.Duration `json:"storeSDDNSInterval,omitempty"`
+	//	Timeout before an unhealthy store is cleaned from the store UI page.
+	StoreUnhealthyTimeout metav1.Duration `json:"storeUnhealthyTimeout,omitempty"`
+	// Enable automatic adjustment (step / 5) to what source of data should be used in store gateways
+	// if no max_source_resolution param is specified.
+	QueryAutoDownsampling bool `json:"queryAutoDownsampling,omitempty"`
+	// Enable partial response for queries if no partial_response param is specified.
+	QueryPartialResponse bool `json:"queryPartialResponse,omitempty"`
+	//	Set default evaluation interval for sub queries.
+	QueryDefaultEvaluationInterval metav1.Duration `json:"queryDefaultEvaluationInterval,omitempty"`
+	//	If a Store doesn't send any data in this specified duration then a Store will be ignored
+	//	and partial data will be returned if it's enabled. 0 disables timeout.
+	StoreResponseTimeout metav1.Duration `json:"storeResponseTimeout,omitempty"`
 }
 
 type TLS struct {
