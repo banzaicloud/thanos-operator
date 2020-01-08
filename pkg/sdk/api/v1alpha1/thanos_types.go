@@ -98,6 +98,67 @@ type StoreGateway struct {
 
 type Rule struct {
 	BaseObject `json:",inline"`
+	LogLevel   string `json:"logLevel,omitempty"`
+	LogFormat  string `json:"logFormat,omitempty"`
+	// Listen host:port for HTTP endpoints.
+	HttpAddress string `json:"httpAddress"`
+	// Time to wait after an interrupt received for HTTP Server.
+	HttpGracePeriod string `json:"http_grace_period"`
+	// Listen ip:port address for gRPC endpoints
+	GRPCAddress string `json:"grpcAddress"`
+	// Time to wait after an interrupt received for GRPC Server.
+	GRPCGracePeriod string `json:"grpcGracePeriod"`
+	// 	Labels to be applied to all generated metrics
+	//(repeated). Similar to external labels for
+	//	Prometheus, used to identify ruler and its
+	//	blocks as unique source.
+	Labels map[string]string `json:"labels,omitempty"`
+	// Rules
+	Rules string `json:"rules,omitempty"`
+	// Minimum amount of time to wait before resending an alert to Alertmanager.
+	ResendDelay string `json:"resendDelay,omitempty"`
+	// The default evaluation interval to use.
+	EvalInterval string `json:"evalInterval,omitempty"`
+	// Block duration for TSDB block.
+	TSDBBlockDuration string `json:"tsdbBlockDuration,omitempty"`
+	// Block retention time on local disk.
+	TSDBRetention string `json:"tsdbRetention,omitempty"`
+	// Alertmanager replica URLs to push firing alerts. Ruler claims success if push to at
+	// least one alertmanager from discovered succeeds. The scheme should not be empty e.g
+	// `http` might be used. The scheme may be prefixed with 'dns+' or 'dnssrv+' to detect
+	// Alertmanager IPs through respective DNS lookups. The port defaults to 9093 or the SRV
+	// record's value. The URL path is used as a prefix for the regular Alertmanager API path.
+	AlertmanagersURLs []string `json:"alertmanagersURLs,omitempty"`
+	// Timeout for sending alerts to Alertmanager
+	AlertmanagersSendTimeout string `json:"alertmanagersSendTimeout,omitempty"`
+	// Interval between DNS resolutions of Alertmanager hosts.
+	AlertmanagersSDDNSInterval string `json:"alertmanagersSDDNSInterval,omitempty"`
+	// The external Thanos Query URL that would be set in all alerts 'Source' field
+	AlertQueryURL string `json:"alertQueryUrl,omitempty"`
+	// Labels by name to drop before sending to alertmanager. This allows alert to be
+	// deduplicated on replica label (repeated). Similar Prometheus alert relabelling
+	AlertLabelDrop map[string]string `json:"alertLabelDrop,omitempty"`
+	// Prefix for API and UI endpoints. This allows thanos UI to be served on a sub-path. This
+	// option is analogous to --web.route-prefix of Promethus.
+	WebRoutePrefix string `json:"webRoutePrefix,omitempty"`
+	// Static prefix for all HTML links and redirect URLs in the UI query web interface. Actual
+	// endpoints are still served on / or the web.route-prefix. This allows thanos UI to be
+	// served behind a reverse proxy that strips a URL sub-path.
+	WebExternalPrefix string `json:"webExternalPrefix,omitempty"`
+	// Name of HTTP request header used for dynamic prefixing of UI links and redirects. This
+	// option is ignored if web.external-prefix argument is set. Security risk: enable this
+	// option only if a reverse proxy in front of thanos is resetting the header. The
+	// --web.prefix-header=X-Forwarded-Prefix option can be useful, for example, if Thanos UI is
+	// served via Traefik reverse proxy with PathPrefixStrip option enabled, which sends the
+	// stripped prefix value in X-Forwarded-Prefix header. This allows thanos UI to be served on a
+	// sub-path.
+	WebPrefixHeader string `json:"webPrefixHeader,omitempty"`
+	// Addresses of statically configured query API servers (repeatable). The scheme may be
+	// prefixed with 'dns+' or 'dnssrv+' to detect query API servers through respective DNS
+	// lookups.
+	Queries []string `json:"queries"`
+	// Interval between DNS resolutions.
+	QuerySDDNSInterval string `json:"querySddnsInterval,omitempty"`
 }
 
 // ThanosStatus defines the observed state of Thanos
