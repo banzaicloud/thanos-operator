@@ -33,15 +33,235 @@ spec:
           description: ThanosSpec defines the desired state of Thanos
           properties:
             local:
+              properties:
+                tls:
+                  properties:
+                    certificate:
+                      properties:
+                        mountFrom:
+                          properties:
+                            secretKeyRef:
+                              properties:
+                                key:
+                                  description: Secret key for the value
+                                  type: string
+                                name:
+                                  description: Name of the kubernetes secret
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        value:
+                          type: string
+                        valueFrom:
+                          properties:
+                            secretKeyRef:
+                              properties:
+                                key:
+                                  description: Secret key for the value
+                                  type: string
+                                name:
+                                  description: Name of the kubernetes secret
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                      type: object
+                    managedTLS:
+                      description: TODO how the runtime generated certificate will
+                        work
+                      type: object
+                  type: object
+                urls:
+                  items:
+                    type: string
+                  type: array
+              required:
+              - tls
+              - urls
               type: object
             remote:
+              properties:
+                tls:
+                  properties:
+                    certificate:
+                      properties:
+                        mountFrom:
+                          properties:
+                            secretKeyRef:
+                              properties:
+                                key:
+                                  description: Secret key for the value
+                                  type: string
+                                name:
+                                  description: Name of the kubernetes secret
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        value:
+                          type: string
+                        valueFrom:
+                          properties:
+                            secretKeyRef:
+                              properties:
+                                key:
+                                  description: Secret key for the value
+                                  type: string
+                                name:
+                                  description: Name of the kubernetes secret
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                      type: object
+                    managedTLS:
+                      description: TODO how the runtime generated certificate will
+                        work
+                      type: object
+                  type: object
+                urls:
+                  items:
+                    type: string
+                  type: array
+              required:
+              - tls
+              - urls
               type: object
             rule:
               type: object
             storeGateway:
-              description: StoreGateway
+              properties:
+                annotations:
+                  additionalProperties:
+                    type: string
+                  type: object
+                labels:
+                  additionalProperties:
+                    type: string
+                  type: object
+                nodeSelector:
+                  additionalProperties:
+                    type: string
+                  type: object
+                resources:
+                  description: ResourceRequirements describes the compute resource
+                    requirements.
+                  properties:
+                    limits:
+                      additionalProperties:
+                        type: string
+                      description: 'Limits describes the maximum amount of compute
+                        resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                    requests:
+                      additionalProperties:
+                        type: string
+                      description: 'Requests describes the minimum amount of compute
+                        resources required. If Requests is omitted for a container,
+                        it defaults to Limits if that is explicitly specified, otherwise
+                        to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                  type: object
+                tolerations:
+                  items:
+                    description: The pod this Toleration is attached to tolerates
+                      any taint that matches the triple <key,value,effect> using the
+                      matching operator <operator>.
+                    properties:
+                      effect:
+                        description: Effect indicates the taint effect to match. Empty
+                          means match all taint effects. When specified, allowed values
+                          are NoSchedule, PreferNoSchedule and NoExecute.
+                        type: string
+                      key:
+                        description: Key is the taint key that the toleration applies
+                          to. Empty means match all taint keys. If the key is empty,
+                          operator must be Exists; this combination means to match
+                          all values and all keys.
+                        type: string
+                      operator:
+                        description: Operator represents a key's relationship to the
+                          value. Valid operators are Exists and Equal. Defaults to
+                          Equal. Exists is equivalent to wildcard for value, so that
+                          a pod can tolerate all taints of a particular category.
+                        type: string
+                      tolerationSeconds:
+                        description: TolerationSeconds represents the period of time
+                          the toleration (which must be of effect NoExecute, otherwise
+                          this field is ignored) tolerates the taint. By default,
+                          it is not set, which means tolerate the taint forever (do
+                          not evict). Zero and negative values will be treated as
+                          0 (evict immediately) by the system.
+                        format: int64
+                        type: integer
+                      value:
+                        description: Value is the taint value the toleration matches
+                          to. If the operator is Exists, the value should be empty,
+                          otherwise just a regular string.
+                        type: string
+                    type: object
+                  type: array
               type: object
             thanosDiscovery:
+              properties:
+                labelSelector:
+                  description: A label selector is a label query over a set of resources.
+                    The result of matchLabels and matchExpressions are ANDed. An empty
+                    label selector matches all objects. A null label selector matches
+                    no objects.
+                  properties:
+                    matchExpressions:
+                      description: matchExpressions is a list of label selector requirements.
+                        The requirements are ANDed.
+                      items:
+                        description: A label selector requirement is a selector that
+                          contains values, a key, and an operator that relates the
+                          key and values.
+                        properties:
+                          key:
+                            description: key is the label key that the selector applies
+                              to.
+                            type: string
+                          operator:
+                            description: operator represents a key's relationship
+                              to a set of values. Valid operators are In, NotIn, Exists
+                              and DoesNotExist.
+                            type: string
+                          values:
+                            description: values is an array of string values. If the
+                              operator is In or NotIn, the values array must be non-empty.
+                              If the operator is Exists or DoesNotExist, the values
+                              array must be empty. This array is replaced during a
+                              strategic merge patch.
+                            items:
+                              type: string
+                            type: array
+                        required:
+                        - key
+                        - operator
+                        type: object
+                      type: array
+                    matchLabels:
+                      additionalProperties:
+                        type: string
+                      description: matchLabels is a map of {key,value} pairs. A single
+                        {key,value} in the matchLabels map is equivalent to an element
+                        of matchExpressions, whose key field is "key", the operator
+                        is "In", and the values array contains only "value". The requirements
+                        are ANDed.
+                      type: object
+                  type: object
+              required:
+              - labelSelector
               type: object
           type: object
         status:
