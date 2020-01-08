@@ -12,4 +12,7 @@ require (
 	sigs.k8s.io/controller-runtime v0.4.0
 )
 
-replace github.com/banzaicloud/thanos-operator/pkg/sdk => ./pkg/sdk
+replace (
+	github.com/banzaicloud/thanos-operator/pkg/sdk => ./pkg/sdk
+	k8s.io/client-go => k8s.io/client-go v0.0.0-20190918160344-1fbdaa4c8d90
+)
