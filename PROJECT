@@ -1,0 +1,7 @@
+domain: banzaicloud.io
+repo: github.com/banzaicloud/thanos-operator
+resources:
+- group: monitoring
+  kind: ObjectStore
+  version: v1alpha1
+version: "2"

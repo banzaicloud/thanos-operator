@@ -1,0 +1,26 @@
+# permissions to do edit objectstores.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: objectstore-editor-role
+rules:
+- apiGroups:
+  - monitoring.banzaicloud.io
+  resources:
+  - objectstores
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - monitoring.banzaicloud.io
+  resources:
+  - objectstores/status
+  verbs:
+  - get
+  - patch
+  - update
