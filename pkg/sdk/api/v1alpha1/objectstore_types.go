@@ -15,6 +15,7 @@
 package v1alpha1
 
 import (
+	"github.com/banzaicloud/logging-operator/pkg/sdk/model/secret"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -23,11 +24,16 @@ import (
 
 // ObjectStoreSpec defines the desired state of ObjectStore
 type ObjectStoreSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// Config
+	Config    secret.Secret `json:"config"`
+	Compactor *Compactor    `json:"compactor,omitempty"`
+	Bucket    *Bucket       `json:"bucket,omitempty"`
+}
 
-	// Foo is an example field of ObjectStore. Edit ObjectStore_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+type Compactor struct {
+}
+
+type Bucket struct {
 }
 
 // ObjectStoreStatus defines the observed state of ObjectStore
