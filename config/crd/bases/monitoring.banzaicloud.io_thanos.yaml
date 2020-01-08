@@ -84,6 +84,8 @@ spec:
               - tls
               - urls
               type: object
+            object_store:
+              type: string
             remote:
               properties:
                 tls:
@@ -137,8 +139,6 @@ spec:
               - urls
               type: object
             rule:
-              type: object
-            storeGateway:
               properties:
                 annotations:
                   additionalProperties:
@@ -210,6 +210,148 @@ spec:
                         type: string
                     type: object
                   type: array
+              type: object
+            storeGateway:
+              properties:
+                annotations:
+                  additionalProperties:
+                    type: string
+                  type: object
+                blockSyncConcurrency:
+                  description: Number of goroutines to use when constructing index-cache.json
+                    blocks from object storage.
+                  type: integer
+                chunkPoolSize:
+                  description: Maximum size of concurrently allocatable bytes for
+                    chunks.
+                  type: string
+                grpcAddress:
+                  description: Listen ip:port address for gRPC endpoints
+                  type: string
+                grpcGracePeriod:
+                  description: Time to wait after an interrupt received for GRPC Server.
+                  type: string
+                http_grace_period:
+                  description: Time to wait after an interrupt received for HTTP Server.
+                  type: string
+                httpAddress:
+                  description: Listen host:port for HTTP endpoints.
+                  type: string
+                indexCacheSize:
+                  description: Maximum size of items held in the in-memory index cache.
+                  type: string
+                labels:
+                  additionalProperties:
+                    type: string
+                  type: object
+                logFormat:
+                  type: string
+                logLevel:
+                  type: string
+                nodeSelector:
+                  additionalProperties:
+                    type: string
+                  type: object
+                resources:
+                  description: ResourceRequirements describes the compute resource
+                    requirements.
+                  properties:
+                    limits:
+                      additionalProperties:
+                        type: string
+                      description: 'Limits describes the maximum amount of compute
+                        resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                    requests:
+                      additionalProperties:
+                        type: string
+                      description: 'Requests describes the minimum amount of compute
+                        resources required. If Requests is omitted for a container,
+                        it defaults to Limits if that is explicitly specified, otherwise
+                        to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                  type: object
+                storeGRPCSeriesMaxConcurrency:
+                  description: Maximum number of concurrent Series calls.
+                  type: integer
+                storeGRPCSeriesSampleLimit:
+                  description: 'Maximum amount of samples returned via a single Series
+                    call. 0 means no limit. NOTE: For efficiency we take 120 as the
+                    number of samples in chunk (it cannot be bigger than that), so
+                    the actual number of samples might be lower, even though the maximum
+                    could be hit.'
+                  type: string
+                syncBlockDuration:
+                  description: Repeat interval for syncing the blocks between local
+                    and remote view.
+                  type: string
+                timeRanges:
+                  description: TimeRanges is a list of TimeRange to partition Store
+                    Gateway
+                  items:
+                    properties:
+                      maxTime:
+                        description: "\tEnd of time range limit to serve. Thanos Store
+                          \twill serve only blocks, which happened eariler \tthan
+                          this value. Option can be a constant time \tin RFC3339 format
+                          or time duration relative to \tcurrent time, such as -1d
+                          or 2h45m. Valid \tduration units are ms, s, m, h, d, w,
+                          y."
+                        type: string
+                      minTime:
+                        description: Start of time range limit to serve. Thanos Store
+                          will serve only metrics, which happened later than this
+                          value. Option can be a constant time in RFC3339 format or
+                          time duration relative to current time, such as -1d or 2h45m.
+                          Valid duration units are ms, s, m, h, d, w, y.
+                        type: string
+                    type: object
+                  type: array
+                tolerations:
+                  items:
+                    description: The pod this Toleration is attached to tolerates
+                      any taint that matches the triple <key,value,effect> using the
+                      matching operator <operator>.
+                    properties:
+                      effect:
+                        description: Effect indicates the taint effect to match. Empty
+                          means match all taint effects. When specified, allowed values
+                          are NoSchedule, PreferNoSchedule and NoExecute.
+                        type: string
+                      key:
+                        description: Key is the taint key that the toleration applies
+                          to. Empty means match all taint keys. If the key is empty,
+                          operator must be Exists; this combination means to match
+                          all values and all keys.
+                        type: string
+                      operator:
+                        description: Operator represents a key's relationship to the
+                          value. Valid operators are Exists and Equal. Defaults to
+                          Equal. Exists is equivalent to wildcard for value, so that
+                          a pod can tolerate all taints of a particular category.
+                        type: string
+                      tolerationSeconds:
+                        description: TolerationSeconds represents the period of time
+                          the toleration (which must be of effect NoExecute, otherwise
+                          this field is ignored) tolerates the taint. By default,
+                          it is not set, which means tolerate the taint forever (do
+                          not evict). Zero and negative values will be treated as
+                          0 (evict immediately) by the system.
+                        format: int64
+                        type: integer
+                      value:
+                        description: Value is the taint value the toleration matches
+                          to. If the operator is Exists, the value should be empty,
+                          otherwise just a regular string.
+                        type: string
+                    type: object
+                  type: array
+              required:
+              - grpcAddress
+              - grpcGracePeriod
+              - httpAddress
+              - http_grace_period
+              - indexCacheSize
               type: object
             thanosDiscovery:
               properties:
