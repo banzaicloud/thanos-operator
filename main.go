@@ -18,6 +18,7 @@ import (
 	"flag"
 	"os"
 
+	monitoringv1alpha1 "github.com/banzaicloud/thanos-operator/api/v1alpha1"
 	"github.com/banzaicloud/thanos-operator/controllers"
 	monitoringv1alpha1 "github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -69,6 +70,14 @@ func main() {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ObjectStore")
+		os.Exit(1)
+	}
+	if err = (&controllers.ThanosReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("Thanos"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Thanos")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder

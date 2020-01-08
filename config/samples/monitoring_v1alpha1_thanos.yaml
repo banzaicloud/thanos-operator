@@ -1,0 +1,7 @@
+apiVersion: monitoring.banzaicloud.io/v1alpha1
+kind: Thanos
+metadata:
+  name: thanos-sample
+spec:
+  # Add fields here
+  foo: bar

@@ -1,0 +1,26 @@
+# permissions to do edit thanos.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: thanos-editor-role
+rules:
+- apiGroups:
+  - monitoring.banzaicloud.io
+  resources:
+  - thanos
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - monitoring.banzaicloud.io
+  resources:
+  - thanos/status
+  verbs:
+  - get
+  - patch
+  - update

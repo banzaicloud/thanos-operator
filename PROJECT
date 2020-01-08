@@ -4,4 +4,7 @@ resources:
 - group: monitoring
   kind: ObjectStore
   version: v1alpha1
+- group: monitoring
+  kind: Thanos
+  version: v1alpha1
 version: "2"
