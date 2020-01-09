@@ -25,4 +25,11 @@ type BaseObject struct {
 	Resources    corev1.ResourceRequirements `json:"resources,omitempty"`
 	Tolerations  []corev1.Toleration         `json:"tolerations,omitempty"`
 	NodeSelector map[string]string           `json:"nodeSelector,omitempty"`
+	Image        ImageSpec                   `json:"image,omitempty"`
+}
+
+type ImageSpec struct {
+	Repository string `json:"repository,omitempty"`
+	Tag        string `json:"tag,omitempty"`
+	PullPolicy string `json:"pullPolicy,omitempty"`
 }

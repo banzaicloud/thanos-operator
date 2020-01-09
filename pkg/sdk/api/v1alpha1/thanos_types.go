@@ -19,6 +19,25 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	thanosImageRepository = "quay.io/thanos/thanos"
+	thanosImageTag        = "v0.9.0"
+	defaultPullPolicy     = "pIfNotPresent"
+)
+
+var DefaultQuery = Query{
+	BaseObject: BaseObject{
+		Image: ImageSpec{
+			Repository: thanosImageRepository,
+			Tag:        thanosImageTag,
+			PullPolicy: defaultPullPolicy,
+		},
+	},
+	LogLevel:    "info",
+	HttpAddress: "0.0.0.0:10902",
+	GRPCAddress: "0.0.0.0:10901",
+}
+
 // ThanosSpec defines the desired state of Thanos
 type ThanosSpec struct {
 	Remote          *Remote          `json:"remote,omitempty"`
