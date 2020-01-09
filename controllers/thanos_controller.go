@@ -17,11 +17,15 @@ package controllers
 import (
 	"context"
 
+	"github.com/banzaicloud/operator-tools/pkg/reconciler"
+	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/go-logr/logr"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 // ThanosReconciler reconciles a Thanos object
@@ -38,8 +42,29 @@ func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	_ = context.Background()
 	_ = r.Log.WithValues("thanos", req.NamespacedName)
 
-	// your logic here
+	thanos := &v1alpha1.Thanos{}
+	err := r.Client.Get(context.TODO(), req.NamespacedName, thanos)
+	if err != nil {
+		// Object not found, return.  Created objects are automatically garbage collected.
+		// For additional cleanup logic use finalizers.
+		if apierrors.IsNotFound(err) {
+			return reconcile.Result{}, nil
+		}
+		return reconcile.Result{}, err
+	}
+	// Create resource factory
+	// Create reconciler for objects
+	genericReconciler := reconciler.NewReconciler(r.Client, r.Log, reconciler.ReconcilerOpts{})
+	thanosComponentReconciler := resources.NewThanosComponentReconciler(thanos, genericReconciler)
 
+	result, err := thanosComponentReconciler.Reconcile()
+	if err != nil {
+		return reconcile.Result{}, err
+	}
+	if result != nil {
+		// short circuit if requested explicitly
+		return *result, err
+	}
 	return ctrl.Result{}, nil
 }
 

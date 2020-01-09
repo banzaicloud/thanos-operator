@@ -23,18 +23,18 @@ func GetPort(address string) int32 {
 	return int32(port)
 }
 
-func (t *ThanosReconciler) queryDeployment() (runtime.Object, reconciler.DesiredState, error) {
-	query := t.Query.DeepCopy()
-	if t.Query != nil {
+func (t *ThanosComponentReconciler) queryDeployment() (runtime.Object, reconciler.DesiredState, error) {
+	if t.Thanos.Spec.Query != nil {
+		namespace := t.Thanos.Namespace
+		query := t.Thanos.Spec.Query.DeepCopy()
 		err := mergo.Merge(query, v1alpha1.DefaultQuery)
 		if err != nil {
 			return nil, nil, err
 		}
-		query := t.Query
 		var deployment = &appsv1.Deployment{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:        "",
-				Namespace:   "",
+				Name:        "query-deployment",
+				Namespace:   namespace,
 				Labels:      query.Labels,
 				Annotations: query.Annotations,
 			},
@@ -45,11 +45,9 @@ func (t *ThanosReconciler) queryDeployment() (runtime.Object, reconciler.Desired
 				},
 				Template: v1.PodTemplateSpec{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:            "",
-						Namespace:       "",
-						ResourceVersion: "",
-						Labels:          map[string]string{"app": "query"},
-						Annotations:     query.Annotations,
+						Name:        "query",
+						Labels:      map[string]string{"app": "query"},
+						Annotations: query.Annotations,
 					},
 					Spec: v1.PodSpec{
 						Containers: []v1.Container{
@@ -65,16 +63,16 @@ func (t *ThanosReconciler) queryDeployment() (runtime.Object, reconciler.Desired
 									{
 										Name:          "http",
 										ContainerPort: GetPort(query.HttpAddress),
-										Protocol:      "tcp",
+										Protocol:      v1.ProtocolTCP,
 									},
 									{
 										Name:          "grpc",
 										ContainerPort: GetPort(query.GRPCAddress),
-										Protocol:      "tcp",
+										Protocol:      v1.ProtocolTCP,
 									},
 								},
 								Resources:       query.Resources,
-								ImagePullPolicy: v1.PullPolicy(query.Image.PullPolicy),
+								ImagePullPolicy: v1.PullIfNotPresent,
 							},
 						},
 					},

@@ -54,13 +54,13 @@ type Query struct {
 	LogLevel   string `json:"logLevel,omitempty"`
 	LogFormat  string `json:"logFormat,omitempty"`
 	// Listen host:port for HTTP endpoints.
-	HttpAddress string `json:"httpAddress"`
+	HttpAddress string `json:"httpAddress,omitempty"`
 	// Time to wait after an interrupt received for HTTP Server.
-	HttpGracePeriod string `json:"http_grace_period"`
+	HttpGracePeriod string `json:"http_grace_period,omitempty"`
 	// Listen ip:port address for gRPC endpoints
-	GRPCAddress string `json:"grpcAddress"`
+	GRPCAddress string `json:"grpcAddress,omitempty"`
 	// Time to wait after an interrupt received for GRPC Server.
-	GRPCGracePeriod string `json:"grpcGracePeriod"`
+	GRPCGracePeriod string `json:"grpcGracePeriod,omitempty"`
 	// Prefix for API and UI endpoints. This allows thanos UI to be served on a sub-path. This
 	// option is analogous to --web.route-prefix of Promethus.
 	WebRoutePrefix string `json:"webRoutePrefix,omitempty"`

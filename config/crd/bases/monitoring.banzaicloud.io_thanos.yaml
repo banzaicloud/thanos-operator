@@ -104,6 +104,15 @@ spec:
                 httpAddress:
                   description: Listen host:port for HTTP endpoints.
                   type: string
+                image:
+                  properties:
+                    pullPolicy:
+                      type: string
+                    repository:
+                      type: string
+                    tag:
+                      type: string
+                  type: object
                 labels:
                   additionalProperties:
                     type: string
@@ -246,11 +255,6 @@ spec:
                     UI to be served on a sub-path. This option is analogous to --web.route-prefix
                     of Promethus.
                   type: string
-              required:
-              - grpcAddress
-              - grpcGracePeriod
-              - httpAddress
-              - http_grace_period
               type: object
             remote:
               properties:
@@ -353,6 +357,15 @@ spec:
                 httpAddress:
                   description: Listen host:port for HTTP endpoints.
                   type: string
+                image:
+                  properties:
+                    pullPolicy:
+                      type: string
+                    repository:
+                      type: string
+                    tag:
+                      type: string
+                  type: object
                 labels:
                   additionalProperties:
                     type: string
@@ -500,6 +513,15 @@ spec:
                 httpAddress:
                   description: Listen host:port for HTTP endpoints.
                   type: string
+                image:
+                  properties:
+                    pullPolicy:
+                      type: string
+                    repository:
+                      type: string
+                    tag:
+                      type: string
+                  type: object
                 indexCacheSize:
                   description: Maximum size of items held in the in-memory index cache.
                   type: string
