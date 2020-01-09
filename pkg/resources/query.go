@@ -24,8 +24,9 @@ func GetPort(address string) int32 {
 }
 
 func (t *ThanosComponentReconciler) queryDeployment() (runtime.Object, reconciler.DesiredState, error) {
+	name := "query-deployment"
+	namespace := t.Thanos.Namespace
 	if t.Thanos.Spec.Query != nil {
-		namespace := t.Thanos.Namespace
 		query := t.Thanos.Spec.Query.DeepCopy()
 		err := mergo.Merge(query, v1alpha1.DefaultQuery)
 		if err != nil {
@@ -33,7 +34,7 @@ func (t *ThanosComponentReconciler) queryDeployment() (runtime.Object, reconcile
 		}
 		var deployment = &appsv1.Deployment{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:        "query-deployment",
+				Name:        name,
 				Namespace:   namespace,
 				Labels:      query.Labels,
 				Annotations: query.Annotations,
@@ -81,6 +82,11 @@ func (t *ThanosComponentReconciler) queryDeployment() (runtime.Object, reconcile
 		}
 		return deployment, reconciler.StatePresent, nil
 	}
-	return nil, reconciler.StateAbsent, nil
-
+	delete := &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: namespace,
+		},
+	}
+	return delete, reconciler.StateAbsent, nil
 }
