@@ -3,6 +3,7 @@ module github.com/banzaicloud/thanos-operator
 go 1.13
 
 require (
+	emperror.dev/errors v0.4.2
 	github.com/banzaicloud/operator-tools v0.0.0-20200109094717-4478206856df
 	github.com/banzaicloud/thanos-operator/pkg/sdk v0.0.0
 	github.com/go-logr/logr v0.1.0

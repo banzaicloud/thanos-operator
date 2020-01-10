@@ -58,7 +58,7 @@ type ThanosSpec struct {
 	Local           *Local           `json:"local,omitempty"`
 	StoreGateway    *StoreGateway    `json:"storeGateway,omitempty"`
 	Rule            *Rule            `json:"rule,omitempty"`
-	ObjectStore     *string          `json:"object_store,omitempty"`
+	ObjectStore     *string          `json:"objectStore,omitempty"`
 	Query           *Query           `json:"query,omitempty"`
 }
 
@@ -159,15 +159,15 @@ type StoreGateway struct {
 	LogLevel   string `json:"logLevel,omitempty"`
 	LogFormat  string `json:"logFormat,omitempty"`
 	// Listen host:port for HTTP endpoints.
-	HttpAddress string `json:"httpAddress"`
+	HttpAddress string `json:"httpAddress,omitempty"`
 	// Time to wait after an interrupt received for HTTP Server.
-	HttpGracePeriod string `json:"http_grace_period"`
+	HttpGracePeriod string `json:"http_grace_period,omitempty"`
 	// Listen ip:port address for gRPC endpoints
-	GRPCAddress string `json:"grpcAddress"`
+	GRPCAddress string `json:"grpcAddress,omitempty"`
 	// Time to wait after an interrupt received for GRPC Server.
-	GRPCGracePeriod string `json:"grpcGracePeriod"`
+	GRPCGracePeriod string `json:"grpcGracePeriod,omitempty"`
 	// Maximum size of items held in the in-memory index cache.
-	IndexCacheSize string `json:"indexCacheSize"`
+	IndexCacheSize string `json:"indexCacheSize,omitempty"`
 	// Maximum size of concurrently allocatable bytes for chunks.
 	ChunkPoolSize string `json:"chunkPoolSize,omitempty"`
 	// Maximum amount of samples returned via a single Series call. 0 means no limit. NOTE: For

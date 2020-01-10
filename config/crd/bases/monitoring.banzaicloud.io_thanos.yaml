@@ -84,7 +84,7 @@ spec:
               - tls
               - urls
               type: object
-            object_store:
+            objectStore:
               type: string
             query:
               properties:
@@ -631,12 +631,6 @@ spec:
                         type: string
                     type: object
                   type: array
-              required:
-              - grpcAddress
-              - grpcGracePeriod
-              - httpAddress
-              - http_grace_period
-              - indexCacheSize
               type: object
             thanosDiscovery:
               properties:

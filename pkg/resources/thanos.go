@@ -1,10 +1,15 @@
 package resources
 
 import (
+	"emperror.dev/errors"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
+
+// Resource redeclaration of function with return type kubernetes Object
+type Resource func() (runtime.Object, reconciler.DesiredState, error)
 
 type ThanosComponentReconciler struct {
 	Thanos      *v1alpha1.Thanos
@@ -13,18 +18,29 @@ type ThanosComponentReconciler struct {
 }
 
 func (t *ThanosComponentReconciler) Reconcile() (*reconcile.Result, error) {
+	resourceList := []Resource{
+		t.queryDeployment,
+		t.storeDeployment,
+	}
 	// Generate objects from resources
-	object, state, err := t.queryDeployment()
-	// Reconcile objects
-	result, err := t.ReconcileResource(object, state)
-	if err != nil {
-		return &reconcile.Result{}, err
+	for _, res := range resourceList {
+		o, state, err := res()
+		if err != nil {
+			return nil, errors.WrapIf(err, "failed to create desired object")
+		}
+		if o == nil {
+			return nil, errors.Errorf("Reconcile error! Resource %#v returns with nil object", res)
+		}
+		result, err := t.ReconcileResource(o, state)
+		if err != nil {
+			return nil, errors.WrapIf(err, "failed to reconcile resource")
+		}
+		if result != nil {
+			return result, nil
+		}
 	}
-	if result != nil {
-		// short circuit if requested explicitly
-		return result, err
-	}
-	return &reconcile.Result{}, err
+
+	return nil, nil
 }
 
 func NewThanosComponentReconciler(thanos *v1alpha1.Thanos, objectStores *v1alpha1.ObjectStoreList, genericReconciler *reconciler.GenericResourceReconciler) *ThanosComponentReconciler {

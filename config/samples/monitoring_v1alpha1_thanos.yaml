@@ -5,3 +5,5 @@ metadata:
 spec:
   # Add fields here
   query: {}
+  storeGateway: {}
+  objectStore: objectstore-sample

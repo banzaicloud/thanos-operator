@@ -4,4 +4,8 @@ metadata:
   name: objectstore-sample
 spec:
   # Add fields here
-  foo: bar
+  config:
+    mountFrom:
+      secretKeyRef:
+        name: s3-bucket
+        key: object-store.yaml
