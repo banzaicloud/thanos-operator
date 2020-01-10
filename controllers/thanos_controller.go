@@ -52,10 +52,22 @@ func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		}
 		return reconcile.Result{}, err
 	}
+	// Collect ObjectStores TODO better way to handle this
+	objectStores := &v1alpha1.ObjectStoreList{}
+	err = r.Client.List(context.TODO(), objectStores)
+	if err != nil {
+		// Object not found, return.  Created objects are automatically garbage collected.
+		// For additional cleanup logic use finalizers.
+		if apierrors.IsNotFound(err) {
+			return reconcile.Result{}, nil
+		}
+		return reconcile.Result{}, err
+	}
+
 	// Create resource factory
 	// Create reconciler for objects
 	genericReconciler := reconciler.NewReconciler(r.Client, r.Log, reconciler.ReconcilerOpts{})
-	thanosComponentReconciler := resources.NewThanosComponentReconciler(thanos, genericReconciler)
+	thanosComponentReconciler := resources.NewThanosComponentReconciler(thanos, objectStores, genericReconciler)
 
 	result, err := thanosComponentReconciler.Reconcile()
 	if err != nil {

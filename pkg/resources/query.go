@@ -10,7 +10,7 @@ import (
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/imdario/mergo"
 	appsv1 "k8s.io/api/apps/v1"
-	v1 "k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -44,14 +44,14 @@ func (t *ThanosComponentReconciler) queryDeployment() (runtime.Object, reconcile
 				Selector: &metav1.LabelSelector{
 					MatchLabels: map[string]string{"app": "query"},
 				},
-				Template: v1.PodTemplateSpec{
+				Template: corev1.PodTemplateSpec{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:        "query",
 						Labels:      map[string]string{"app": "query"},
 						Annotations: query.Annotations,
 					},
-					Spec: v1.PodSpec{
-						Containers: []v1.Container{
+					Spec: corev1.PodSpec{
+						Containers: []corev1.Container{
 							{
 								Name:  "query",
 								Image: fmt.Sprintf("%s:%s", query.Image.Repository, query.Image.Tag),
@@ -60,20 +60,20 @@ func (t *ThanosComponentReconciler) queryDeployment() (runtime.Object, reconcile
 									fmt.Sprintf("--grpc-address=%s", query.GRPCAddress),
 									fmt.Sprintf("--http-address=%s", query.HttpAddress),
 								},
-								Ports: []v1.ContainerPort{
+								Ports: []corev1.ContainerPort{
 									{
 										Name:          "http",
 										ContainerPort: GetPort(query.HttpAddress),
-										Protocol:      v1.ProtocolTCP,
+										Protocol:      corev1.ProtocolTCP,
 									},
 									{
 										Name:          "grpc",
 										ContainerPort: GetPort(query.GRPCAddress),
-										Protocol:      v1.ProtocolTCP,
+										Protocol:      corev1.ProtocolTCP,
 									},
 								},
 								Resources:       query.Resources,
-								ImagePullPolicy: v1.PullIfNotPresent,
+								ImagePullPolicy: corev1.PullIfNotPresent,
 							},
 						},
 					},

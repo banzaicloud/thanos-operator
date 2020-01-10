@@ -7,7 +7,8 @@ import (
 )
 
 type ThanosComponentReconciler struct {
-	Thanos *v1alpha1.Thanos
+	Thanos      *v1alpha1.Thanos
+	ObjectSores []v1alpha1.ObjectStore
 	*reconciler.GenericResourceReconciler
 }
 
@@ -26,9 +27,10 @@ func (t *ThanosComponentReconciler) Reconcile() (*reconcile.Result, error) {
 	return &reconcile.Result{}, err
 }
 
-func NewThanosComponentReconciler(thanos *v1alpha1.Thanos, genericReconciler *reconciler.GenericResourceReconciler) *ThanosComponentReconciler {
+func NewThanosComponentReconciler(thanos *v1alpha1.Thanos, objectStores *v1alpha1.ObjectStoreList, genericReconciler *reconciler.GenericResourceReconciler) *ThanosComponentReconciler {
 	return &ThanosComponentReconciler{
 		Thanos:                    thanos,
+		ObjectSores:               objectStores.Items,
 		GenericResourceReconciler: genericReconciler,
 	}
 }

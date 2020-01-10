@@ -38,6 +38,19 @@ var DefaultQuery = Query{
 	GRPCAddress: "0.0.0.0:10901",
 }
 
+var DefaultStoreGateway = StoreGateway{
+	BaseObject: BaseObject{
+		Image: ImageSpec{
+			Repository: thanosImageRepository,
+			Tag:        thanosImageTag,
+			PullPolicy: defaultPullPolicy,
+		},
+	},
+	LogLevel:    "info",
+	HttpAddress: "0.0.0.0:10902",
+	GRPCAddress: "0.0.0.0:10901",
+}
+
 // ThanosSpec defines the desired state of Thanos
 type ThanosSpec struct {
 	Remote          *Remote          `json:"remote,omitempty"`
@@ -45,7 +58,7 @@ type ThanosSpec struct {
 	Local           *Local           `json:"local,omitempty"`
 	StoreGateway    *StoreGateway    `json:"storeGateway,omitempty"`
 	Rule            *Rule            `json:"rule,omitempty"`
-	ObjectStore     string           `json:"object_store,omitempty"`
+	ObjectStore     *string          `json:"object_store,omitempty"`
 	Query           *Query           `json:"query,omitempty"`
 }
 

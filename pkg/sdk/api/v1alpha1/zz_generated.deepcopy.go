@@ -491,6 +491,11 @@ func (in *ThanosSpec) DeepCopyInto(out *ThanosSpec) {
 		*out = new(Rule)
 		(*in).DeepCopyInto(*out)
 	}
+	if in.ObjectStore != nil {
+		in, out := &in.ObjectStore, &out.ObjectStore
+		*out = new(string)
+		**out = **in
+	}
 	if in.Query != nil {
 		in, out := &in.Query, &out.Query
 		*out = new(Query)
