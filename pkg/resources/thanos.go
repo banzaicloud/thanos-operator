@@ -8,6 +8,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
+const (
+	nameLabel      = "app.kubernetes.io/name"
+	instanceLabel  = "app.kubernetes.io/instance"
+	versionLabel   = "app.kubernetes.io/version"
+	componentLabel = "app.kubernetes.io/component"
+	managedByLabel = "app.kubernetes.io/managed-by"
+)
+
 // Resource redeclaration of function with return type kubernetes Object
 type Resource func() (runtime.Object, reconciler.DesiredState, error)
 
@@ -21,6 +29,7 @@ func (t *ThanosComponentReconciler) Reconcile() (*reconcile.Result, error) {
 	resourceList := []Resource{
 		t.queryDeployment,
 		t.storeDeployment,
+		t.storeService,
 	}
 	// Generate objects from resources
 	for _, res := range resourceList {

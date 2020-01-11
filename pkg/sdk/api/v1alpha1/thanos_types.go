@@ -137,7 +137,7 @@ type Local struct {
 }
 
 type ThanosDiscovery struct {
-	LabelSelector metav1.LabelSelector `json:"labelSelector"`
+	metav1.LabelSelector `json:",omitempty,inline"`
 }
 
 type TimeRange struct {

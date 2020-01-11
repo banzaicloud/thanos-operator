@@ -23,6 +23,14 @@ func GetPort(address string) int32 {
 	return int32(port)
 }
 
+func (t *ThanosComponentReconciler) getStoreEndpoints() []string {
+	var endpoints []string
+	if t.Thanos.Spec.StoreGateway != nil {
+		endpoints = append(endpoints, "store-service")
+	}
+	return endpoints
+}
+
 func (t *ThanosComponentReconciler) queryDeployment() (runtime.Object, reconciler.DesiredState, error) {
 	name := "query-deployment"
 	namespace := t.Thanos.Namespace
@@ -79,6 +87,11 @@ func (t *ThanosComponentReconciler) queryDeployment() (runtime.Object, reconcile
 					},
 				},
 			},
+		}
+		// Add store endpoints
+		for _, s := range t.getStoreEndpoints() {
+			arg := fmt.Sprintf("--store=dnssrvnoa+_grpc._tcp.%s.%s.svc.cluster.local", s, t.Thanos.Namespace)
+			deployment.Spec.Template.Spec.Containers[0].Args = append(deployment.Spec.Template.Spec.Containers[0].Args, arg)
 		}
 		return deployment, reconciler.StatePresent, nil
 	}

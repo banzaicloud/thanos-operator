@@ -11,7 +11,63 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
+
+func (t *ThanosComponentReconciler) storeService() (runtime.Object, reconciler.DesiredState, error) {
+	name := "store-service"
+	namespace := t.Thanos.Namespace
+	if t.Thanos.Spec.StoreGateway != nil {
+		store := t.Thanos.Spec.StoreGateway.DeepCopy()
+		err := mergo.Merge(store, v1alpha1.DefaultStoreGateway) //TODO default Store
+		if err != nil {
+			return nil, nil, err
+		}
+		storeService := &corev1.Service{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: namespace,
+			},
+			Spec: corev1.ServiceSpec{
+				Ports: []corev1.ServicePort{
+					{
+						Name:     "grpc",
+						Protocol: corev1.ProtocolTCP,
+						Port:     GetPort(store.GRPCAddress),
+						TargetPort: intstr.IntOrString{
+							Type:   intstr.String,
+							StrVal: "grpc",
+						},
+					},
+					{
+						Name:     "http",
+						Protocol: corev1.ProtocolTCP,
+						Port:     GetPort(store.HttpAddress),
+						TargetPort: intstr.IntOrString{
+							Type:   intstr.String,
+							StrVal: "http",
+						},
+					},
+				},
+				Selector: map[string]string{
+					nameLabel:      "store",
+					managedByLabel: t.Thanos.Name,
+				},
+				ClusterIP: corev1.ClusterIPNone,
+				Type:      corev1.ServiceTypeClusterIP,
+			},
+		}
+		return storeService, reconciler.StatePresent, nil
+
+	}
+	delete := &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: namespace,
+		},
+	}
+	return delete, reconciler.StateAbsent, nil
+}
 
 func (t *ThanosComponentReconciler) storeDeployment() (runtime.Object, reconciler.DesiredState, error) {
 	name := "store-deployment"
@@ -53,12 +109,18 @@ func (t *ThanosComponentReconciler) storeDeployment() (runtime.Object, reconcile
 			Spec: appsv1.DeploymentSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
-					MatchLabels: map[string]string{"app": "store"},
+					MatchLabels: map[string]string{
+						nameLabel:      "store",
+						managedByLabel: t.Thanos.Name,
+					},
 				},
 				Template: corev1.PodTemplateSpec{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:        "store",
-						Labels:      map[string]string{"app": "store"},
+						Name: "store",
+						Labels: map[string]string{
+							nameLabel:      "store",
+							managedByLabel: t.Thanos.Name,
+						},
 						Annotations: store.Annotations,
 					},
 					Spec: corev1.PodSpec{

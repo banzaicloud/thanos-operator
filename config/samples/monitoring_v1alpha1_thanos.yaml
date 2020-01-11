@@ -4,6 +4,7 @@ metadata:
   name: thanos-sample
 spec:
   # Add fields here
+  thanosDiscovery: {}
   query: {}
   storeGateway: {}
   objectStore: objectstore-sample
