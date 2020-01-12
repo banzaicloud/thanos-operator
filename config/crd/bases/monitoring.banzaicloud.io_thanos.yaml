@@ -142,12 +142,12 @@ spec:
                     param is specified.
                   type: boolean
                 queryReplicaLabel:
-                  additionalProperties:
-                    type: string
                   description: Labels to treat as a replica indicator along which
                     data is deduplicated. Still you will be able to query without
                     deduplication using 'dedup=false' parameter.
-                  type: object
+                  items:
+                    type: string
+                  type: array
                 queryTimeout:
                   description: Maximum time to process query by query node.
                   type: string

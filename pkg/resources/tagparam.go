@@ -3,18 +3,42 @@ package resources
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
+
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func getArgs(input interface{}) []string {
 	var args []string
 	value := strctVal(input)
-	fields := StructFields(value)
-	for _, field := range fields {
-		val := value.FieldByName(field.Name)
-		tagArgFormat, _ := parseTagWithName(field.Tag.Get("thanos"))
+	elements := StructElements(value)
+	for _, element := range elements {
+		var val string
+		tagArgFormat, _ := parseTagWithName(element.Field.Tag.Get("thanos"))
 		if tagArgFormat != "" {
-			args = append(args, fmt.Sprintf(tagArgFormat, val))
+			switch i := element.Value.Interface().(type) {
+			case v1.Duration:
+				if i.Duration != 0 {
+					val = i.String()
+				}
+			case int:
+				if i != 0 {
+					strconv.Itoa(i)
+				}
+			case string:
+				val = i
+			case bool:
+				// Bool params are
+				if i {
+					args = append(args, fmt.Sprintf(tagArgFormat, val))
+				}
+			default:
+				val = ""
+			}
+			if val != "" {
+				args = append(args, fmt.Sprintf(tagArgFormat, val))
+			}
 		}
 	}
 	return args
@@ -79,13 +103,19 @@ func parseTag(tag string) tagOptions {
 	return tagOptions(strings.Split(tag, ","))
 }
 
-func StructFields(value reflect.Value) []reflect.StructField {
+type StructElement struct {
+	Field reflect.StructField
+	Value reflect.Value
+}
+
+func StructElements(value reflect.Value) []StructElement {
 	t := value.Type()
 
-	var f []reflect.StructField
+	var f []StructElement
 
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
+		fieldValue := value.Field(i)
 		// we can't access the value of unexported fields
 		if field.PkgPath != "" {
 			continue
@@ -95,8 +125,10 @@ func StructFields(value reflect.Value) []reflect.StructField {
 		if tag := field.Tag.Get("thanos"); tag == "-" {
 			continue
 		}
-
-		f = append(f, field)
+		f = append(f, StructElement{
+			Field: field,
+			Value: fieldValue,
+		})
 	}
 
 	return f

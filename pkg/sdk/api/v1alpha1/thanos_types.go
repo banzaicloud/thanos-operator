@@ -92,7 +92,7 @@ type Query struct {
 	// Maximum time to process query by query node.
 	QueryTimeout metav1.Duration `json:"queryTimeout,omitempty" thanos:"--query.timeout=%s"`
 	// Maximum number of queries processed concurrently by query node.
-	QueryMaxConcurrent int `json:"queryMaxConcurrent,omitempty" thanos:"--query.max-concurrent=%s"`
+	QueryMaxConcurrent int `json:"queryMaxConcurrent,omitempty" thanos:"--query.max-concurrent=%d"`
 	// Labels to treat as a replica indicator along which data is deduplicated. Still you will be
 	// able to query without deduplication using 'dedup=false' parameter.
 	QueryReplicaLabels []string `json:"queryReplicaLabel,omitempty"`
@@ -104,17 +104,17 @@ type Query struct {
 	//	Interval between DNS resolutions.
 	StoreSDDNSInterval metav1.Duration `json:"storeSDDNSInterval,omitempty" thanos:"--store.sd-dns-interval=%s"`
 	//	Timeout before an unhealthy store is cleaned from the store UI page.
-	StoreUnhealthyTimeout metav1.Duration `json:"storeUnhealthyTimeout,omitempty"`
+	StoreUnhealthyTimeout metav1.Duration `json:"storeUnhealthyTimeout,omitempty" thanos:"--store.unhealthy-timeout=%s"`
 	// Enable automatic adjustment (step / 5) to what source of data should be used in store gateways
 	// if no max_source_resolution param is specified.
-	QueryAutoDownsampling bool `json:"queryAutoDownsampling,omitempty"`
+	QueryAutoDownsampling bool `json:"queryAutoDownsampling,omitempty" thanos:"--query.auto-downsampling"`
 	// Enable partial response for queries if no partial_response param is specified.
-	QueryPartialResponse bool `json:"queryPartialResponse,omitempty"`
+	QueryPartialResponse bool `json:"queryPartialResponse,omitempty" thanos:"--query.partial-response"`
 	//	Set default evaluation interval for sub queries.
-	QueryDefaultEvaluationInterval metav1.Duration `json:"queryDefaultEvaluationInterval,omitempty"`
+	QueryDefaultEvaluationInterval metav1.Duration `json:"queryDefaultEvaluationInterval,omitempty" thanos:" --query.default-evaluation-interval=%s"`
 	//	If a Store doesn't send any data in this specified duration then a Store will be ignored
 	//	and partial data will be returned if it's enabled. 0 disables timeout.
-	StoreResponseTimeout metav1.Duration `json:"storeResponseTimeout,omitempty"`
+	StoreResponseTimeout metav1.Duration `json:"storeResponseTimeout,omitempty" thanos:"--store.response-timeout=%s"`
 }
 
 type TLS struct {

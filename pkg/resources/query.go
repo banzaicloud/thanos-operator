@@ -31,23 +31,7 @@ func (t *ThanosComponentReconciler) getStoreEndpoints() []string {
 
 func (t *ThanosComponentReconciler) setQueryArgs(args []string) []string {
 	query := t.Thanos.Spec.Query.DeepCopy()
-	x := getArgs(query)
-	fmt.Println(x)
-	if query.LogLevel != "" {
-		args = append(args, fmt.Sprintf("--log.level=%s", query.LogLevel))
-	}
-	if query.LogFormat != "" {
-		args = append(args, fmt.Sprintf("--log.format=%s", query.LogFormat))
-	}
-	if query.GRPCGracePeriod != "" {
-		args = append(args, fmt.Sprintf("--grpc-grace-period=%s", query.GRPCGracePeriod))
-	}
-	if query.WebRoutePrefix != "" {
-		args = append(args, fmt.Sprintf("--web.route-prefix=%s", query.WebRoutePrefix))
-	}
-	if query.WebExternalPrefix != "" {
-		args = append(args, fmt.Sprintf("--web.external-prefix=%s", query.WebExternalPrefix))
-	}
+	args = append(args, getArgs(query)...)
 	if query.QueryReplicaLabels != nil {
 		for _, l := range query.QueryReplicaLabels {
 			args = append(args, fmt.Sprintf("--query.replica-label=%s", l))
@@ -60,7 +44,6 @@ func (t *ThanosComponentReconciler) setQueryArgs(args []string) []string {
 	}
 	// Add discovery args
 	if t.Thanos.Spec.ThanosDiscovery != nil {
-
 		for _, s := range t.getStoreEndpoints() {
 			args = append(args, fmt.Sprintf("--store=dnssrvnoa+_grpc._tcp.%s.%s.svc.cluster.local", s, t.Thanos.Namespace))
 		}
