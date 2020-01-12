@@ -64,23 +64,23 @@ type ThanosSpec struct {
 
 type Query struct {
 	BaseObject `json:",inline"`
-	LogLevel   string `json:"logLevel,omitempty"`
-	LogFormat  string `json:"logFormat,omitempty"`
+	LogLevel   string `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat  string `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Listen host:port for HTTP endpoints.
-	HttpAddress string `json:"httpAddress,omitempty"`
+	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
 	// Time to wait after an interrupt received for HTTP Server.
-	HttpGracePeriod string `json:"http_grace_period,omitempty"`
+	HttpGracePeriod string `json:"http_grace_period,omitempty" thanos:"--http-grace-period=%s"`
 	// Listen ip:port address for gRPC endpoints
-	GRPCAddress string `json:"grpcAddress,omitempty"`
+	GRPCAddress string `json:"grpcAddress,omitempty" thanos:"--grpc-address=%s"`
 	// Time to wait after an interrupt received for GRPC Server.
-	GRPCGracePeriod string `json:"grpcGracePeriod,omitempty"`
+	GRPCGracePeriod string `json:"grpcGracePeriod,omitempty" thanos:"--grpc-grace-period=%s"`
 	// Prefix for API and UI endpoints. This allows thanos UI to be served on a sub-path. This
 	// option is analogous to --web.route-prefix of Promethus.
-	WebRoutePrefix string `json:"webRoutePrefix,omitempty"`
+	WebRoutePrefix string `json:"webRoutePrefix,omitempty" thanos:"--web.route-prefix=%s"`
 	// Static prefix for all HTML links and redirect URLs in the UI query web interface. Actual
 	// endpoints are still served on / or the web.route-prefix. This allows thanos UI to be
 	// served behind a reverse proxy that strips a URL sub-path.
-	WebExternalPrefix string `json:"webExternalPrefix,omitempty"`
+	WebExternalPrefix string `json:"webExternalPrefix,omitempty" thanos:"--web.external-prefix=%s"`
 	// Name of HTTP request header used for dynamic prefixing of UI links and redirects. This
 	// option is ignored if web.external-prefix argument is set. Security risk: enable this
 	// option only if a reverse proxy in front of thanos is resetting the header. The
@@ -88,21 +88,21 @@ type Query struct {
 	// served via Traefik reverse proxy with PathPrefixStrip option enabled, which sends the
 	// stripped prefix value in X-Forwarded-Prefix header. This allows thanos UI to be served on a
 	// sub-path.
-	WebPrefixHeader string `json:"webPrefixHeader,omitempty"`
+	WebPrefixHeader string `json:"webPrefixHeader,omitempty" thanos:"--web.prefix-header=%s"`
 	// Maximum time to process query by query node.
-	QueryTimeout metav1.Duration `json:"queryTimeout,omitempty"`
+	QueryTimeout metav1.Duration `json:"queryTimeout,omitempty" thanos:"--query.timeout=%s"`
 	// Maximum number of queries processed concurrently by query node.
-	QueryMaxConcurrent int `json:"queryMaxConcurrent,omitempty"`
+	QueryMaxConcurrent int `json:"queryMaxConcurrent,omitempty" thanos:"--query.max-concurrent=%s"`
 	// Labels to treat as a replica indicator along which data is deduplicated. Still you will be
 	// able to query without deduplication using 'dedup=false' parameter.
-	QueryReplicaLabels map[string]string `json:"queryReplicaLabel,omitempty"`
+	QueryReplicaLabels []string `json:"queryReplicaLabel,omitempty"`
 	// Query selector labels that will be exposed in info endpoint (repeated).
 	SelectorLabels map[string]string `json:"selectorLabels,omitempty"`
 	// Addresses of statically configured store API servers (repeatable). The scheme may be
 	// prefixed with 'dns+' or 'dnssrv+' to detect store API servers through respective DNS lookups.
 	Stores []string `json:"stores,omitempty"`
 	//	Interval between DNS resolutions.
-	StoreSDDNSInterval metav1.Duration `json:"storeSDDNSInterval,omitempty"`
+	StoreSDDNSInterval metav1.Duration `json:"storeSDDNSInterval,omitempty" thanos:"--store.sd-dns-interval=%s"`
 	//	Timeout before an unhealthy store is cleaned from the store UI page.
 	StoreUnhealthyTimeout metav1.Duration `json:"storeUnhealthyTimeout,omitempty"`
 	// Enable automatic adjustment (step / 5) to what source of data should be used in store gateways

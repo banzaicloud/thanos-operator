@@ -256,10 +256,8 @@ func (in *Query) DeepCopyInto(out *Query) {
 	out.QueryTimeout = in.QueryTimeout
 	if in.QueryReplicaLabels != nil {
 		in, out := &in.QueryReplicaLabels, &out.QueryReplicaLabels
-		*out = make(map[string]string, len(*in))
-		for key, val := range *in {
-			(*out)[key] = val
-		}
+		*out = make([]string, len(*in))
+		copy(*out, *in)
 	}
 	if in.SelectorLabels != nil {
 		in, out := &in.SelectorLabels, &out.SelectorLabels

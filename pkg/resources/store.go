@@ -19,10 +19,6 @@ func (t *ThanosComponentReconciler) storeService() (runtime.Object, reconciler.D
 	namespace := t.Thanos.Namespace
 	if t.Thanos.Spec.StoreGateway != nil {
 		store := t.Thanos.Spec.StoreGateway.DeepCopy()
-		err := mergo.Merge(store, v1alpha1.DefaultStoreGateway) //TODO default Store
-		if err != nil {
-			return nil, nil, err
-		}
 		storeService := &corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      name,

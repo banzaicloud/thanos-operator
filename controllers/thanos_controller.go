@@ -67,7 +67,10 @@ func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	// Create resource factory
 	// Create reconciler for objects
 	genericReconciler := reconciler.NewReconciler(r.Client, r.Log, reconciler.ReconcilerOpts{})
-	thanosComponentReconciler := resources.NewThanosComponentReconciler(thanos, objectStores, genericReconciler)
+	thanosComponentReconciler, err := resources.NewThanosComponentReconciler(thanos, objectStores, genericReconciler)
+	if err != nil {
+		return reconcile.Result{}, err
+	}
 
 	result, err := thanosComponentReconciler.Reconcile()
 	if err != nil {
