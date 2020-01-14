@@ -17,6 +17,10 @@ package controllers
 import (
 	"context"
 
+	"github.com/banzaicloud/operator-tools/pkg/reconciler"
+	"github.com/banzaicloud/thanos-operator/pkg/resources"
+	"github.com/banzaicloud/thanos-operator/pkg/resources/bucketweb"
+	"github.com/banzaicloud/thanos-operator/pkg/resources/compactor"
 	"github.com/go-logr/logr"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -56,9 +60,16 @@ func (r *ObjectStoreReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 
 	log.V(1).Info("got", "spec", store.Spec)
 
-	log.V(1).Info("reconcile finished", "result", result)
+	genericReconciler := reconciler.NewReconciler(r.Client, log, reconciler.ReconcilerOpts{})
 
-	return result, nil
+	reconcilers := make([]resources.ComponentReconciler, 0)
+
+	// Bucket Web
+	reconcilers = append(reconcilers, bucketweb.New(r.Client, store.Namespace, store, genericReconciler).Reconcile)
+	// Compactor
+	reconcilers = append(reconcilers, compactor.New(r.Client, store.Namespace, store, genericReconciler).Reconcile)
+
+	return resources.RunReconcilers(reconcilers)
 }
 
 func (r *ObjectStoreReconciler) SetupWithManager(mgr ctrl.Manager) error {

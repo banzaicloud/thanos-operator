@@ -36,50 +36,247 @@ spec:
           properties:
             bucketWeb:
               properties:
+                annotations:
+                  additionalProperties:
+                    type: string
+                  type: object
                 enabled:
                   type: boolean
                 httpAddress:
+                  description: Listen host:port for HTTP endpoints.
                   type: string
                 httpGracePeriod:
+                  description: Time to wait after an interrupt received for HTTP Server.
                   type: string
+                image:
+                  properties:
+                    pullPolicy:
+                      type: string
+                    repository:
+                      type: string
+                    tag:
+                      type: string
+                  type: object
                 label:
+                  description: Prometheus label to use as timeline title.
                   type: string
+                labels:
+                  additionalProperties:
+                    type: string
+                  type: object
+                nodeSelector:
+                  additionalProperties:
+                    type: string
+                  type: object
                 refresh:
+                  description: Refresh interval to download metadata from remote storage.
                   type: string
+                resources:
+                  description: ResourceRequirements describes the compute resource
+                    requirements.
+                  properties:
+                    limits:
+                      additionalProperties:
+                        type: string
+                      description: 'Limits describes the maximum amount of compute
+                        resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                    requests:
+                      additionalProperties:
+                        type: string
+                      description: 'Requests describes the minimum amount of compute
+                        resources required. If Requests is omitted for a container,
+                        it defaults to Limits if that is explicitly specified, otherwise
+                        to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                  type: object
                 timeout:
+                  description: Timeout to download metadata from remote.
                   type: string
+                tolerations:
+                  items:
+                    description: The pod this Toleration is attached to tolerates
+                      any taint that matches the triple <key,value,effect> using the
+                      matching operator <operator>.
+                    properties:
+                      effect:
+                        description: Effect indicates the taint effect to match. Empty
+                          means match all taint effects. When specified, allowed values
+                          are NoSchedule, PreferNoSchedule and NoExecute.
+                        type: string
+                      key:
+                        description: Key is the taint key that the toleration applies
+                          to. Empty means match all taint keys. If the key is empty,
+                          operator must be Exists; this combination means to match
+                          all values and all keys.
+                        type: string
+                      operator:
+                        description: Operator represents a key's relationship to the
+                          value. Valid operators are Exists and Equal. Defaults to
+                          Equal. Exists is equivalent to wildcard for value, so that
+                          a pod can tolerate all taints of a particular category.
+                        type: string
+                      tolerationSeconds:
+                        description: TolerationSeconds represents the period of time
+                          the toleration (which must be of effect NoExecute, otherwise
+                          this field is ignored) tolerates the taint. By default,
+                          it is not set, which means tolerate the taint forever (do
+                          not evict). Zero and negative values will be treated as
+                          0 (evict immediately) by the system.
+                        format: int64
+                        type: integer
+                      value:
+                        description: Value is the taint value the toleration matches
+                          to. If the operator is Exists, the value should be empty,
+                          otherwise just a regular string.
+                        type: string
+                    type: object
+                  type: array
                 web_external_prefix:
+                  description: Static prefix for all HTML links and redirect URLs
+                    in the bucket web UI interface. Actual endpoints are still served
+                    on / or the web.route-prefix. This allows thanos bucket web UI
+                    to be served behind a reverse proxy that strips a URL sub-path.
                   type: string
                 web_prefix_header:
+                  description: 'Name of HTTP request header used for dynamic prefixing
+                    of UI links and redirects. This option is ignored if web.external-prefix
+                    argument is set. Security risk: enable this option only if a reverse
+                    proxy in front of thanos is resetting the header. The --web.prefix-header=X-Forwarded-Prefix
+                    option can be useful, for example, if Thanos UI is served via
+                    Traefik reverse proxy with PathPrefixStrip option enabled, which
+                    sends the stripped prefix value in X-Forwarded-Prefix header.
+                    This allows thanos UI to be served on a sub-path.'
                   type: string
               type: object
             compactor:
               properties:
+                annotations:
+                  additionalProperties:
+                    type: string
+                  type: object
                 blockSyncConcurrency:
+                  description: Number of goroutines to use when syncing block metadata
+                    from object storage.
                   minimum: 1
                   type: integer
                 compactConcurrency:
+                  description: Number of goroutines to use when compacting groups.
                   minimum: 1
                   type: integer
                 consistencyDelay:
+                  description: Minimum age of fresh (non-compacted) blocks before
+                    they are being processed. Malformed blocks older than the maximum
+                    of consistency-delay and 48h0m0s will be removed.
                   type: string
                 dataDir:
+                  description: Data directory in which to cache blocks and process
+                    compactions.
                   type: string
                 downsamplingDisable:
+                  description: Disables downsampling. This is not recommended as querying
+                    long time ranges without non-downsampleddata is not efficient
+                    and useful e.g it is not possible to render all samples for a
+                    human eye anyway.
                   type: boolean
                 enabled:
                   type: boolean
                 httpAddress:
+                  description: Listen host:port for HTTP endpoints.
                   type: string
                 httpGracePeriod:
+                  description: Time to wait after an interrupt received for HTTP Server.
                   type: string
+                image:
+                  properties:
+                    pullPolicy:
+                      type: string
+                    repository:
+                      type: string
+                    tag:
+                      type: string
+                  type: object
+                labels:
+                  additionalProperties:
+                    type: string
+                  type: object
+                nodeSelector:
+                  additionalProperties:
+                    type: string
+                  type: object
+                resources:
+                  description: ResourceRequirements describes the compute resource
+                    requirements.
+                  properties:
+                    limits:
+                      additionalProperties:
+                        type: string
+                      description: 'Limits describes the maximum amount of compute
+                        resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                    requests:
+                      additionalProperties:
+                        type: string
+                      description: 'Requests describes the minimum amount of compute
+                        resources required. If Requests is omitted for a container,
+                        it defaults to Limits if that is explicitly specified, otherwise
+                        to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                  type: object
                 retentionResolution1h:
+                  description: How long to retain samples of resolution 2 (1 hour)
+                    in bucket. 0d - disables this retention.
                   type: string
                 retentionResolution5m:
+                  description: How long to retain samples of resolution 1 (5 minutes)
+                    in bucket. 0d - disables this retention.
                   type: string
                 retentionResolutionRaw:
+                  description: How long to retain raw samples in bucket. 0d - disables
+                    this retention.
                   type: string
+                tolerations:
+                  items:
+                    description: The pod this Toleration is attached to tolerates
+                      any taint that matches the triple <key,value,effect> using the
+                      matching operator <operator>.
+                    properties:
+                      effect:
+                        description: Effect indicates the taint effect to match. Empty
+                          means match all taint effects. When specified, allowed values
+                          are NoSchedule, PreferNoSchedule and NoExecute.
+                        type: string
+                      key:
+                        description: Key is the taint key that the toleration applies
+                          to. Empty means match all taint keys. If the key is empty,
+                          operator must be Exists; this combination means to match
+                          all values and all keys.
+                        type: string
+                      operator:
+                        description: Operator represents a key's relationship to the
+                          value. Valid operators are Exists and Equal. Defaults to
+                          Equal. Exists is equivalent to wildcard for value, so that
+                          a pod can tolerate all taints of a particular category.
+                        type: string
+                      tolerationSeconds:
+                        description: TolerationSeconds represents the period of time
+                          the toleration (which must be of effect NoExecute, otherwise
+                          this field is ignored) tolerates the taint. By default,
+                          it is not set, which means tolerate the taint forever (do
+                          not evict). Zero and negative values will be treated as
+                          0 (evict immediately) by the system.
+                        format: int64
+                        type: integer
+                      value:
+                        description: Value is the taint value the toleration matches
+                          to. If the operator is Exists, the value should be empty,
+                          otherwise just a regular string.
+                        type: string
+                    type: object
+                  type: array
                 wait:
+                  description: Do not exit after all compactions have been processed
+                    and wait for new work.
                   type: boolean
               type: object
             config:

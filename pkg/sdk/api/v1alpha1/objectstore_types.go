@@ -16,9 +16,11 @@ package v1alpha1
 
 import (
 	"net"
+	"strings"
 	"time"
 
 	"github.com/banzaicloud/logging-operator/pkg/sdk/model/secret"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -34,24 +36,54 @@ type ObjectStoreSpec struct {
 }
 
 type Compactor struct {
-	Enabled                bool            `json:"enabled,omitempty"`
-	HTTPAddress            string          `json:"httpAddress,omitempty"`            // Listen host:port for HTTP endpoints.
-	HTTPGracePeriod        metav1.Duration `json:"httpGracePeriod,omitempty"`        // Time to wait after an interrupt received for HTTP Server.
-	DataDir                string          `json:"dataDir,omitempty"`                // Data directory in which to cache blocks and process compactions.
-	ConsistencyDelay       metav1.Duration `json:"consistencyDelay,omitempty"`       // Minimum age of fresh (non-compacted) blocks before they are being processed. Malformed blocks older than the maximum of consistency-delay and 48h0m0s will be removed.
-	RetentionResolutionRaw metav1.Duration `json:"retentionResolutionRaw,omitempty"` // How long to retain raw samples in bucket. 0d - disables this retention.
-	RetentionResolution5m  metav1.Duration `json:"retentionResolution5m,omitempty"`  // How long to retain samples of resolution 1 (5 minutes) in bucket. 0d - disables this retention.
-	RetentionResolution1h  metav1.Duration `json:"retentionResolution1h,omitempty"`  // How long to retain samples of resolution 2 (1 hour) in bucket. 0d - disables this retention.
-	Wait                   bool            `json:"wait,omitempty"`                   // Do not exit after all compactions have been processed and wait for new work.
-	DownsamplingDisable    bool            `json:"downsamplingDisable,omitempty"`    // Disables downsampling. This is not recommended as querying long time ranges without non-downsampleddata is not efficient and useful e.g it is not possible to render all samples for a human eye anyway.
+	BaseObject `json:",inline"`
+	Enabled    bool `json:"enabled,omitempty"`
+	// Listen host:port for HTTP endpoints.
+	HTTPAddress string `json:"httpAddress,omitempty"`
+	// Time to wait after an interrupt received for HTTP Server.
+	HTTPGracePeriod metav1.Duration `json:"httpGracePeriod,omitempty"`
+	// Data directory in which to cache blocks and process compactions.
+	DataDir string `json:"dataDir,omitempty"`
+	// Minimum age of fresh (non-compacted) blocks before they are being processed.
+	// Malformed blocks older than the maximum of consistency-delay and 48h0m0s will be removed.
+	ConsistencyDelay metav1.Duration `json:"consistencyDelay,omitempty"`
+	// How long to retain raw samples in bucket. 0d - disables this retention.
+	RetentionResolutionRaw metav1.Duration `json:"retentionResolutionRaw,omitempty"`
+	// How long to retain samples of resolution 1 (5 minutes) in bucket. 0d - disables this retention.
+	RetentionResolution5m metav1.Duration `json:"retentionResolution5m,omitempty"`
+	// How long to retain samples of resolution 2 (1 hour) in bucket. 0d - disables this retention.
+	RetentionResolution1h metav1.Duration `json:"retentionResolution1h,omitempty"`
+	// Do not exit after all compactions have been processed and wait for new work.
+	Wait bool `json:"wait,omitempty"`
+	// Disables downsampling. This is not recommended as querying long time ranges without non-downsampleddata
+	// is not efficient and useful e.g it is not possible to render all samples for a human eye anyway.
+	DownsamplingDisable bool `json:"downsamplingDisable,omitempty"`
+	// Number of goroutines to use when syncing block metadata from object storage.
 	// +kubebuilder:validation:Minimum=1
-	BlockSyncConcurrency int `json:"blockSyncConcurrency,omitempty"` // Number of goroutines to use when syncing block metadata from object storage.
+	BlockSyncConcurrency int `json:"blockSyncConcurrency,omitempty"`
+	// Number of goroutines to use when compacting groups.
 	// +kubebuilder:validation:Minimum=1
-	CompactConcurrency int `json:"compactConcurrency,omitempty"` // Number of goroutines to use when compacting groups.
+	CompactConcurrency int `json:"compactConcurrency,omitempty"`
 }
 
 func (in *Compactor) SetDefaults() (*Compactor, error) {
 	out := in.DeepCopy()
+
+	// BaseObject
+	if out.Image.Repository == "" {
+		out.Image.Repository = "quay.io/thanos/thanos"
+	}
+	if out.Image.Tag == "" {
+		out.Image.Tag = "v0.9.0"
+	}
+	switch strings.ToLower(out.Image.PullPolicy) {
+	case strings.ToLower(string(corev1.PullAlways)):
+		out.Image.PullPolicy = string(corev1.PullAlways)
+	case strings.ToLower(string(corev1.PullNever)):
+		out.Image.PullPolicy = string(corev1.PullNever)
+	default:
+		out.Image.PullPolicy = string(corev1.PullIfNotPresent)
+	}
 
 	// HTTPAddress
 	if out.HTTPAddress == "" {
@@ -99,18 +131,42 @@ func (in *Compactor) SetDefaults() (*Compactor, error) {
 }
 
 type BucketWeb struct {
-	Enabled           bool            `json:"enabled,omitempty"`
-	HTTPAddress       string          `json:"httpAddress,omitempty"`         // Listen host:port for HTTP endpoints.
-	HTTPGracePeriod   metav1.Duration `json:"httpGracePeriod,omitempty"`     // Time to wait after an interrupt received for HTTP Server.
-	WebExternalPrefix string          `json:"web_external_prefix,omitempty"` // Static prefix for all HTML links and redirect URLs in the bucket web UI interface. Actual endpoints are still served on / or the web.route-prefix. This allows thanos bucket web UI to be served behind a reverse proxy that strips a URL sub-path.
-	WebPrefixHeader   string          `json:"web_prefix_header,omitempty"`   // Name of HTTP request header used for dynamic prefixing of UI links and redirects. This option is ignored if web.external-prefix argument is set. Security risk: enable this option only if a reverse proxy in front of thanos is resetting the header. The --web.prefix-header=X-Forwarded-Prefix option can be useful, for example, if Thanos UI is served via Traefik reverse proxy with PathPrefixStrip option enabled, which sends the stripped prefix value in X-Forwarded-Prefix header. This allows thanos UI to be served on a sub-path.
-	Refresh           metav1.Duration `json:"refresh,omitempty"`             // Refresh interval to download metadata from remote storage.
-	Timeout           metav1.Duration `json:"timeout,omitempty"`             // Timeout to download metadata from remote.
-	Label             string          `json:"label,omitempty"`               // Prometheus label to use as timeline title.
+	BaseObject `json:",inline"`
+	Enabled    bool `json:"enabled,omitempty"`
+	// Listen host:port for HTTP endpoints.
+	HTTPAddress string `json:"httpAddress,omitempty"`
+	// Time to wait after an interrupt received for HTTP Server.
+	HTTPGracePeriod metav1.Duration `json:"httpGracePeriod,omitempty"`
+	// Static prefix for all HTML links and redirect URLs in the bucket web UI interface. Actual endpoints are still served on / or the web.route-prefix. This allows thanos bucket web UI to be served behind a reverse proxy that strips a URL sub-path.
+	WebExternalPrefix string `json:"web_external_prefix,omitempty"`
+	// Name of HTTP request header used for dynamic prefixing of UI links and redirects. This option is ignored if web.external-prefix argument is set. Security risk: enable this option only if a reverse proxy in front of thanos is resetting the header. The --web.prefix-header=X-Forwarded-Prefix option can be useful, for example, if Thanos UI is served via Traefik reverse proxy with PathPrefixStrip option enabled, which sends the stripped prefix value in X-Forwarded-Prefix header. This allows thanos UI to be served on a sub-path.
+	WebPrefixHeader string `json:"web_prefix_header,omitempty"`
+	// Refresh interval to download metadata from remote storage.
+	Refresh metav1.Duration `json:"refresh,omitempty"`
+	// Timeout to download metadata from remote.
+	Timeout metav1.Duration `json:"timeout,omitempty"`
+	// Prometheus label to use as timeline title.
+	Label string `json:"label,omitempty"`
 }
 
 func (in *BucketWeb) SetDefaults() (*BucketWeb, error) {
 	out := in.DeepCopy()
+
+	// BaseObject
+	if out.Image.Repository == "" {
+		out.Image.Repository = "quay.io/thanos/thanos"
+	}
+	if out.Image.Tag == "" {
+		out.Image.Tag = "v0.9.0"
+	}
+	switch strings.ToLower(out.Image.PullPolicy) {
+	case strings.ToLower(string(corev1.PullAlways)):
+		out.Image.PullPolicy = string(corev1.PullAlways)
+	case strings.ToLower(string(corev1.PullNever)):
+		out.Image.PullPolicy = string(corev1.PullNever)
+	default:
+		out.Image.PullPolicy = string(corev1.PullIfNotPresent)
+	}
 
 	// HTTPAddress
 	if out.HTTPAddress == "" {
