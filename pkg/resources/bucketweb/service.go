@@ -17,17 +17,16 @@ package bucketweb
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func (b *BucetWeb) service() (runtime.Object, reconciler.DesiredState, error) {
+func (b *BucketWeb) service() (runtime.Object, reconciler.DesiredState, error) {
 	const app = "bucketweb"
 	name := app + "-service"
+	bucketWeb := b.objectStore.Spec.BucketWeb.DeepCopy()
 
 	if b.objectStore.Spec.BucketWeb.Enabled {
-		bucketWeb := b.objectStore.Spec.BucketWeb.DeepCopy()
 
 		return &corev1.Service{
 			ObjectMeta: b.objectMeta(name, &bucketWeb.BaseObject),
@@ -46,9 +45,6 @@ func (b *BucetWeb) service() (runtime.Object, reconciler.DesiredState, error) {
 	}
 
 	return &corev1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: b.namespace,
-		},
+		ObjectMeta: b.objectMeta(name, &bucketWeb.BaseObject),
 	}, reconciler.StateAbsent, nil
 }

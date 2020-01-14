@@ -28,15 +28,15 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-type BucetWeb struct {
+type BucketWeb struct {
 	client      client.Client
 	namespace   string
 	objectStore *v1alpha1.ObjectStore
 	*reconciler.GenericResourceReconciler
 }
 
-func New(client client.Client, namespace string, objectStore *v1alpha1.ObjectStore, genericReconciler *reconciler.GenericResourceReconciler) *BucetWeb {
-	return &BucetWeb{
+func New(client client.Client, namespace string, objectStore *v1alpha1.ObjectStore, genericReconciler *reconciler.GenericResourceReconciler) *BucketWeb {
+	return &BucketWeb{
 		client:                    client,
 		namespace:                 namespace,
 		objectStore:               objectStore,
@@ -44,7 +44,7 @@ func New(client client.Client, namespace string, objectStore *v1alpha1.ObjectSto
 	}
 }
 
-func (b *BucetWeb) Reconcile() (*reconcile.Result, error) {
+func (b *BucketWeb) Reconcile() (*reconcile.Result, error) {
 	for _, factory := range []resources.Resource{
 		b.deployment,
 		b.ingress,
@@ -71,9 +71,9 @@ func (b *BucetWeb) Reconcile() (*reconcile.Result, error) {
 	return nil, nil
 }
 
-func (b *BucetWeb) objectMeta(name string, bucketWeb *v1alpha1.BaseObject) metav1.ObjectMeta {
+func (b *BucketWeb) objectMeta(name string, bucketWeb *v1alpha1.BaseObject) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
-		Name:        name,
+		Name:        b.objectStore.Name + "-" + name,
 		Namespace:   b.namespace,
 		Labels:      bucketWeb.Labels,
 		Annotations: bucketWeb.Annotations,
@@ -89,16 +89,16 @@ func (b *BucetWeb) objectMeta(name string, bucketWeb *v1alpha1.BaseObject) metav
 	}
 }
 
-func (b *BucetWeb) labels() map[string]string {
+func (b *BucketWeb) labels() map[string]string {
 	const app = "bucketweb"
 
 	return util.MergeLabels(b.objectStore.Spec.BucketWeb.Labels, map[string]string{
 		"app.kubernetes.io/name":      app,
 		"app.kubernetes.io/component": "bucket",
-	}, generateLoggingRefLabels(b.objectStore.ObjectMeta.GetName()))
+	}, objectStoreRef(b.objectStore.ObjectMeta.GetName()))
 }
 
-func generateLoggingRefLabels(loggingRef string) map[string]string {
+func objectStoreRef(loggingRef string) map[string]string {
 	return map[string]string{"app.kubernetes.io/managed-by": loggingRef}
 }
 

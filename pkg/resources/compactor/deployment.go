@@ -30,9 +30,9 @@ import (
 func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error) {
 	const app = "compactor"
 	name := app + "-deployment"
+	compactor := c.objectStore.Spec.Compactor.DeepCopy()
 
 	if c.objectStore.Spec.BucketWeb.Enabled {
-		compactor := c.objectStore.Spec.Compactor.DeepCopy()
 
 		var deployment = &appsv1.Deployment{
 			ObjectMeta: c.objectMeta(name, &compactor.BaseObject),
@@ -93,9 +93,6 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 	}
 
 	return &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: c.namespace,
-		},
+		ObjectMeta: c.objectMeta(name, &compactor.BaseObject),
 	}, reconciler.StateAbsent, nil
 }

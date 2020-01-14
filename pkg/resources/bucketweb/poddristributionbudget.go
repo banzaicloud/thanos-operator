@@ -22,12 +22,12 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func (b *BucetWeb) podDistributionBucket() (runtime.Object, reconciler.DesiredState, error) {
+func (b *BucketWeb) podDistributionBucket() (runtime.Object, reconciler.DesiredState, error) {
 	const app = "bucketweb"
 	name := app + "-poddisruptionbudget"
+	bucketWeb := b.objectStore.Spec.BucketWeb.DeepCopy()
 
 	if b.objectStore.Spec.BucketWeb.Enabled {
-		bucketWeb := b.objectStore.Spec.BucketWeb.DeepCopy()
 
 		return &policyv1beta1.PodDisruptionBudget{
 			ObjectMeta: b.objectMeta(name, &bucketWeb.BaseObject),
@@ -39,9 +39,6 @@ func (b *BucetWeb) podDistributionBucket() (runtime.Object, reconciler.DesiredSt
 	}
 
 	return &policyv1beta1.PodDisruptionBudget{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: b.namespace,
-		},
+		ObjectMeta: b.objectMeta(name, &bucketWeb.BaseObject),
 	}, reconciler.StateAbsent, nil
 }

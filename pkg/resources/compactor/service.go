@@ -17,7 +17,6 @@ package compactor
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -25,9 +24,9 @@ import (
 func (c *Compactor) service() (runtime.Object, reconciler.DesiredState, error) {
 	const app = "compactor"
 	name := app + "-service"
+	compactor := c.objectStore.Spec.Compactor.DeepCopy()
 
 	if c.objectStore.Spec.BucketWeb.Enabled {
-		compactor := c.objectStore.Spec.Compactor.DeepCopy()
 
 		return &corev1.Service{
 			ObjectMeta: c.objectMeta(name, &compactor.BaseObject),
@@ -46,9 +45,6 @@ func (c *Compactor) service() (runtime.Object, reconciler.DesiredState, error) {
 	}
 
 	return &corev1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: c.namespace,
-		},
+		ObjectMeta: c.objectMeta(name, &compactor.BaseObject),
 	}, reconciler.StateAbsent, nil
 }

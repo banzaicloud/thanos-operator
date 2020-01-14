@@ -27,12 +27,12 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-func (b *BucetWeb) deployment() (runtime.Object, reconciler.DesiredState, error) {
+func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error) {
 	const app = "bucketweb"
 	name := app + "-deployment"
+	bucketWeb := b.objectStore.Spec.BucketWeb.DeepCopy()
 
 	if b.objectStore.Spec.BucketWeb.Enabled {
-		bucketWeb := b.objectStore.Spec.BucketWeb.DeepCopy()
 
 		var deployment = &appsv1.Deployment{
 			ObjectMeta: b.objectMeta(name, &bucketWeb.BaseObject),
@@ -86,9 +86,6 @@ func (b *BucetWeb) deployment() (runtime.Object, reconciler.DesiredState, error)
 	}
 
 	return &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: b.namespace,
-		},
+		ObjectMeta: b.objectMeta(name, &bucketWeb.BaseObject),
 	}, reconciler.StateAbsent, nil
 }

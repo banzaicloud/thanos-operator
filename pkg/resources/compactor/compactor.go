@@ -72,7 +72,7 @@ func (c *Compactor) Reconcile() (*reconcile.Result, error) {
 
 func (c *Compactor) objectMeta(name string, bucketWeb *v1alpha1.BaseObject) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
-		Name:        name,
+		Name:        c.objectStore.Name + "-" + name,
 		Namespace:   c.namespace,
 		Labels:      bucketWeb.Labels,
 		Annotations: bucketWeb.Annotations,
@@ -94,10 +94,10 @@ func (c *Compactor) labels() map[string]string {
 	return util.MergeLabels(c.objectStore.Spec.BucketWeb.Labels, map[string]string{
 		"app.kubernetes.io/name":      app,
 		"app.kubernetes.io/component": "compact",
-	}, generateLoggingRefLabels(c.objectStore.ObjectMeta.GetName()))
+	}, objectStoreRef(c.objectStore.ObjectMeta.GetName()))
 }
 
-func generateLoggingRefLabels(loggingRef string) map[string]string {
+func objectStoreRef(loggingRef string) map[string]string {
 	return map[string]string{"app.kubernetes.io/managed-by": loggingRef}
 }
 
