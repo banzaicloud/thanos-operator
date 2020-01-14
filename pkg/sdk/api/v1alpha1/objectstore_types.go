@@ -34,8 +34,7 @@ type ObjectStoreSpec struct {
 }
 
 type Compactor struct {
-	Enable bool `json:"enable"`
-
+	Enabled                bool            `json:"enabled,omitempty"`
 	HTTPAddress            string          `json:"httpAddress,omitempty"`            // Listen host:port for HTTP endpoints.
 	HTTPGracePeriod        metav1.Duration `json:"httpGracePeriod,omitempty"`        // Time to wait after an interrupt received for HTTP Server.
 	DataDir                string          `json:"dataDir,omitempty"`                // Data directory in which to cache blocks and process compactions.
@@ -100,7 +99,7 @@ func (in *Compactor) SetDefaults() (*Compactor, error) {
 }
 
 type BucketWeb struct {
-	Enable            bool            `json:"enable"`
+	Enabled           bool            `json:"enabled,omitempty"`
 	HTTPAddress       string          `json:"httpAddress,omitempty"`         // Listen host:port for HTTP endpoints.
 	HTTPGracePeriod   metav1.Duration `json:"httpGracePeriod,omitempty"`     // Time to wait after an interrupt received for HTTP Server.
 	WebExternalPrefix string          `json:"web_external_prefix,omitempty"` // Static prefix for all HTML links and redirect URLs in the bucket web UI interface. Actual endpoints are still served on / or the web.route-prefix. This allows thanos bucket web UI to be served behind a reverse proxy that strips a URL sub-path.

@@ -36,7 +36,7 @@ spec:
           properties:
             bucketWeb:
               properties:
-                enable:
+                enabled:
                   type: boolean
                 httpAddress:
                   type: string
@@ -52,8 +52,6 @@ spec:
                   type: string
                 web_prefix_header:
                   type: string
-              required:
-              - enable
               type: object
             compactor:
               properties:
@@ -69,7 +67,7 @@ spec:
                   type: string
                 downsamplingDisable:
                   type: boolean
-                enable:
+                enabled:
                   type: boolean
                 httpAddress:
                   type: string
@@ -83,8 +81,6 @@ spec:
                   type: string
                 wait:
                   type: boolean
-              required:
-              - enable
               type: object
             config:
               description: Config
