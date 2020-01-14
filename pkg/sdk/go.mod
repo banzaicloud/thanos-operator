@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/banzaicloud/logging-operator/pkg/sdk v0.0.0-20200107212637-8598193c9ebb
-	github.com/banzaicloud/operator-tools v0.0.0-20200109153432-0ff490ae57fc
+	github.com/banzaicloud/operator-tools v0.1.0
 	github.com/go-logr/logr v0.1.0
 	github.com/onsi/ginkgo v1.8.0
 	github.com/onsi/gomega v1.5.0
