@@ -3,6 +3,8 @@
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.2.4
   creationTimestamp: null
   name: objectstores.monitoring.banzaicloud.io
 spec:
@@ -12,7 +14,7 @@ spec:
     listKind: ObjectStoreList
     plural: objectstores
     singular: objectstore
-  scope: ""
+  scope: Namespaced
   validation:
     openAPIV3Schema:
       description: ObjectStore is the Schema for the objectstores API
@@ -32,9 +34,57 @@ spec:
         spec:
           description: ObjectStoreSpec defines the desired state of ObjectStore
           properties:
-            bucket:
+            bucketWeb:
+              properties:
+                enable:
+                  type: boolean
+                httpAddress:
+                  type: string
+                httpGracePeriod:
+                  type: string
+                label:
+                  type: string
+                refresh:
+                  type: string
+                timeout:
+                  type: string
+                web_external_prefix:
+                  type: string
+                web_prefix_header:
+                  type: string
+              required:
+              - enable
               type: object
             compactor:
+              properties:
+                blockSyncConcurrency:
+                  minimum: 1
+                  type: integer
+                compactConcurrency:
+                  minimum: 1
+                  type: integer
+                consistencyDelay:
+                  type: string
+                dataDir:
+                  type: string
+                downsamplingDisable:
+                  type: boolean
+                enable:
+                  type: boolean
+                httpAddress:
+                  type: string
+                httpGracePeriod:
+                  type: string
+                retentionResolution1h:
+                  type: string
+                retentionResolution5m:
+                  type: string
+                retentionResolutionRaw:
+                  type: string
+                wait:
+                  type: boolean
+              required:
+              - enable
               type: object
             config:
               description: Config

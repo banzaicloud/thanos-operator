@@ -18,6 +18,7 @@ import (
 	"context"
 
 	"github.com/go-logr/logr"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -36,12 +37,28 @@ type ObjectStoreReconciler struct {
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=objectstores/status,verbs=get;update;patch
 
 func (r *ObjectStoreReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
-	_ = r.Log.WithValues("objectstore", req.NamespacedName)
+	result := ctrl.Result{}
+	ctx := context.Background()
+	log := r.Log.WithValues("objectstore", req.NamespacedName)
 
-	// your logic here
+	store := &monitoringv1alpha1.ObjectStore{}
+	err := r.Client.Get(ctx, req.NamespacedName, store)
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return result, nil
+		}
+		return result, err
+	}
+	store, err = store.SetDefaults()
+	if err != nil {
+		return result, err
+	}
 
-	return ctrl.Result{}, nil
+	log.V(1).Info("got", "spec", store.Spec)
+
+	log.V(1).Info("reconcile finished", "result", result)
+
+	return result, nil
 }
 
 func (r *ObjectStoreReconciler) SetupWithManager(mgr ctrl.Manager) error {
