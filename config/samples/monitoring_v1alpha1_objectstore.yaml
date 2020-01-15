@@ -3,9 +3,12 @@ kind: ObjectStore
 metadata:
   name: objectstore-sample
 spec:
-  # Add fields here
   config:
     mountFrom:
       secretKeyRef:
         name: s3-bucket
         key: object-store.yaml
+  compactor:
+    enabled: true
+  bucketWeb:
+    enabled: true

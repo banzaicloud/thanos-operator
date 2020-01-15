@@ -5,7 +5,6 @@ import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/imdario/mergo"
-	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
@@ -16,9 +15,6 @@ const (
 	componentLabel = "app.kubernetes.io/component"
 	managedByLabel = "app.kubernetes.io/managed-by"
 )
-
-// Resource redeclaration of function with return type kubernetes Object
-type Resource func() (runtime.Object, reconciler.DesiredState, error)
 
 type ThanosComponentReconciler struct {
 	Thanos      *v1alpha1.Thanos
