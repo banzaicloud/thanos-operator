@@ -73,8 +73,25 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 										Protocol:      corev1.ProtocolTCP,
 									},
 								},
+								VolumeMounts: []corev1.VolumeMount{
+									{
+										Name:      "objectstore-secret",
+										ReadOnly:  true,
+										MountPath: "/etc/config/",
+									},
+								},
 								Resources:       compactor.Resources,
 								ImagePullPolicy: corev1.PullPolicy(compactor.Image.PullPolicy),
+							},
+						},
+						Volumes: []corev1.Volume{
+							{
+								Name: "objectstore-secret",
+								VolumeSource: corev1.VolumeSource{
+									Secret: &corev1.SecretVolumeSource{
+										SecretName: c.objectStore.Spec.Config.MountFrom.SecretKeyRef.Name,
+									},
+								},
 							},
 						},
 					},

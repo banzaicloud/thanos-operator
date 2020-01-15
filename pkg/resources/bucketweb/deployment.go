@@ -69,8 +69,25 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 										Protocol:      corev1.ProtocolTCP,
 									},
 								},
+								VolumeMounts: []corev1.VolumeMount{
+									{
+										Name:      "objectstore-secret",
+										ReadOnly:  true,
+										MountPath: "/etc/config/",
+									},
+								},
 								Resources:       bucketWeb.Resources,
 								ImagePullPolicy: corev1.PullPolicy(bucketWeb.Image.PullPolicy),
+							},
+						},
+						Volumes: []corev1.Volume{
+							{
+								Name: "objectstore-secret",
+								VolumeSource: corev1.VolumeSource{
+									Secret: &corev1.SecretVolumeSource{
+										SecretName: b.objectStore.Spec.Config.MountFrom.SecretKeyRef.Name,
+									},
+								},
 							},
 						},
 					},
