@@ -25,3 +25,14 @@ type ComponentReconciler func() (*reconcile.Result, error)
 
 // Resource redeclaration of function with return type kubernetes Object
 type Resource func() (runtime.Object, reconciler.DesiredState, error)
+
+type Labels map[string]string
+
+func (l Labels) merge(labelGroups ...Labels) Labels {
+	for _, labels := range labelGroups {
+		for k, v := range labels {
+			l[k] = v
+		}
+	}
+	return l
+}

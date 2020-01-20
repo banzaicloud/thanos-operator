@@ -29,9 +29,9 @@ func getArgs(input interface{}) []string {
 			case string:
 				val = i
 			case bool:
-				// Bool params are
+				// Bool params are switches don't need to render value
 				if i {
-					args = append(args, fmt.Sprintf(tagArgFormat, val))
+					args = append(args, tagArgFormat)
 				}
 			default:
 				val = ""

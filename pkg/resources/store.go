@@ -15,15 +15,12 @@ import (
 )
 
 func (t *ThanosComponentReconciler) storeService() (runtime.Object, reconciler.DesiredState, error) {
-	name := "store-service"
+	name := t.qualifiedName("store-service")
 	namespace := t.Thanos.Namespace
 	if t.Thanos.Spec.StoreGateway != nil {
 		store := t.Thanos.Spec.StoreGateway.DeepCopy()
 		storeService := &corev1.Service{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      name,
-				Namespace: namespace,
-			},
+			ObjectMeta: t.getObjectMeta(name),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
@@ -65,9 +62,24 @@ func (t *ThanosComponentReconciler) storeService() (runtime.Object, reconciler.D
 	return delete, reconciler.StateAbsent, nil
 }
 
+func (t *ThanosComponentReconciler) getStoreLabels() Labels {
+	return Labels{
+		nameLabel: "store",
+	}.merge(
+		t.Thanos.Spec.Query.Labels,
+		t.getCommonLabels(),
+	)
+}
+
+func (t *ThanosComponentReconciler) getStoreMeta(name string) metav1.ObjectMeta {
+	meta := t.getObjectMeta(name)
+	meta.Labels = t.getStoreLabels()
+	meta.Annotations = t.Thanos.Spec.StoreGateway.Annotations
+	return meta
+}
+
 func (t *ThanosComponentReconciler) storeDeployment() (runtime.Object, reconciler.DesiredState, error) {
 	name := "store-deployment"
-	namespace := t.Thanos.Namespace
 	var objectStore *v1alpha1.ObjectStore
 	if t.Thanos.Spec.ObjectStore != nil {
 		if *t.Thanos.Spec.ObjectStore != "" {
@@ -96,29 +108,14 @@ func (t *ThanosComponentReconciler) storeDeployment() (runtime.Object, reconcile
 			return nil, nil, err
 		}
 		var deployment = &appsv1.Deployment{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:        name,
-				Namespace:   namespace,
-				Labels:      store.Labels,
-				Annotations: store.Annotations,
-			},
+			ObjectMeta: t.getObjectMeta(name),
 			Spec: appsv1.DeploymentSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
-					MatchLabels: map[string]string{
-						nameLabel:      "store",
-						managedByLabel: t.Thanos.Name,
-					},
+					MatchLabels: t.getStoreLabels(),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: metav1.ObjectMeta{
-						Name: "store",
-						Labels: map[string]string{
-							nameLabel:      "store",
-							managedByLabel: t.Thanos.Name,
-						},
-						Annotations: store.Annotations,
-					},
+					ObjectMeta: t.getStoreMeta("store"),
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
@@ -170,10 +167,7 @@ func (t *ThanosComponentReconciler) storeDeployment() (runtime.Object, reconcile
 		return deployment, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: namespace,
-		},
+		ObjectMeta: t.getObjectMeta(name),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

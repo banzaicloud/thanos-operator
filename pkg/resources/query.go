@@ -21,6 +21,15 @@ func GetPort(address string) int32 {
 	return int32(port)
 }
 
+func (t *ThanosComponentReconciler) getQueryLabels() Labels {
+	return Labels{
+		nameLabel: "query",
+	}.merge(
+		t.Thanos.Spec.Query.Labels,
+		t.getCommonLabels(),
+	)
+}
+
 func (t *ThanosComponentReconciler) getStoreEndpoints() []string {
 	var endpoints []string
 	if t.Thanos.Spec.StoreGateway != nil {
@@ -52,26 +61,20 @@ func (t *ThanosComponentReconciler) setQueryArgs(args []string) []string {
 }
 
 func (t *ThanosComponentReconciler) queryDeployment() (runtime.Object, reconciler.DesiredState, error) {
-	name := "query-deployment"
-	namespace := t.Thanos.Namespace
+	name := t.qualifiedName("query-deployment")
 	if t.Thanos.Spec.Query != nil {
 		query := t.Thanos.Spec.Query.DeepCopy()
 		var deployment = &appsv1.Deployment{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:        name,
-				Namespace:   namespace,
-				Labels:      query.Labels,
-				Annotations: query.Annotations,
-			},
+			ObjectMeta: t.getObjectMeta(name),
 			Spec: appsv1.DeploymentSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
-					MatchLabels: map[string]string{"app": "query"},
+					MatchLabels: t.getQueryLabels(),
 				},
 				Template: corev1.PodTemplateSpec{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:        "query",
-						Labels:      map[string]string{"app": "query"},
+						Labels:      t.getQueryLabels(),
 						Annotations: query.Annotations,
 					},
 					Spec: corev1.PodSpec{
@@ -107,10 +110,7 @@ func (t *ThanosComponentReconciler) queryDeployment() (runtime.Object, reconcile
 		return deployment, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: namespace,
-		},
+		ObjectMeta: t.getObjectMeta(name),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

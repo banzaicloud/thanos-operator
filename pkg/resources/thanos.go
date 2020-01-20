@@ -1,10 +1,14 @@
 package resources
 
 import (
+	"fmt"
+
 	"emperror.dev/errors"
+	"github.com/banzaicloud/logging-operator/pkg/sdk/util"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/imdario/mergo"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
@@ -20,6 +24,37 @@ type ThanosComponentReconciler struct {
 	Thanos      *v1alpha1.Thanos
 	ObjectSores []v1alpha1.ObjectStore
 	*reconciler.GenericResourceReconciler
+}
+
+func (t *ThanosComponentReconciler) getCommonLabels() Labels {
+	return Labels{
+		managedByLabel: t.Thanos.Name,
+	}
+}
+
+func (t *ThanosComponentReconciler) qualifiedName(name string) string {
+	return fmt.Sprintf("%s-%s", t.Thanos.Name, name)
+}
+
+func (t *ThanosComponentReconciler) getNameMeta(name string) metav1.ObjectMeta {
+	return metav1.ObjectMeta{
+		Name:      t.qualifiedName(name),
+		Namespace: t.Thanos.Namespace,
+	}
+}
+
+func (t *ThanosComponentReconciler) getObjectMeta(name string) metav1.ObjectMeta {
+	meta := t.getNameMeta(name)
+	meta.OwnerReferences = []metav1.OwnerReference{
+		{
+			APIVersion: t.Thanos.APIVersion,
+			Kind:       t.Thanos.Kind,
+			Name:       t.Thanos.Name,
+			UID:        t.Thanos.UID,
+			Controller: util.BoolPointer(true),
+		},
+	}
+	return meta
 }
 
 func (t *ThanosComponentReconciler) Reconcile() (*reconcile.Result, error) {
