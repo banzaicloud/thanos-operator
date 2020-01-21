@@ -15,97 +15,43 @@
 package bucketweb
 
 import (
-	"strconv"
-	"strings"
-
-	"emperror.dev/errors"
-	"github.com/banzaicloud/logging-operator/pkg/sdk/util"
-	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
-	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 type BucketWeb struct {
-	client      client.Client
-	namespace   string
-	objectStore *v1alpha1.ObjectStore
-	*reconciler.GenericResourceReconciler
+	*resources.ObjectStoreReconciler
 }
 
-func New(client client.Client, namespace string, objectStore *v1alpha1.ObjectStore, genericReconciler *reconciler.GenericResourceReconciler) *BucketWeb {
+const Name = "bucket"
+
+func New(reconciler *resources.ObjectStoreReconciler) *BucketWeb {
 	return &BucketWeb{
-		client:                    client,
-		namespace:                 namespace,
-		objectStore:               objectStore,
-		GenericResourceReconciler: genericReconciler,
+		ObjectStoreReconciler: reconciler,
 	}
 }
 
-func (b *BucketWeb) Reconcile() (*reconcile.Result, error) {
-	for _, factory := range []resources.Resource{
-		b.deployment,
-		b.ingress,
-		b.podDistributionBucket,
-		b.service,
-	} {
-		o, state, err := factory()
-		if err != nil {
-			return nil, errors.WrapIf(err, "failed to create desired object")
-		}
-		if o == nil {
-			return nil, errors.Errorf("Reconcile error! Resource %#v returns with nil object", factory)
-		}
-		result, err := b.ReconcileResource(o, state)
-		if err != nil {
-			return nil, errors.WrapWithDetails(err,
-				"failed to reconcile resource", "resource", o.GetObjectKind().GroupVersionKind())
-		}
-		if result != nil {
-			return result, nil
-		}
-	}
-
-	return nil, nil
+func (c *BucketWeb) Reconcile() (*reconcile.Result, error) {
+	return c.ReconcileResources([]resources.Resource{
+		//c.persistentVolumeClaim,
+		c.deployment,
+		c.service,
+	})
 }
 
-func (b *BucketWeb) objectMeta(name string, bucketWeb *v1alpha1.BaseObject) metav1.ObjectMeta {
-	return metav1.ObjectMeta{
-		Name:        b.objectStore.Name + "-" + name,
-		Namespace:   b.namespace,
-		Labels:      bucketWeb.Labels,
-		Annotations: bucketWeb.Annotations,
-		OwnerReferences: []metav1.OwnerReference{
-			{
-				APIVersion: b.objectStore.APIVersion,
-				Kind:       b.objectStore.Kind,
-				Name:       b.objectStore.Name,
-				UID:        b.objectStore.UID,
-				Controller: util.BoolPointer(true),
-			},
-		},
-	}
+func (c *BucketWeb) getLabels(name string) resources.Labels {
+	return resources.Labels{
+		resources.NameLabel: name,
+	}.Merge(
+		c.ObjectStoreReconciler.ObjectSore.Spec.Compactor.Labels,
+		c.GetCommonLabels(),
+	)
 }
 
-func (b *BucketWeb) labels() map[string]string {
-	const app = "bucketweb"
-
-	return util.MergeLabels(b.objectStore.Spec.BucketWeb.Labels, map[string]string{
-		"app.kubernetes.io/name":      app,
-		"app.kubernetes.io/component": "bucket",
-	}, objectStoreRef(b.objectStore.ObjectMeta.GetName()))
-}
-
-func objectStoreRef(loggingRef string) map[string]string {
-	return map[string]string{"app.kubernetes.io/managed-by": loggingRef}
-}
-
-func GetPort(address string) int32 {
-	port, err := strconv.Atoi(strings.Split(address, ":")[1])
-	if err != nil {
-		return 0
-	}
-	return int32(port)
+func (c *BucketWeb) getMeta(name string) metav1.ObjectMeta {
+	meta := c.GetObjectMeta(name)
+	meta.Labels = c.getLabels(name)
+	meta.Annotations = c.ObjectStoreReconciler.ObjectSore.Spec.Compactor.Annotations
+	return meta
 }

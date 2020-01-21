@@ -16,20 +16,19 @@ package bucketweb
 
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
+	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func (b *BucketWeb) ingress() (runtime.Object, reconciler.DesiredState, error) {
-	const app = "bucketweb"
-	name := app + "-ingress"
-	bucketWeb := b.objectStore.Spec.BucketWeb.DeepCopy()
+	bucketWeb := b.ObjectSore.Spec.BucketWeb.DeepCopy()
 
-	if b.objectStore.Spec.BucketWeb.Enabled {
+	if b.ObjectSore.Spec.BucketWeb.Enabled {
 
 		var ingress = &extensionsv1beta1.Ingress{
-			ObjectMeta: b.objectMeta(name, &bucketWeb.BaseObject),
+			ObjectMeta: b.getMeta(Name),
 			Spec: extensionsv1beta1.IngressSpec{
 				//TLS: []extensionsv1beta1.IngressTLS{
 				//	{
@@ -45,8 +44,8 @@ func (b *BucketWeb) ingress() (runtime.Object, reconciler.DesiredState, error) {
 									{
 										Path: "/",
 										Backend: extensionsv1beta1.IngressBackend{
-											ServiceName: name,
-											ServicePort: intstr.IntOrString{IntVal: GetPort(bucketWeb.HTTPAddress)},
+											ServiceName: b.QualifiedName(Name),
+											ServicePort: intstr.IntOrString{IntVal: resources.GetPort(bucketWeb.HTTPAddress)},
 										},
 									},
 								},
@@ -61,6 +60,6 @@ func (b *BucketWeb) ingress() (runtime.Object, reconciler.DesiredState, error) {
 	}
 
 	return &extensionsv1beta1.Ingress{
-		ObjectMeta: b.objectMeta(name, &bucketWeb.BaseObject),
+		ObjectMeta: b.getMeta(Name),
 	}, reconciler.StateAbsent, nil
 }

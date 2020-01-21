@@ -16,6 +16,7 @@ package compactor
 
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
+	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -24,27 +25,27 @@ import (
 func (c *Compactor) service() (runtime.Object, reconciler.DesiredState, error) {
 	const app = "compactor"
 	name := app + "-service"
-	compactor := c.objectStore.Spec.Compactor.DeepCopy()
+	compactor := c.ObjectSore.Spec.Compactor.DeepCopy()
 
-	if c.objectStore.Spec.BucketWeb.Enabled {
+	if c.ObjectSore.Spec.BucketWeb.Enabled {
 
 		return &corev1.Service{
-			ObjectMeta: c.objectMeta(name, &compactor.BaseObject),
+			ObjectMeta: c.getMeta(name),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
 						Protocol:   corev1.ProtocolTCP,
 						Name:       "http",
-						Port:       GetPort(compactor.HTTPAddress),
-						TargetPort: intstr.IntOrString{IntVal: GetPort(compactor.HTTPAddress)},
+						Port:       resources.GetPort(compactor.HTTPAddress),
+						TargetPort: intstr.IntOrString{IntVal: resources.GetPort(compactor.HTTPAddress)},
 					},
 				},
-				Selector: c.labels(),
+				Selector: c.getLabels(Name),
 			},
 		}, reconciler.StatePresent, nil
 	}
 
 	return &corev1.Service{
-		ObjectMeta: c.objectMeta(name, &compactor.BaseObject),
+		ObjectMeta: c.getMeta(Name),
 	}, reconciler.StateAbsent, nil
 }

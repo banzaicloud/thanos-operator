@@ -59,13 +59,14 @@ func (r *ObjectStoreReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 	}
 
 	genericReconciler := reconciler.NewReconciler(r.Client, log, reconciler.ReconcilerOpts{})
+	objectStoreReconciler := resources.NewObjectStoreReconciler(store, genericReconciler)
 
 	reconcilers := make([]resources.ComponentReconciler, 0)
 
 	// Bucket Web
 	reconcilers = append(reconcilers, bucketweb.New(r.Client, store.Namespace, store, genericReconciler).Reconcile)
 	// Compactor
-	reconcilers = append(reconcilers, compactor.New(r.Client, store.Namespace, store, genericReconciler).Reconcile)
+	reconcilers = append(reconcilers, compactor.New(objectStoreReconciler).Reconcile)
 
 	return resources.RunReconcilers(reconcilers)
 }

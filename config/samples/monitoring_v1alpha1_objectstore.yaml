@@ -9,6 +9,6 @@ spec:
         name: s3-bucket
         key: object-store.yaml
   compactor:
-    enabled: true
+    enabled: false
   bucketWeb:
     enabled: true

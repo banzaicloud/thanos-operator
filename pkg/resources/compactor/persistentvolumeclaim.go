@@ -21,14 +21,10 @@ import (
 )
 
 func (c *Compactor) persistentVolumeClaim() (runtime.Object, reconciler.DesiredState, error) {
-	const app = "compactor"
-	name := app + "-service"
-	compactor := c.objectStore.Spec.Compactor.DeepCopy()
-
-	if c.objectStore.Spec.BucketWeb.Enabled {
+	if c.ObjectSore.Spec.BucketWeb.Enabled {
 
 		return &corev1.PersistentVolumeClaim{
-			ObjectMeta: c.objectMeta(name, &compactor.BaseObject),
+			ObjectMeta: c.getMeta(Name),
 			Spec:       corev1.PersistentVolumeClaimSpec{
 				//Selector: c.labels(),
 			},
@@ -36,6 +32,6 @@ func (c *Compactor) persistentVolumeClaim() (runtime.Object, reconciler.DesiredS
 	}
 
 	return &corev1.PersistentVolumeClaim{
-		ObjectMeta: c.objectMeta(name, &compactor.BaseObject),
+		ObjectMeta: c.getMeta(Name),
 	}, reconciler.StateAbsent, nil
 }

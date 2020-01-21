@@ -9,7 +9,7 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func getArgs(input interface{}) []string {
+func GetArgs(input interface{}) []string {
 	var args []string
 	value := strctVal(input)
 	elements := StructElements(value)

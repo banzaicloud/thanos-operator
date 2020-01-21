@@ -2,12 +2,13 @@ package resources
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"emperror.dev/errors"
 	"github.com/banzaicloud/logging-operator/pkg/sdk/util"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
-	"github.com/imdario/mergo"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -15,15 +16,27 @@ import (
 )
 
 const (
-	nameLabel      = "app.kubernetes.io/name"
-	instanceLabel  = "app.kubernetes.io/instance"
-	versionLabel   = "app.kubernetes.io/version"
-	componentLabel = "app.kubernetes.io/component"
-	managedByLabel = "app.kubernetes.io/managed-by"
+	NameLabel      = "app.kubernetes.io/name"
+	InstanceLabel  = "app.kubernetes.io/instance"
+	VersionLabel   = "app.kubernetes.io/version"
+	ComponentLabel = "app.kubernetes.io/component"
+	ManagedByLabel = "app.kubernetes.io/managed-by"
 
-	healthCheckPath = "/-/healthy"
-	readyCheckPath  = "/-/ready"
+	HealthCheckPath = "/-/healthy"
+	ReadyCheckPath  = "/-/ready"
 )
+
+func GetPort(address string) int32 {
+	res := strings.Split(address, ":")
+	if len(res) > 1 {
+		port, err := strconv.Atoi(res[1])
+		if err != nil {
+			return 0
+		}
+		return int32(port)
+	}
+	return 0
+}
 
 type ThanosComponentReconciler struct {
 	Thanos      *v1alpha1.Thanos
@@ -31,7 +44,7 @@ type ThanosComponentReconciler struct {
 	*reconciler.GenericResourceReconciler
 }
 
-func (t *ThanosComponentReconciler) getCheck(port int32, path string) *corev1.Probe {
+func (t *ThanosComponentReconciler) GetCheck(port int32, path string) *corev1.Probe {
 	return &corev1.Probe{
 		Handler: corev1.Handler{
 			HTTPGet: &corev1.HTTPGetAction{
@@ -50,25 +63,25 @@ func (t *ThanosComponentReconciler) getCheck(port int32, path string) *corev1.Pr
 	}
 }
 
-func (t *ThanosComponentReconciler) getCommonLabels() Labels {
+func (t *ThanosComponentReconciler) GetCommonLabels() Labels {
 	return Labels{
-		managedByLabel: t.Thanos.Name,
+		ManagedByLabel: t.Thanos.Name,
 	}
 }
 
-func (t *ThanosComponentReconciler) qualifiedName(name string) string {
+func (t *ThanosComponentReconciler) QualifiedName(name string) string {
 	return fmt.Sprintf("%s-%s", t.Thanos.Name, name)
 }
 
-func (t *ThanosComponentReconciler) getNameMeta(name string) metav1.ObjectMeta {
+func (t *ThanosComponentReconciler) GetNameMeta(name string) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
-		Name:      t.qualifiedName(name),
+		Name:      t.QualifiedName(name),
 		Namespace: t.Thanos.Namespace,
 	}
 }
 
-func (t *ThanosComponentReconciler) getObjectMeta(name string) metav1.ObjectMeta {
-	meta := t.getNameMeta(name)
+func (t *ThanosComponentReconciler) GetObjectMeta(name string) metav1.ObjectMeta {
+	meta := t.GetNameMeta(name)
 	meta.OwnerReferences = []metav1.OwnerReference{
 		{
 			APIVersion: t.Thanos.APIVersion,
@@ -81,13 +94,7 @@ func (t *ThanosComponentReconciler) getObjectMeta(name string) metav1.ObjectMeta
 	return meta
 }
 
-func (t *ThanosComponentReconciler) Reconcile() (*reconcile.Result, error) {
-	resourceList := []Resource{
-		t.queryDeployment,
-		t.storeDeployment,
-		t.storeService,
-		t.ruleStatefulSet,
-	}
+func (t *ThanosComponentReconciler) ReconcileResources(resourceList []Resource) (*reconcile.Result, error) {
 	// Generate objects from resources
 	for _, res := range resourceList {
 		o, state, err := res()
@@ -109,34 +116,10 @@ func (t *ThanosComponentReconciler) Reconcile() (*reconcile.Result, error) {
 	return nil, nil
 }
 
-func (t *ThanosComponentReconciler) setDefaults() error {
-	if t.Thanos.Spec.Query != nil {
-		err := mergo.Merge(t.Thanos.Spec.Query, v1alpha1.DefaultQuery)
-		if err != nil {
-			return err
-		}
-	}
-	if t.Thanos.Spec.StoreGateway != nil {
-		err := mergo.Merge(t.Thanos.Spec.StoreGateway, v1alpha1.DefaultStoreGateway)
-		if err != nil {
-			return err
-		}
-	}
-	if t.Thanos.Spec.Rule != nil {
-		err := mergo.Merge(t.Thanos.Spec.Rule, v1alpha1.DefaultRule)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func NewThanosComponentReconciler(thanos *v1alpha1.Thanos, objectStores *v1alpha1.ObjectStoreList, genericReconciler *reconciler.GenericResourceReconciler) (*ThanosComponentReconciler, error) {
-	reconciler := &ThanosComponentReconciler{
+func NewThanosComponentReconciler(thanos *v1alpha1.Thanos, objectStores *v1alpha1.ObjectStoreList, genericReconciler *reconciler.GenericResourceReconciler) *ThanosComponentReconciler {
+	return &ThanosComponentReconciler{
 		Thanos:                    thanos,
 		ObjectSores:               objectStores.Items,
 		GenericResourceReconciler: genericReconciler,
 	}
-	err := reconciler.setDefaults()
-	return reconciler, err
 }
