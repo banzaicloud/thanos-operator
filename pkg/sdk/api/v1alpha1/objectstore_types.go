@@ -15,11 +15,9 @@
 package v1alpha1
 
 import (
-	"net"
 	"time"
 
 	"github.com/banzaicloud/logging-operator/pkg/sdk/model/secret"
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -34,9 +32,27 @@ type ObjectStoreSpec struct {
 	BucketWeb *BucketWeb    `json:"bucketWeb,omitempty"`
 }
 
+var DefaultCompactor = &Compactor{
+	BaseObject: BaseObject{
+		Image: ImageSpec{
+			Repository: thanosImageRepository,
+			Tag:        thanosImageTag,
+			PullPolicy: defaultPullPolicy,
+		},
+	},
+	HTTPAddress:            "0.0.0.0:10902",
+	HTTPGracePeriod:        metav1.Duration{Duration: 2 * time.Minute},
+	DataDir:                "./data",
+	ConsistencyDelay:       metav1.Duration{Duration: 30 * time.Minute},
+	RetentionResolutionRaw: metav1.Duration{Duration: 0},
+	RetentionResolution5m:  metav1.Duration{Duration: 0},
+	RetentionResolution1h:  metav1.Duration{Duration: 0},
+	BlockSyncConcurrency:   20,
+	CompactConcurrency:     1,
+}
+
 type Compactor struct {
 	BaseObject `json:",inline"`
-	Enabled    bool `json:"enabled,omitempty"`
 	// Listen host:port for HTTP endpoints.
 	HTTPAddress string `json:"httpAddress,omitempty"`
 	// Time to wait after an interrupt received for HTTP Server.
@@ -65,69 +81,22 @@ type Compactor struct {
 	CompactConcurrency int `json:"compactConcurrency,omitempty"`
 }
 
-func (in *Compactor) SetDefaults() (*Compactor, error) {
-	out := in.DeepCopy()
-
-	// BaseObject
-	if out.Image.Repository == "" {
-		out.Image.Repository = "quay.io/thanos/thanos"
-	}
-	if out.Image.Tag == "" {
-		out.Image.Tag = "v0.9.0"
-	}
-
-	if out.Image.PullPolicy == "" {
-		out.Image.PullPolicy = corev1.PullIfNotPresent
-	}
-
-	// HTTPAddress
-	if out.HTTPAddress == "" {
-		out.HTTPAddress = "0.0.0.0:10902"
-	}
-	host, port, err := net.SplitHostPort(out.HTTPAddress)
-	if err != nil {
-		return nil, err
-	}
-	out.HTTPAddress = net.JoinHostPort(host, port)
-
-	if out.HTTPGracePeriod.Duration < time.Nanosecond {
-		out.HTTPGracePeriod.Duration = 2 * time.Minute
-	}
-
-	if out.DataDir == "" {
-		out.DataDir = "./data"
-	}
-
-	if out.ConsistencyDelay.Duration < time.Nanosecond {
-		out.ConsistencyDelay.Duration = 30 * time.Minute
-	}
-
-	if out.RetentionResolutionRaw.Duration < 0 {
-		out.RetentionResolutionRaw.Duration = 0
-	}
-
-	if out.RetentionResolution5m.Duration < 0 {
-		out.RetentionResolution5m.Duration = 0
-	}
-
-	if out.RetentionResolution1h.Duration < 0 {
-		out.RetentionResolution1h.Duration = 0
-	}
-
-	if out.BlockSyncConcurrency <= 0 {
-		out.BlockSyncConcurrency = 20
-	}
-
-	if out.CompactConcurrency < 1 {
-		out.CompactConcurrency = 1
-	}
-
-	return out, nil
+var DefaultBucketWeb = &BucketWeb{
+	BaseObject: BaseObject{
+		Image: ImageSpec{
+			Repository: thanosImageRepository,
+			Tag:        thanosImageTag,
+			PullPolicy: defaultPullPolicy,
+		},
+	},
+	HTTPAddress:     "0.0.0.0:10902",
+	HTTPGracePeriod: metav1.Duration{Duration: 2 * time.Minute},
+	Refresh:         metav1.Duration{Duration: 30 * time.Minute},
+	Timeout:         metav1.Duration{Duration: 5 * time.Minute},
 }
 
 type BucketWeb struct {
 	BaseObject `json:",inline"`
-	Enabled    bool `json:"enabled,omitempty"`
 	// Listen host:port for HTTP endpoints.
 	HTTPAddress string `json:"httpAddress,omitempty"`
 	// Time to wait after an interrupt received for HTTP Server.
@@ -142,45 +111,6 @@ type BucketWeb struct {
 	Timeout metav1.Duration `json:"timeout,omitempty"`
 	// Prometheus label to use as timeline title.
 	Label string `json:"label,omitempty"`
-}
-
-func (in *BucketWeb) SetDefaults() (*BucketWeb, error) {
-	out := in.DeepCopy()
-
-	// BaseObject
-	if out.Image.Repository == "" {
-		out.Image.Repository = "quay.io/thanos/thanos"
-	}
-	if out.Image.Tag == "" {
-		out.Image.Tag = "v0.9.0"
-	}
-	if out.Image.PullPolicy == "" {
-		out.Image.PullPolicy = corev1.PullIfNotPresent
-	}
-
-	// HTTPAddress
-	if out.HTTPAddress == "" {
-		out.HTTPAddress = "0.0.0.0:10903"
-	}
-	host, port, err := net.SplitHostPort(out.HTTPAddress)
-	if err != nil {
-		return nil, err
-	}
-	out.HTTPAddress = net.JoinHostPort(host, port)
-
-	if out.HTTPGracePeriod.Duration < time.Nanosecond {
-		out.HTTPGracePeriod.Duration = 2 * time.Minute
-	}
-
-	if out.Refresh.Duration < time.Nanosecond {
-		out.Refresh.Duration = 30 * time.Minute
-	}
-
-	if out.Timeout.Duration < time.Nanosecond {
-		out.Timeout.Duration = 5 * time.Minute
-	}
-
-	return out, nil
 }
 
 // ObjectStoreStatus defines the observed state of ObjectStore
@@ -198,27 +128,6 @@ type ObjectStore struct {
 
 	Spec   ObjectStoreSpec   `json:"spec,omitempty"`
 	Status ObjectStoreStatus `json:"status,omitempty"`
-}
-
-func (in *ObjectStore) SetDefaults() (*ObjectStore, error) {
-	var err error
-	out := in.DeepCopy()
-	if out.Spec.Compactor == nil {
-		out.Spec.Compactor = &Compactor{}
-	}
-	out.Spec.Compactor, err = out.Spec.Compactor.SetDefaults()
-	if err != nil {
-		return nil, err
-	}
-	if out.Spec.BucketWeb == nil {
-		out.Spec.BucketWeb = &BucketWeb{}
-	}
-	out.Spec.BucketWeb, err = out.Spec.BucketWeb.SetDefaults()
-	if err != nil {
-		return nil, err
-	}
-
-	return out, nil
 }
 
 // +kubebuilder:object:root=true

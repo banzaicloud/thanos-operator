@@ -31,7 +31,6 @@ import (
 func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error) {
 	if b.ObjectSore.Spec.BucketWeb != nil {
 		bucketWeb := b.ObjectSore.Spec.BucketWeb.DeepCopy()
-
 		var deployment = &appsv1.Deployment{
 			ObjectMeta: b.getMeta(Name),
 			Spec: appsv1.DeploymentSpec{

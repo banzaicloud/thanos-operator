@@ -16,6 +16,8 @@ package compactor
 
 import (
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
+	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
+	"github.com/imdario/mergo"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
@@ -33,6 +35,12 @@ func New(reconciler *resources.ObjectStoreReconciler) *Compactor {
 }
 
 func (c *Compactor) Reconcile() (*reconcile.Result, error) {
+	if c.ObjectSore.Spec.Compactor != nil {
+		err := mergo.Merge(c.ObjectSore.Spec.Compactor, v1alpha1.DefaultCompactor)
+		if err != nil {
+			return nil, err
+		}
+	}
 	return c.ReconcileResources([]resources.Resource{
 		//c.persistentVolumeClaim,
 		c.deployment,
@@ -41,17 +49,20 @@ func (c *Compactor) Reconcile() (*reconcile.Result, error) {
 }
 
 func (c *Compactor) getLabels(name string) resources.Labels {
-	return resources.Labels{
+	labels := resources.Labels{
 		resources.NameLabel: name,
-	}.Merge(
-		c.ObjectStoreReconciler.ObjectSore.Spec.Compactor.Labels,
-		c.GetCommonLabels(),
-	)
+	}.Merge(c.GetCommonLabels())
+	if c.ObjectSore.Spec.Compactor != nil {
+		labels.Merge(c.ObjectSore.Spec.Compactor.Labels)
+	}
+	return labels
 }
 
 func (c *Compactor) getMeta(name string) metav1.ObjectMeta {
 	meta := c.GetObjectMeta(name)
 	meta.Labels = c.getLabels(name)
-	meta.Annotations = c.ObjectStoreReconciler.ObjectSore.Spec.Compactor.Annotations
+	if c.ObjectSore.Spec.Compactor != nil {
+		meta.Annotations = c.ObjectSore.Spec.Compactor.Annotations
+	}
 	return meta
 }

@@ -23,14 +23,10 @@ import (
 )
 
 func (c *Compactor) service() (runtime.Object, reconciler.DesiredState, error) {
-	const app = "compactor"
-	name := app + "-service"
-	compactor := c.ObjectSore.Spec.Compactor.DeepCopy()
-
-	if c.ObjectSore.Spec.BucketWeb.Enabled {
-
+	if c.ObjectSore.Spec.Compactor != nil {
+		compactor := c.ObjectSore.Spec.Compactor.DeepCopy()
 		return &corev1.Service{
-			ObjectMeta: c.getMeta(name),
+			ObjectMeta: c.getMeta(Name),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{

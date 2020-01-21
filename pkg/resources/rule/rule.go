@@ -41,12 +41,15 @@ func (r *Rule) Reconcile() (*reconcile.Result, error) {
 }
 
 func (r *Rule) getLabels(name string) resources.Labels {
-	return resources.Labels{
+	labels := resources.Labels{
 		resources.NameLabel: name,
 	}.Merge(
-		r.Thanos.Spec.Rule.Labels,
 		r.GetCommonLabels(),
 	)
+	if r.Thanos.Spec.Rule != nil {
+		labels.Merge(r.Thanos.Spec.Rule.Labels)
+	}
+	return labels
 }
 
 func (r *Rule) getMeta(name string) metav1.ObjectMeta {

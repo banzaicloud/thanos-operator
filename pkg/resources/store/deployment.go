@@ -7,7 +7,6 @@ import (
 	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
-	"github.com/imdario/mergo"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -38,10 +37,6 @@ func (s *Store) deployment() (runtime.Object, reconciler.DesiredState, error) {
 
 	if s.Thanos.Spec.StoreGateway != nil {
 		store := s.Thanos.Spec.StoreGateway.DeepCopy()
-		err := mergo.Merge(store, v1alpha1.DefaultStoreGateway)
-		if err != nil {
-			return nil, nil, err
-		}
 		var deployment = &appsv1.Deployment{
 			ObjectMeta: s.getMeta(Name),
 			Spec: appsv1.DeploymentSpec{

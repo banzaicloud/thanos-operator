@@ -16,6 +16,8 @@ package bucketweb
 
 import (
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
+	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
+	"github.com/imdario/mergo"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
@@ -33,6 +35,12 @@ func New(reconciler *resources.ObjectStoreReconciler) *BucketWeb {
 }
 
 func (c *BucketWeb) Reconcile() (*reconcile.Result, error) {
+	if c.ObjectSore.Spec.BucketWeb != nil {
+		err := mergo.Merge(c.ObjectSore.Spec.BucketWeb, v1alpha1.DefaultBucketWeb)
+		if err != nil {
+			return nil, err
+		}
+	}
 	return c.ReconcileResources([]resources.Resource{
 		//c.persistentVolumeClaim,
 		c.deployment,
@@ -41,17 +49,20 @@ func (c *BucketWeb) Reconcile() (*reconcile.Result, error) {
 }
 
 func (c *BucketWeb) getLabels(name string) resources.Labels {
-	return resources.Labels{
+	labels := resources.Labels{
 		resources.NameLabel: name,
-	}.Merge(
-		c.ObjectStoreReconciler.ObjectSore.Spec.Compactor.Labels,
-		c.GetCommonLabels(),
-	)
+	}.Merge(c.GetCommonLabels())
+	if c.ObjectSore.Spec.BucketWeb != nil {
+		labels.Merge(c.ObjectSore.Spec.BucketWeb.Labels)
+	}
+	return labels
 }
 
 func (c *BucketWeb) getMeta(name string) metav1.ObjectMeta {
 	meta := c.GetObjectMeta(name)
 	meta.Labels = c.getLabels(name)
-	meta.Annotations = c.ObjectStoreReconciler.ObjectSore.Spec.Compactor.Annotations
+	if c.ObjectSore.Spec.BucketWeb != nil {
+		meta.Annotations = c.ObjectSore.Spec.BucketWeb.Annotations
+	}
 	return meta
 }
