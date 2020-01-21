@@ -42,10 +42,7 @@ func (t *ThanosComponentReconciler) storeService() (runtime.Object, reconciler.D
 						},
 					},
 				},
-				Selector: map[string]string{
-					nameLabel:      "store",
-					managedByLabel: t.Thanos.Name,
-				},
+				Selector:  t.getStoreLabels(),
 				ClusterIP: corev1.ClusterIPNone,
 				Type:      corev1.ServiceTypeClusterIP,
 			},
@@ -78,6 +75,12 @@ func (t *ThanosComponentReconciler) getStoreMeta(name string) metav1.ObjectMeta 
 	return meta
 }
 
+func (t *ThanosComponentReconciler) setStoreArgs(args []string) []string {
+	store := t.Thanos.Spec.StoreGateway.DeepCopy()
+	args = append(args, getArgs(store)...)
+	return args
+}
+
 func (t *ThanosComponentReconciler) storeDeployment() (runtime.Object, reconciler.DesiredState, error) {
 	name := "store-deployment"
 	var objectStore *v1alpha1.ObjectStore
@@ -103,7 +106,7 @@ func (t *ThanosComponentReconciler) storeDeployment() (runtime.Object, reconcile
 
 	if t.Thanos.Spec.StoreGateway != nil {
 		store := t.Thanos.Spec.StoreGateway.DeepCopy()
-		err := mergo.Merge(store, v1alpha1.DefaultStoreGateway) //TODO default Store
+		err := mergo.Merge(store, v1alpha1.DefaultStoreGateway)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -123,8 +126,6 @@ func (t *ThanosComponentReconciler) storeDeployment() (runtime.Object, reconcile
 								Image: fmt.Sprintf("%s:%s", store.Image.Repository, store.Image.Tag),
 								Args: []string{
 									"store",
-									fmt.Sprintf("--grpc-address=%s", store.GRPCAddress),
-									fmt.Sprintf("--http-address=%s", store.HttpAddress),
 									fmt.Sprintf("--objstore.config-file=/etc/config/%s", objectStore.Spec.Config.MountFrom.SecretKeyRef.Key),
 								},
 								Ports: []corev1.ContainerPort{
@@ -147,7 +148,9 @@ func (t *ThanosComponentReconciler) storeDeployment() (runtime.Object, reconcile
 									},
 								},
 								Resources:       store.Resources,
-								ImagePullPolicy: corev1.PullIfNotPresent,
+								ImagePullPolicy: store.Image.PullPolicy,
+								LivenessProbe:   t.getCheck(GetPort(store.HttpAddress), healthCheckPath),
+								ReadinessProbe:  t.getCheck(GetPort(store.HttpAddress), readyCheckPath),
 							},
 						},
 						Volumes: []corev1.Volume{
@@ -164,6 +167,8 @@ func (t *ThanosComponentReconciler) storeDeployment() (runtime.Object, reconcile
 				},
 			},
 		}
+		// Set up args
+		deployment.Spec.Template.Spec.Containers[0].Args = t.setStoreArgs(deployment.Spec.Template.Spec.Containers[0].Args)
 		return deployment, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.Deployment{

@@ -11,14 +11,19 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func GetPort(address string) int32 {
-	port, err := strconv.Atoi(strings.Split(address, ":")[1])
-	if err != nil {
-		return 0
+	res := strings.Split(address, ":")
+	if len(res) > 1 {
+		port, err := strconv.Atoi(res[1])
+		if err != nil {
+			return 0
+		}
+		return int32(port)
 	}
-	return int32(port)
+	return 0
 }
 
 func (t *ThanosComponentReconciler) getQueryLabels() Labels {
@@ -28,6 +33,13 @@ func (t *ThanosComponentReconciler) getQueryLabels() Labels {
 		t.Thanos.Spec.Query.Labels,
 		t.getCommonLabels(),
 	)
+}
+
+func (t *ThanosComponentReconciler) getQueryMeta(name string) metav1.ObjectMeta {
+	meta := t.getObjectMeta(name)
+	meta.Labels = t.getQueryLabels()
+	meta.Annotations = t.Thanos.Spec.Query.Annotations
+	return meta
 }
 
 func (t *ThanosComponentReconciler) getStoreEndpoints() []string {
@@ -98,7 +110,9 @@ func (t *ThanosComponentReconciler) queryDeployment() (runtime.Object, reconcile
 									},
 								},
 								Resources:       query.Resources,
-								ImagePullPolicy: corev1.PullIfNotPresent,
+								ImagePullPolicy: query.Image.PullPolicy,
+								LivenessProbe:   t.getCheck(GetPort(query.HttpAddress), healthCheckPath),
+								ReadinessProbe:  t.getCheck(GetPort(query.HttpAddress), readyCheckPath),
 							},
 						},
 					},
@@ -111,6 +125,46 @@ func (t *ThanosComponentReconciler) queryDeployment() (runtime.Object, reconcile
 	}
 	delete := &appsv1.Deployment{
 		ObjectMeta: t.getObjectMeta(name),
+	}
+	return delete, reconciler.StateAbsent, nil
+}
+
+func (t *ThanosComponentReconciler) queryService() (runtime.Object, reconciler.DesiredState, error) {
+	name := "query-service"
+	if t.Thanos.Spec.StoreGateway != nil {
+		store := t.Thanos.Spec.StoreGateway.DeepCopy()
+		storeService := &corev1.Service{
+			ObjectMeta: t.getQueryMeta(name),
+			Spec: corev1.ServiceSpec{
+				Ports: []corev1.ServicePort{
+					{
+						Name:     "grpc",
+						Protocol: corev1.ProtocolTCP,
+						Port:     GetPort(store.GRPCAddress),
+						TargetPort: intstr.IntOrString{
+							Type:   intstr.String,
+							StrVal: "grpc",
+						},
+					},
+					{
+						Name:     "http",
+						Protocol: corev1.ProtocolTCP,
+						Port:     GetPort(store.HttpAddress),
+						TargetPort: intstr.IntOrString{
+							Type:   intstr.String,
+							StrVal: "http",
+						},
+					},
+				},
+				Selector: t.getQueryLabels(),
+				Type:     corev1.ServiceTypeClusterIP,
+			},
+		}
+		return storeService, reconciler.StatePresent, nil
+
+	}
+	delete := &corev1.Service{
+		ObjectMeta: t.getQueryMeta(name),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

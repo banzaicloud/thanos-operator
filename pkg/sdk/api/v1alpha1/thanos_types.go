@@ -16,13 +16,14 @@ package v1alpha1
 
 import (
 	"github.com/banzaicloud/logging-operator/pkg/sdk/model/secret"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
 	thanosImageRepository = "quay.io/thanos/thanos"
 	thanosImageTag        = "v0.9.0"
-	defaultPullPolicy     = "pIfNotPresent"
+	defaultPullPolicy     = corev1.PullIfNotPresent
 )
 
 var DefaultQuery = Query{
@@ -39,6 +40,19 @@ var DefaultQuery = Query{
 }
 
 var DefaultStoreGateway = StoreGateway{
+	BaseObject: BaseObject{
+		Image: ImageSpec{
+			Repository: thanosImageRepository,
+			Tag:        thanosImageTag,
+			PullPolicy: defaultPullPolicy,
+		},
+	},
+	LogLevel:    "info",
+	HttpAddress: "0.0.0.0:10902",
+	GRPCAddress: "0.0.0.0:10901",
+}
+
+var DefaultRule = Rule{
 	BaseObject: BaseObject{
 		Image: ImageSpec{
 			Repository: thanosImageRepository,
@@ -156,46 +170,46 @@ type TimeRange struct {
 
 type StoreGateway struct {
 	BaseObject `json:",inline"`
-	LogLevel   string `json:"logLevel,omitempty"`
-	LogFormat  string `json:"logFormat,omitempty"`
+	LogLevel   string `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat  string `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Listen host:port for HTTP endpoints.
-	HttpAddress string `json:"httpAddress,omitempty"`
+	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
 	// Time to wait after an interrupt received for HTTP Server.
-	HttpGracePeriod string `json:"http_grace_period,omitempty"`
+	HttpGracePeriod string `json:"http_grace_period,omitempty" thanos:"--http-grace-period=%s"`
 	// Listen ip:port address for gRPC endpoints
-	GRPCAddress string `json:"grpcAddress,omitempty"`
+	GRPCAddress string `json:"grpcAddress,omitempty" thanos:"--grpc-address=%s"`
 	// Time to wait after an interrupt received for GRPC Server.
-	GRPCGracePeriod string `json:"grpcGracePeriod,omitempty"`
+	GRPCGracePeriod string `json:"grpcGracePeriod,omitempty" thanos:"--grpc-grace-period=%s"`
 	// Maximum size of items held in the in-memory index cache.
-	IndexCacheSize string `json:"indexCacheSize,omitempty"`
+	IndexCacheSize string `json:"indexCacheSize,omitempty" thanos:"--index-cache-size=%s"`
 	// Maximum size of concurrently allocatable bytes for chunks.
-	ChunkPoolSize string `json:"chunkPoolSize,omitempty"`
+	ChunkPoolSize string `json:"chunkPoolSize,omitempty" thanos:"--chunk-pool-size=%s"`
 	// Maximum amount of samples returned via a single Series call. 0 means no limit. NOTE: For
 	// efficiency we take 120 as the number of samples in chunk (it cannot be bigger than that), so
 	// the actual number of samples might be lower, even though the maximum could be hit.
-	StoreGRPCSeriesSampleLimit string `json:"storeGRPCSeriesSampleLimit,omitempty"`
+	StoreGRPCSeriesSampleLimit string `json:"storeGRPCSeriesSampleLimit,omitempty" thanos:"--store.grpc.series-sample-limit=%s"`
 	// Maximum number of concurrent Series calls.
-	StoreGRPCSeriesMaxConcurrency int `json:"storeGRPCSeriesMaxConcurrency,omitempty"`
+	StoreGRPCSeriesMaxConcurrency int `json:"storeGRPCSeriesMaxConcurrency,omitempty" thanos:"--store.grpc.series-max-concurrency=%s"`
 	// Repeat interval for syncing the blocks between local and remote view.
-	SyncBlockDuration string `json:"syncBlockDuration,omitempty"`
+	SyncBlockDuration string `json:"syncBlockDuration,omitempty" thanos:"--sync-block-duration=%s"`
 	// Number of goroutines to use when constructing index-cache.json blocks from object storage.
-	BlockSyncConcurrency int `json:"blockSyncConcurrency,omitempty"`
+	BlockSyncConcurrency int `json:"blockSyncConcurrency,omitempty" thanos:"--block-sync-concurrency=%s"`
 	// TimeRanges is a list of TimeRange to partition Store Gateway
 	TimeRanges []TimeRange `json:"timeRanges,omitempty"`
 }
 
 type Rule struct {
 	BaseObject `json:",inline"`
-	LogLevel   string `json:"logLevel,omitempty"`
-	LogFormat  string `json:"logFormat,omitempty"`
+	LogLevel   string `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat  string `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Listen host:port for HTTP endpoints.
-	HttpAddress string `json:"httpAddress"`
+	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
 	// Time to wait after an interrupt received for HTTP Server.
-	HttpGracePeriod string `json:"http_grace_period"`
+	HttpGracePeriod string `json:"http_grace_period,omitempty" thanos:"--http-grace-period=%s"`
 	// Listen ip:port address for gRPC endpoints
-	GRPCAddress string `json:"grpcAddress"`
+	GRPCAddress string `json:"grpcAddress,omitempty" thanos:"--grpc-address=%s"`
 	// Time to wait after an interrupt received for GRPC Server.
-	GRPCGracePeriod string `json:"grpcGracePeriod"`
+	GRPCGracePeriod string `json:"grpcGracePeriod,omitempty" thanos:"--grpc-grace-period=%s"`
 	// 	Labels to be applied to all generated metrics
 	//(repeated). Similar to external labels for
 	//	Prometheus, used to identify ruler and its
@@ -204,13 +218,13 @@ type Rule struct {
 	// Rules
 	Rules string `json:"rules,omitempty"`
 	// Minimum amount of time to wait before resending an alert to Alertmanager.
-	ResendDelay string `json:"resendDelay,omitempty"`
+	ResendDelay string `json:"resendDelay,omitempty" thanos:"--resend-delay=%s"`
 	// The default evaluation interval to use.
-	EvalInterval string `json:"evalInterval,omitempty"`
+	EvalInterval string `json:"evalInterval,omitempty" thanos:"--eval-interval=%s"`
 	// Block duration for TSDB block.
-	TSDBBlockDuration string `json:"tsdbBlockDuration,omitempty"`
+	TSDBBlockDuration string `json:"tsdbBlockDuration,omitempty" thanos:"--tsdb.block-duration=%s"`
 	// Block retention time on local disk.
-	TSDBRetention string `json:"tsdbRetention,omitempty"`
+	TSDBRetention string `json:"tsdbRetention,omitempty" thanos:"--tsdb.retention=%s"`
 	// Alertmanager replica URLs to push firing alerts. Ruler claims success if push to at
 	// least one alertmanager from discovered succeeds. The scheme should not be empty e.g
 	// `http` might be used. The scheme may be prefixed with 'dns+' or 'dnssrv+' to detect
@@ -218,21 +232,21 @@ type Rule struct {
 	// record's value. The URL path is used as a prefix for the regular Alertmanager API path.
 	AlertmanagersURLs []string `json:"alertmanagersURLs,omitempty"`
 	// Timeout for sending alerts to Alertmanager
-	AlertmanagersSendTimeout string `json:"alertmanagersSendTimeout,omitempty"`
+	AlertmanagersSendTimeout string `json:"alertmanagersSendTimeout,omitempty" thanos:"--alertmanagers.send-timeout=%s"`
 	// Interval between DNS resolutions of Alertmanager hosts.
-	AlertmanagersSDDNSInterval string `json:"alertmanagersSDDNSInterval,omitempty"`
+	AlertmanagersSDDNSInterval string `json:"alertmanagersSDDNSInterval,omitempty" thanos:"--alertmanagers.sd-dns-interval=%s"`
 	// The external Thanos Query URL that would be set in all alerts 'Source' field
-	AlertQueryURL string `json:"alertQueryUrl,omitempty"`
+	AlertQueryURL string `json:"alertQueryUrl,omitempty" thanos:"--alert.query-url=%s"`
 	// Labels by name to drop before sending to alertmanager. This allows alert to be
 	// deduplicated on replica label (repeated). Similar Prometheus alert relabelling
 	AlertLabelDrop map[string]string `json:"alertLabelDrop,omitempty"`
 	// Prefix for API and UI endpoints. This allows thanos UI to be served on a sub-path. This
 	// option is analogous to --web.route-prefix of Promethus.
-	WebRoutePrefix string `json:"webRoutePrefix,omitempty"`
+	WebRoutePrefix string `json:"webRoutePrefix,omitempty" thanos:"--web.route-prefix=%s"`
 	// Static prefix for all HTML links and redirect URLs in the UI query web interface. Actual
 	// endpoints are still served on / or the web.route-prefix. This allows thanos UI to be
 	// served behind a reverse proxy that strips a URL sub-path.
-	WebExternalPrefix string `json:"webExternalPrefix,omitempty"`
+	WebExternalPrefix string `json:"webExternalPrefix,omitempty" thanos:"--web.external-prefix=%s"`
 	// Name of HTTP request header used for dynamic prefixing of UI links and redirects. This
 	// option is ignored if web.external-prefix argument is set. Security risk: enable this
 	// option only if a reverse proxy in front of thanos is resetting the header. The
@@ -240,13 +254,13 @@ type Rule struct {
 	// served via Traefik reverse proxy with PathPrefixStrip option enabled, which sends the
 	// stripped prefix value in X-Forwarded-Prefix header. This allows thanos UI to be served on a
 	// sub-path.
-	WebPrefixHeader string `json:"webPrefixHeader,omitempty"`
+	WebPrefixHeader string `json:"webPrefixHeader,omitempty" thanos:"--web.prefix-header=%s"`
 	// Addresses of statically configured query API servers (repeatable). The scheme may be
 	// prefixed with 'dns+' or 'dnssrv+' to detect query API servers through respective DNS
 	// lookups.
-	Queries []string `json:"queries"`
+	Queries []string `json:"queries,omitempty"`
 	// Interval between DNS resolutions.
-	QuerySDDNSInterval string `json:"querySddnsInterval,omitempty"`
+	QuerySDDNSInterval string `json:"querySddnsInterval,omitempty" thanos:"--query.sd-dns-interval=%s"`
 }
 
 // ThanosStatus defines the observed state of Thanos

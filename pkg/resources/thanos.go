@@ -8,7 +8,9 @@ import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/imdario/mergo"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
@@ -18,12 +20,34 @@ const (
 	versionLabel   = "app.kubernetes.io/version"
 	componentLabel = "app.kubernetes.io/component"
 	managedByLabel = "app.kubernetes.io/managed-by"
+
+	healthCheckPath = "/-/healthy"
+	readyCheckPath  = "/-/ready"
 )
 
 type ThanosComponentReconciler struct {
 	Thanos      *v1alpha1.Thanos
 	ObjectSores []v1alpha1.ObjectStore
 	*reconciler.GenericResourceReconciler
+}
+
+func (t *ThanosComponentReconciler) getCheck(port int32, path string) *corev1.Probe {
+	return &corev1.Probe{
+		Handler: corev1.Handler{
+			HTTPGet: &corev1.HTTPGetAction{
+				Path: path,
+				Port: intstr.IntOrString{
+					Type:   intstr.Int,
+					IntVal: port,
+				},
+			},
+		},
+		InitialDelaySeconds: 5,
+		TimeoutSeconds:      5,
+		PeriodSeconds:       30,
+		SuccessThreshold:    1,
+		FailureThreshold:    2,
+	}
 }
 
 func (t *ThanosComponentReconciler) getCommonLabels() Labels {
@@ -62,6 +86,7 @@ func (t *ThanosComponentReconciler) Reconcile() (*reconcile.Result, error) {
 		t.queryDeployment,
 		t.storeDeployment,
 		t.storeService,
+		t.ruleStatefulSet,
 	}
 	// Generate objects from resources
 	for _, res := range resourceList {
@@ -93,6 +118,12 @@ func (t *ThanosComponentReconciler) setDefaults() error {
 	}
 	if t.Thanos.Spec.StoreGateway != nil {
 		err := mergo.Merge(t.Thanos.Spec.StoreGateway, v1alpha1.DefaultStoreGateway)
+		if err != nil {
+			return err
+		}
+	}
+	if t.Thanos.Spec.Rule != nil {
+		err := mergo.Merge(t.Thanos.Spec.Rule, v1alpha1.DefaultRule)
 		if err != nil {
 			return err
 		}

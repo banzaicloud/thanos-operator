@@ -6,5 +6,6 @@ spec:
   # Add fields here
   thanosDiscovery: {}
   query: {}
+  rule: {}
   storeGateway: {}
   objectStore: objectstore-sample

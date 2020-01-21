@@ -29,7 +29,7 @@ type BaseObject struct {
 }
 
 type ImageSpec struct {
-	Repository string `json:"repository,omitempty"`
-	Tag        string `json:"tag,omitempty"`
-	PullPolicy string `json:"pullPolicy,omitempty"`
+	Repository string            `json:"repository,omitempty"`
+	Tag        string            `json:"tag,omitempty"`
+	PullPolicy corev1.PullPolicy `json:"pullPolicy,omitempty"`
 }

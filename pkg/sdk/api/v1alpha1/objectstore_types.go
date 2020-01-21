@@ -16,7 +16,6 @@ package v1alpha1
 
 import (
 	"net"
-	"strings"
 	"time"
 
 	"github.com/banzaicloud/logging-operator/pkg/sdk/model/secret"
@@ -76,13 +75,9 @@ func (in *Compactor) SetDefaults() (*Compactor, error) {
 	if out.Image.Tag == "" {
 		out.Image.Tag = "v0.9.0"
 	}
-	switch strings.ToLower(out.Image.PullPolicy) {
-	case strings.ToLower(string(corev1.PullAlways)):
-		out.Image.PullPolicy = string(corev1.PullAlways)
-	case strings.ToLower(string(corev1.PullNever)):
-		out.Image.PullPolicy = string(corev1.PullNever)
-	default:
-		out.Image.PullPolicy = string(corev1.PullIfNotPresent)
+
+	if out.Image.PullPolicy == "" {
+		out.Image.PullPolicy = corev1.PullIfNotPresent
 	}
 
 	// HTTPAddress
@@ -159,13 +154,8 @@ func (in *BucketWeb) SetDefaults() (*BucketWeb, error) {
 	if out.Image.Tag == "" {
 		out.Image.Tag = "v0.9.0"
 	}
-	switch strings.ToLower(out.Image.PullPolicy) {
-	case strings.ToLower(string(corev1.PullAlways)):
-		out.Image.PullPolicy = string(corev1.PullAlways)
-	case strings.ToLower(string(corev1.PullNever)):
-		out.Image.PullPolicy = string(corev1.PullNever)
-	default:
-		out.Image.PullPolicy = string(corev1.PullIfNotPresent)
+	if out.Image.PullPolicy == "" {
+		out.Image.PullPolicy = corev1.PullIfNotPresent
 	}
 
 	// HTTPAddress
