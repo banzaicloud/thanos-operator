@@ -4,4 +4,8 @@ metadata:
   name: thanos-sample
 spec:
   # Add fields here
-  foo: bar
+  thanosDiscovery: {}
+  query: {}
+  rule: {}
+  storeGateway: {}
+  objectStore: objectstore-sample

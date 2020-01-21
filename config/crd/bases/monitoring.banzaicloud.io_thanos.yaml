@@ -33,15 +33,646 @@ spec:
           description: ThanosSpec defines the desired state of Thanos
           properties:
             local:
+              properties:
+                tls:
+                  properties:
+                    certificate:
+                      properties:
+                        mountFrom:
+                          properties:
+                            secretKeyRef:
+                              properties:
+                                key:
+                                  description: Secret key for the value
+                                  type: string
+                                name:
+                                  description: Name of the kubernetes secret
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        value:
+                          type: string
+                        valueFrom:
+                          properties:
+                            secretKeyRef:
+                              properties:
+                                key:
+                                  description: Secret key for the value
+                                  type: string
+                                name:
+                                  description: Name of the kubernetes secret
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                      type: object
+                    managedTLS:
+                      description: TODO how the runtime generated certificate will
+                        work
+                      type: object
+                  type: object
+                urls:
+                  items:
+                    type: string
+                  type: array
+              required:
+              - tls
+              - urls
+              type: object
+            objectStore:
+              type: string
+            query:
+              properties:
+                annotations:
+                  additionalProperties:
+                    type: string
+                  type: object
+                grpcAddress:
+                  description: Listen ip:port address for gRPC endpoints
+                  type: string
+                grpcGracePeriod:
+                  description: Time to wait after an interrupt received for GRPC Server.
+                  type: string
+                http_grace_period:
+                  description: Time to wait after an interrupt received for HTTP Server.
+                  type: string
+                httpAddress:
+                  description: Listen host:port for HTTP endpoints.
+                  type: string
+                image:
+                  properties:
+                    pullPolicy:
+                      description: PullPolicy describes a policy for if/when to pull
+                        a container image
+                      type: string
+                    repository:
+                      type: string
+                    tag:
+                      type: string
+                  type: object
+                labels:
+                  additionalProperties:
+                    type: string
+                  type: object
+                logFormat:
+                  type: string
+                logLevel:
+                  type: string
+                nodeSelector:
+                  additionalProperties:
+                    type: string
+                  type: object
+                queryAutoDownsampling:
+                  description: Enable automatic adjustment (step / 5) to what source
+                    of data should be used in store gateways if no max_source_resolution
+                    param is specified.
+                  type: boolean
+                queryDefaultEvaluationInterval:
+                  description: "\tSet default evaluation interval for sub queries."
+                  type: string
+                queryMaxConcurrent:
+                  description: Maximum number of queries processed concurrently by
+                    query node.
+                  type: integer
+                queryPartialResponse:
+                  description: Enable partial response for queries if no partial_response
+                    param is specified.
+                  type: boolean
+                queryReplicaLabel:
+                  description: Labels to treat as a replica indicator along which
+                    data is deduplicated. Still you will be able to query without
+                    deduplication using 'dedup=false' parameter.
+                  items:
+                    type: string
+                  type: array
+                queryTimeout:
+                  description: Maximum time to process query by query node.
+                  type: string
+                resources:
+                  description: ResourceRequirements describes the compute resource
+                    requirements.
+                  properties:
+                    limits:
+                      additionalProperties:
+                        type: string
+                      description: 'Limits describes the maximum amount of compute
+                        resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                    requests:
+                      additionalProperties:
+                        type: string
+                      description: 'Requests describes the minimum amount of compute
+                        resources required. If Requests is omitted for a container,
+                        it defaults to Limits if that is explicitly specified, otherwise
+                        to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                  type: object
+                selectorLabels:
+                  additionalProperties:
+                    type: string
+                  description: Query selector labels that will be exposed in info
+                    endpoint (repeated).
+                  type: object
+                storeResponseTimeout:
+                  description: "\tIf a Store doesn't send any data in this specified
+                    duration then a Store will be ignored \tand partial data will
+                    be returned if it's enabled. 0 disables timeout."
+                  type: string
+                storeSDDNSInterval:
+                  description: "\tInterval between DNS resolutions."
+                  type: string
+                storeUnhealthyTimeout:
+                  description: "\tTimeout before an unhealthy store is cleaned from
+                    the store UI page."
+                  type: string
+                stores:
+                  description: Addresses of statically configured store API servers
+                    (repeatable). The scheme may be prefixed with 'dns+' or 'dnssrv+'
+                    to detect store API servers through respective DNS lookups.
+                  items:
+                    type: string
+                  type: array
+                tolerations:
+                  items:
+                    description: The pod this Toleration is attached to tolerates
+                      any taint that matches the triple <key,value,effect> using the
+                      matching operator <operator>.
+                    properties:
+                      effect:
+                        description: Effect indicates the taint effect to match. Empty
+                          means match all taint effects. When specified, allowed values
+                          are NoSchedule, PreferNoSchedule and NoExecute.
+                        type: string
+                      key:
+                        description: Key is the taint key that the toleration applies
+                          to. Empty means match all taint keys. If the key is empty,
+                          operator must be Exists; this combination means to match
+                          all values and all keys.
+                        type: string
+                      operator:
+                        description: Operator represents a key's relationship to the
+                          value. Valid operators are Exists and Equal. Defaults to
+                          Equal. Exists is equivalent to wildcard for value, so that
+                          a pod can tolerate all taints of a particular category.
+                        type: string
+                      tolerationSeconds:
+                        description: TolerationSeconds represents the period of time
+                          the toleration (which must be of effect NoExecute, otherwise
+                          this field is ignored) tolerates the taint. By default,
+                          it is not set, which means tolerate the taint forever (do
+                          not evict). Zero and negative values will be treated as
+                          0 (evict immediately) by the system.
+                        format: int64
+                        type: integer
+                      value:
+                        description: Value is the taint value the toleration matches
+                          to. If the operator is Exists, the value should be empty,
+                          otherwise just a regular string.
+                        type: string
+                    type: object
+                  type: array
+                webExternalPrefix:
+                  description: Static prefix for all HTML links and redirect URLs
+                    in the UI query web interface. Actual endpoints are still served
+                    on / or the web.route-prefix. This allows thanos UI to be served
+                    behind a reverse proxy that strips a URL sub-path.
+                  type: string
+                webPrefixHeader:
+                  description: 'Name of HTTP request header used for dynamic prefixing
+                    of UI links and redirects. This option is ignored if web.external-prefix
+                    argument is set. Security risk: enable this option only if a reverse
+                    proxy in front of thanos is resetting the header. The --web.prefix-header=X-Forwarded-Prefix
+                    option can be useful, for example, if Thanos UI is served via
+                    Traefik reverse proxy with PathPrefixStrip option enabled, which
+                    sends the stripped prefix value in X-Forwarded-Prefix header.
+                    This allows thanos UI to be served on a sub-path.'
+                  type: string
+                webRoutePrefix:
+                  description: Prefix for API and UI endpoints. This allows thanos
+                    UI to be served on a sub-path. This option is analogous to --web.route-prefix
+                    of Promethus.
+                  type: string
               type: object
             remote:
+              properties:
+                tls:
+                  properties:
+                    certificate:
+                      properties:
+                        mountFrom:
+                          properties:
+                            secretKeyRef:
+                              properties:
+                                key:
+                                  description: Secret key for the value
+                                  type: string
+                                name:
+                                  description: Name of the kubernetes secret
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                        value:
+                          type: string
+                        valueFrom:
+                          properties:
+                            secretKeyRef:
+                              properties:
+                                key:
+                                  description: Secret key for the value
+                                  type: string
+                                name:
+                                  description: Name of the kubernetes secret
+                                  type: string
+                              required:
+                              - key
+                              - name
+                              type: object
+                          type: object
+                      type: object
+                    managedTLS:
+                      description: TODO how the runtime generated certificate will
+                        work
+                      type: object
+                  type: object
+                urls:
+                  items:
+                    type: string
+                  type: array
+              required:
+              - tls
+              - urls
               type: object
             rule:
+              properties:
+                alertLabelDrop:
+                  additionalProperties:
+                    type: string
+                  description: Labels by name to drop before sending to alertmanager.
+                    This allows alert to be deduplicated on replica label (repeated).
+                    Similar Prometheus alert relabelling
+                  type: object
+                alertQueryUrl:
+                  description: The external Thanos Query URL that would be set in
+                    all alerts 'Source' field
+                  type: string
+                alertmanagersSDDNSInterval:
+                  description: Interval between DNS resolutions of Alertmanager hosts.
+                  type: string
+                alertmanagersSendTimeout:
+                  description: Timeout for sending alerts to Alertmanager
+                  type: string
+                alertmanagersURLs:
+                  description: Alertmanager replica URLs to push firing alerts. Ruler
+                    claims success if push to at least one alertmanager from discovered
+                    succeeds. The scheme should not be empty e.g `http` might be used.
+                    The scheme may be prefixed with 'dns+' or 'dnssrv+' to detect
+                    Alertmanager IPs through respective DNS lookups. The port defaults
+                    to 9093 or the SRV record's value. The URL path is used as a prefix
+                    for the regular Alertmanager API path.
+                  items:
+                    type: string
+                  type: array
+                annotations:
+                  additionalProperties:
+                    type: string
+                  type: object
+                evalInterval:
+                  description: The default evaluation interval to use.
+                  type: string
+                grpcAddress:
+                  description: Listen ip:port address for gRPC endpoints
+                  type: string
+                grpcGracePeriod:
+                  description: Time to wait after an interrupt received for GRPC Server.
+                  type: string
+                http_grace_period:
+                  description: Time to wait after an interrupt received for HTTP Server.
+                  type: string
+                httpAddress:
+                  description: Listen host:port for HTTP endpoints.
+                  type: string
+                image:
+                  properties:
+                    pullPolicy:
+                      description: PullPolicy describes a policy for if/when to pull
+                        a container image
+                      type: string
+                    repository:
+                      type: string
+                    tag:
+                      type: string
+                  type: object
+                labels:
+                  additionalProperties:
+                    type: string
+                  type: object
+                logFormat:
+                  type: string
+                logLevel:
+                  type: string
+                nodeSelector:
+                  additionalProperties:
+                    type: string
+                  type: object
+                queries:
+                  description: Addresses of statically configured query API servers
+                    (repeatable). The scheme may be prefixed with 'dns+' or 'dnssrv+'
+                    to detect query API servers through respective DNS lookups.
+                  items:
+                    type: string
+                  type: array
+                querySddnsInterval:
+                  description: Interval between DNS resolutions.
+                  type: string
+                resendDelay:
+                  description: Minimum amount of time to wait before resending an
+                    alert to Alertmanager.
+                  type: string
+                resources:
+                  description: ResourceRequirements describes the compute resource
+                    requirements.
+                  properties:
+                    limits:
+                      additionalProperties:
+                        type: string
+                      description: 'Limits describes the maximum amount of compute
+                        resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                    requests:
+                      additionalProperties:
+                        type: string
+                      description: 'Requests describes the minimum amount of compute
+                        resources required. If Requests is omitted for a container,
+                        it defaults to Limits if that is explicitly specified, otherwise
+                        to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                  type: object
+                rules:
+                  description: Rules
+                  type: string
+                tolerations:
+                  items:
+                    description: The pod this Toleration is attached to tolerates
+                      any taint that matches the triple <key,value,effect> using the
+                      matching operator <operator>.
+                    properties:
+                      effect:
+                        description: Effect indicates the taint effect to match. Empty
+                          means match all taint effects. When specified, allowed values
+                          are NoSchedule, PreferNoSchedule and NoExecute.
+                        type: string
+                      key:
+                        description: Key is the taint key that the toleration applies
+                          to. Empty means match all taint keys. If the key is empty,
+                          operator must be Exists; this combination means to match
+                          all values and all keys.
+                        type: string
+                      operator:
+                        description: Operator represents a key's relationship to the
+                          value. Valid operators are Exists and Equal. Defaults to
+                          Equal. Exists is equivalent to wildcard for value, so that
+                          a pod can tolerate all taints of a particular category.
+                        type: string
+                      tolerationSeconds:
+                        description: TolerationSeconds represents the period of time
+                          the toleration (which must be of effect NoExecute, otherwise
+                          this field is ignored) tolerates the taint. By default,
+                          it is not set, which means tolerate the taint forever (do
+                          not evict). Zero and negative values will be treated as
+                          0 (evict immediately) by the system.
+                        format: int64
+                        type: integer
+                      value:
+                        description: Value is the taint value the toleration matches
+                          to. If the operator is Exists, the value should be empty,
+                          otherwise just a regular string.
+                        type: string
+                    type: object
+                  type: array
+                tsdbBlockDuration:
+                  description: Block duration for TSDB block.
+                  type: string
+                tsdbRetention:
+                  description: Block retention time on local disk.
+                  type: string
+                webExternalPrefix:
+                  description: Static prefix for all HTML links and redirect URLs
+                    in the UI query web interface. Actual endpoints are still served
+                    on / or the web.route-prefix. This allows thanos UI to be served
+                    behind a reverse proxy that strips a URL sub-path.
+                  type: string
+                webPrefixHeader:
+                  description: 'Name of HTTP request header used for dynamic prefixing
+                    of UI links and redirects. This option is ignored if web.external-prefix
+                    argument is set. Security risk: enable this option only if a reverse
+                    proxy in front of thanos is resetting the header. The --web.prefix-header=X-Forwarded-Prefix
+                    option can be useful, for example, if Thanos UI is served via
+                    Traefik reverse proxy with PathPrefixStrip option enabled, which
+                    sends the stripped prefix value in X-Forwarded-Prefix header.
+                    This allows thanos UI to be served on a sub-path.'
+                  type: string
+                webRoutePrefix:
+                  description: Prefix for API and UI endpoints. This allows thanos
+                    UI to be served on a sub-path. This option is analogous to --web.route-prefix
+                    of Promethus.
+                  type: string
               type: object
             storeGateway:
-              description: StoreGateway
+              properties:
+                annotations:
+                  additionalProperties:
+                    type: string
+                  type: object
+                blockSyncConcurrency:
+                  description: Number of goroutines to use when constructing index-cache.json
+                    blocks from object storage.
+                  type: integer
+                chunkPoolSize:
+                  description: Maximum size of concurrently allocatable bytes for
+                    chunks.
+                  type: string
+                grpcAddress:
+                  description: Listen ip:port address for gRPC endpoints
+                  type: string
+                grpcGracePeriod:
+                  description: Time to wait after an interrupt received for GRPC Server.
+                  type: string
+                http_grace_period:
+                  description: Time to wait after an interrupt received for HTTP Server.
+                  type: string
+                httpAddress:
+                  description: Listen host:port for HTTP endpoints.
+                  type: string
+                image:
+                  properties:
+                    pullPolicy:
+                      description: PullPolicy describes a policy for if/when to pull
+                        a container image
+                      type: string
+                    repository:
+                      type: string
+                    tag:
+                      type: string
+                  type: object
+                indexCacheSize:
+                  description: Maximum size of items held in the in-memory index cache.
+                  type: string
+                labels:
+                  additionalProperties:
+                    type: string
+                  type: object
+                logFormat:
+                  type: string
+                logLevel:
+                  type: string
+                nodeSelector:
+                  additionalProperties:
+                    type: string
+                  type: object
+                resources:
+                  description: ResourceRequirements describes the compute resource
+                    requirements.
+                  properties:
+                    limits:
+                      additionalProperties:
+                        type: string
+                      description: 'Limits describes the maximum amount of compute
+                        resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                    requests:
+                      additionalProperties:
+                        type: string
+                      description: 'Requests describes the minimum amount of compute
+                        resources required. If Requests is omitted for a container,
+                        it defaults to Limits if that is explicitly specified, otherwise
+                        to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
+                      type: object
+                  type: object
+                storeGRPCSeriesMaxConcurrency:
+                  description: Maximum number of concurrent Series calls.
+                  type: integer
+                storeGRPCSeriesSampleLimit:
+                  description: 'Maximum amount of samples returned via a single Series
+                    call. 0 means no limit. NOTE: For efficiency we take 120 as the
+                    number of samples in chunk (it cannot be bigger than that), so
+                    the actual number of samples might be lower, even though the maximum
+                    could be hit.'
+                  type: string
+                syncBlockDuration:
+                  description: Repeat interval for syncing the blocks between local
+                    and remote view.
+                  type: string
+                timeRanges:
+                  description: TimeRanges is a list of TimeRange to partition Store
+                    Gateway
+                  items:
+                    properties:
+                      maxTime:
+                        description: "\tEnd of time range limit to serve. Thanos Store
+                          \twill serve only blocks, which happened eariler \tthan
+                          this value. Option can be a constant time \tin RFC3339 format
+                          or time duration relative to \tcurrent time, such as -1d
+                          or 2h45m. Valid \tduration units are ms, s, m, h, d, w,
+                          y."
+                        type: string
+                      minTime:
+                        description: Start of time range limit to serve. Thanos Store
+                          will serve only metrics, which happened later than this
+                          value. Option can be a constant time in RFC3339 format or
+                          time duration relative to current time, such as -1d or 2h45m.
+                          Valid duration units are ms, s, m, h, d, w, y.
+                        type: string
+                    type: object
+                  type: array
+                tolerations:
+                  items:
+                    description: The pod this Toleration is attached to tolerates
+                      any taint that matches the triple <key,value,effect> using the
+                      matching operator <operator>.
+                    properties:
+                      effect:
+                        description: Effect indicates the taint effect to match. Empty
+                          means match all taint effects. When specified, allowed values
+                          are NoSchedule, PreferNoSchedule and NoExecute.
+                        type: string
+                      key:
+                        description: Key is the taint key that the toleration applies
+                          to. Empty means match all taint keys. If the key is empty,
+                          operator must be Exists; this combination means to match
+                          all values and all keys.
+                        type: string
+                      operator:
+                        description: Operator represents a key's relationship to the
+                          value. Valid operators are Exists and Equal. Defaults to
+                          Equal. Exists is equivalent to wildcard for value, so that
+                          a pod can tolerate all taints of a particular category.
+                        type: string
+                      tolerationSeconds:
+                        description: TolerationSeconds represents the period of time
+                          the toleration (which must be of effect NoExecute, otherwise
+                          this field is ignored) tolerates the taint. By default,
+                          it is not set, which means tolerate the taint forever (do
+                          not evict). Zero and negative values will be treated as
+                          0 (evict immediately) by the system.
+                        format: int64
+                        type: integer
+                      value:
+                        description: Value is the taint value the toleration matches
+                          to. If the operator is Exists, the value should be empty,
+                          otherwise just a regular string.
+                        type: string
+                    type: object
+                  type: array
               type: object
             thanosDiscovery:
+              properties:
+                matchExpressions:
+                  description: matchExpressions is a list of label selector requirements.
+                    The requirements are ANDed.
+                  items:
+                    description: A label selector requirement is a selector that contains
+                      values, a key, and an operator that relates the key and values.
+                    properties:
+                      key:
+                        description: key is the label key that the selector applies
+                          to.
+                        type: string
+                      operator:
+                        description: operator represents a key's relationship to a
+                          set of values. Valid operators are In, NotIn, Exists and
+                          DoesNotExist.
+                        type: string
+                      values:
+                        description: values is an array of string values. If the operator
+                          is In or NotIn, the values array must be non-empty. If the
+                          operator is Exists or DoesNotExist, the values array must
+                          be empty. This array is replaced during a strategic merge
+                          patch.
+                        items:
+                          type: string
+                        type: array
+                    required:
+                    - key
+                    - operator
+                    type: object
+                  type: array
+                matchLabels:
+                  additionalProperties:
+                    type: string
+                  description: matchLabels is a map of {key,value} pairs. A single
+                    {key,value} in the matchLabels map is equivalent to an element
+                    of matchExpressions, whose key field is "key", the operator is
+                    "In", and the values array contains only "value". The requirements
+                    are ANDed.
+                  type: object
               type: object
           type: object
         status:
