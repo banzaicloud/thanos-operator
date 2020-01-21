@@ -20,6 +20,17 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
+const (
+	NameLabel      = "app.kubernetes.io/name"
+	InstanceLabel  = "app.kubernetes.io/instance"
+	VersionLabel   = "app.kubernetes.io/version"
+	ComponentLabel = "app.kubernetes.io/component"
+	ManagedByLabel = "app.kubernetes.io/managed-by"
+
+	HealthCheckPath = "/-/healthy"
+	ReadyCheckPath  = "/-/ready"
+)
+
 // ComponentReconciler reconciler interface
 type ComponentReconciler func() (*reconcile.Result, error)
 
