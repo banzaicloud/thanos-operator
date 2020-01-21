@@ -14,6 +14,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
+const queryName = "query"
+
 func GetPort(address string) int32 {
 	res := strings.Split(address, ":")
 	if len(res) > 1 {
@@ -28,7 +30,7 @@ func GetPort(address string) int32 {
 
 func (t *ThanosComponentReconciler) getQueryLabels() Labels {
 	return Labels{
-		nameLabel: "query",
+		nameLabel: queryName,
 	}.merge(
 		t.Thanos.Spec.Query.Labels,
 		t.getCommonLabels(),
@@ -45,7 +47,7 @@ func (t *ThanosComponentReconciler) getQueryMeta(name string) metav1.ObjectMeta 
 func (t *ThanosComponentReconciler) getStoreEndpoints() []string {
 	var endpoints []string
 	if t.Thanos.Spec.StoreGateway != nil {
-		endpoints = append(endpoints, "store-service")
+		endpoints = append(endpoints, t.qualifiedName(storeName))
 	}
 	return endpoints
 }
@@ -73,22 +75,17 @@ func (t *ThanosComponentReconciler) setQueryArgs(args []string) []string {
 }
 
 func (t *ThanosComponentReconciler) queryDeployment() (runtime.Object, reconciler.DesiredState, error) {
-	name := t.qualifiedName("query-deployment")
 	if t.Thanos.Spec.Query != nil {
 		query := t.Thanos.Spec.Query.DeepCopy()
 		var deployment = &appsv1.Deployment{
-			ObjectMeta: t.getObjectMeta(name),
+			ObjectMeta: t.getQueryMeta(queryName),
 			Spec: appsv1.DeploymentSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
 					MatchLabels: t.getQueryLabels(),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:        "query",
-						Labels:      t.getQueryLabels(),
-						Annotations: query.Annotations,
-					},
+					ObjectMeta: t.getQueryMeta(queryName),
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
@@ -124,17 +121,16 @@ func (t *ThanosComponentReconciler) queryDeployment() (runtime.Object, reconcile
 		return deployment, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.Deployment{
-		ObjectMeta: t.getObjectMeta(name),
+		ObjectMeta: t.getObjectMeta(queryName),
 	}
 	return delete, reconciler.StateAbsent, nil
 }
 
 func (t *ThanosComponentReconciler) queryService() (runtime.Object, reconciler.DesiredState, error) {
-	name := "query-service"
 	if t.Thanos.Spec.StoreGateway != nil {
 		store := t.Thanos.Spec.StoreGateway.DeepCopy()
 		storeService := &corev1.Service{
-			ObjectMeta: t.getQueryMeta(name),
+			ObjectMeta: t.getQueryMeta(queryName),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
@@ -164,7 +160,7 @@ func (t *ThanosComponentReconciler) queryService() (runtime.Object, reconciler.D
 
 	}
 	delete := &corev1.Service{
-		ObjectMeta: t.getQueryMeta(name),
+		ObjectMeta: t.getQueryMeta(queryName),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

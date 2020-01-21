@@ -2,6 +2,7 @@ package resources
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/banzaicloud/logging-operator/pkg/sdk/util"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
@@ -11,9 +12,11 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
+const ruleName = "rule"
+
 func (t *ThanosComponentReconciler) getRuleLabels() Labels {
 	return Labels{
-		nameLabel: "rule",
+		nameLabel: ruleName,
 	}.merge(
 		t.Thanos.Spec.Rule.Labels,
 		t.getCommonLabels(),
@@ -40,25 +43,24 @@ func (t *ThanosComponentReconciler) setRuleArgs(args []string) []string {
 	args = append(args, getArgs(rule)...)
 	if t.Thanos.Spec.ThanosDiscovery != nil {
 		for _, s := range t.getQueryEndpoints() {
-			args = append(args, fmt.Sprintf("--query=%s.%s.svc.cluster.local:%s", s, t.Thanos.Namespace, GetPort(rule.HttpAddress)))
+			args = append(args, fmt.Sprintf("--query=%s.%s.svc.cluster.local:%s", s, t.Thanos.Namespace, strconv.Itoa(int(GetPort(rule.HttpAddress)))))
 		}
 	}
 	return args
 }
 
 func (t *ThanosComponentReconciler) ruleStatefulSet() (runtime.Object, reconciler.DesiredState, error) {
-	name := "rule-statefulset"
 	if t.Thanos.Spec.Rule != nil {
 		rule := t.Thanos.Spec.Rule.DeepCopy()
 		statefulset := &appsv1.StatefulSet{
-			ObjectMeta: t.getRuleMeta(name),
+			ObjectMeta: t.getRuleMeta(ruleName),
 			Spec: appsv1.StatefulSetSpec{
 				Replicas: util.IntPointer(1),
 				Selector: &metav1.LabelSelector{
 					MatchLabels: t.getRuleLabels(),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: t.getRuleMeta(name),
+					ObjectMeta: t.getRuleMeta(ruleName),
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
@@ -94,7 +96,7 @@ func (t *ThanosComponentReconciler) ruleStatefulSet() (runtime.Object, reconcile
 		return statefulset, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.StatefulSet{
-		ObjectMeta: t.getObjectMeta(name),
+		ObjectMeta: t.getObjectMeta(ruleName),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

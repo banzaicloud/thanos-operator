@@ -14,13 +14,13 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
+const storeName = "store"
+
 func (t *ThanosComponentReconciler) storeService() (runtime.Object, reconciler.DesiredState, error) {
-	name := t.qualifiedName("store-service")
-	namespace := t.Thanos.Namespace
 	if t.Thanos.Spec.StoreGateway != nil {
 		store := t.Thanos.Spec.StoreGateway.DeepCopy()
 		storeService := &corev1.Service{
-			ObjectMeta: t.getObjectMeta(name),
+			ObjectMeta: t.getStoreMeta(storeName),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
@@ -51,17 +51,14 @@ func (t *ThanosComponentReconciler) storeService() (runtime.Object, reconciler.D
 
 	}
 	delete := &corev1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: namespace,
-		},
+		ObjectMeta: t.getStoreMeta(storeName),
 	}
 	return delete, reconciler.StateAbsent, nil
 }
 
 func (t *ThanosComponentReconciler) getStoreLabels() Labels {
 	return Labels{
-		nameLabel: "store",
+		nameLabel: storeName,
 	}.merge(
 		t.Thanos.Spec.Query.Labels,
 		t.getCommonLabels(),
@@ -82,7 +79,6 @@ func (t *ThanosComponentReconciler) setStoreArgs(args []string) []string {
 }
 
 func (t *ThanosComponentReconciler) storeDeployment() (runtime.Object, reconciler.DesiredState, error) {
-	name := "store-deployment"
 	var objectStore *v1alpha1.ObjectStore
 	if t.Thanos.Spec.ObjectStore != nil {
 		if *t.Thanos.Spec.ObjectStore != "" {
@@ -111,7 +107,7 @@ func (t *ThanosComponentReconciler) storeDeployment() (runtime.Object, reconcile
 			return nil, nil, err
 		}
 		var deployment = &appsv1.Deployment{
-			ObjectMeta: t.getObjectMeta(name),
+			ObjectMeta: t.getObjectMeta(storeName),
 			Spec: appsv1.DeploymentSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
@@ -122,7 +118,7 @@ func (t *ThanosComponentReconciler) storeDeployment() (runtime.Object, reconcile
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
-								Name:  "store",
+								Name:  storeName,
 								Image: fmt.Sprintf("%s:%s", store.Image.Repository, store.Image.Tag),
 								Args: []string{
 									"store",
@@ -172,7 +168,7 @@ func (t *ThanosComponentReconciler) storeDeployment() (runtime.Object, reconcile
 		return deployment, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.Deployment{
-		ObjectMeta: t.getObjectMeta(name),
+		ObjectMeta: t.getObjectMeta(storeName),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

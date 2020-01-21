@@ -32,7 +32,7 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 	name := app + "-deployment"
 	compactor := c.objectStore.Spec.Compactor.DeepCopy()
 
-	if c.objectStore.Spec.BucketWeb.Enabled {
+	if c.objectStore.Spec.Compactor.Enabled {
 
 		var deployment = &appsv1.Deployment{
 			ObjectMeta: c.objectMeta(name, &compactor.BaseObject),
