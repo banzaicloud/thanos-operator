@@ -10,7 +10,7 @@ import (
 
 const Name = "store"
 
-func NewStore(thanos *v1alpha1.Thanos, objectStores *v1alpha1.ObjectStoreList, reconciler *resources.ThanosComponentReconciler) *Store {
+func New(thanos *v1alpha1.Thanos, objectStores *v1alpha1.ObjectStoreList, reconciler *resources.ThanosComponentReconciler) *Store {
 	return &Store{
 		Thanos:                    thanos,
 		ObjectSores:               objectStores.Items,
@@ -43,12 +43,12 @@ func (s *Store) getLabels() resources.Labels {
 		resources.NameLabel: Name,
 	}.Merge(
 		s.Thanos.Spec.Query.Labels,
-		s.getLabels(),
+		s.GetCommonLabels(),
 	)
 }
 
 func (s *Store) getMeta(name string) metav1.ObjectMeta {
-	meta := s.getMeta(name)
+	meta := s.GetObjectMeta(name)
 	meta.Labels = s.getLabels()
 	meta.Annotations = s.Thanos.Spec.StoreGateway.Annotations
 	return meta

@@ -55,11 +55,11 @@ func (r *Rule) ruleStatefulSet() (runtime.Object, reconciler.DesiredState, error
 				},
 			},
 		}
-		statefulset.Spec.Template.Spec.Containers[0].Args = t.setRuleArgs(statefulset.Spec.Template.Spec.Containers[0].Args)
+		statefulset.Spec.Template.Spec.Containers[0].Args = r.setArgs(statefulset.Spec.Template.Spec.Containers[0].Args)
 		return statefulset, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.StatefulSet{
-		ObjectMeta: t.getObjectMeta(ruleName),
+		ObjectMeta: r.getMeta(Name),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

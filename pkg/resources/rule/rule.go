@@ -6,7 +6,9 @@ import (
 
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
+	"github.com/imdario/mergo"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 const Name = "rule"
@@ -15,6 +17,27 @@ type Rule struct {
 	Thanos      *v1alpha1.Thanos
 	ObjectSores []v1alpha1.ObjectStore
 	*resources.ThanosComponentReconciler
+}
+
+func New(thanos *v1alpha1.Thanos, objectStores *v1alpha1.ObjectStoreList, reconciler *resources.ThanosComponentReconciler) *Rule {
+	return &Rule{
+		Thanos:                    thanos,
+		ObjectSores:               objectStores.Items,
+		ThanosComponentReconciler: reconciler,
+	}
+}
+
+func (r *Rule) Reconcile() (*reconcile.Result, error) {
+	if r.Thanos.Spec.Rule != nil {
+		err := mergo.Merge(r.Thanos.Spec.Rule, v1alpha1.DefaultRule)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return r.ReconcileResources(
+		[]resources.Resource{
+			r.ruleStatefulSet,
+		})
 }
 
 func (r *Rule) getLabels(name string) resources.Labels {
@@ -41,7 +64,7 @@ func (r *Rule) getQueryEndpoints() []string {
 	return endpoints
 }
 
-func (r *Rule) setRuleArgs(args []string) []string {
+func (r *Rule) setArgs(args []string) []string {
 	rule := r.Thanos.Spec.Rule.DeepCopy()
 	args = append(args, resources.GetArgs(rule)...)
 	if r.Thanos.Spec.ThanosDiscovery != nil {

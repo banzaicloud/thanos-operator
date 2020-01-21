@@ -10,7 +10,7 @@ import (
 
 func (q *Query) service() (runtime.Object, reconciler.DesiredState, error) {
 	if q.Thanos.Spec.Query != nil {
-		query := q.Thanos.Spec.StoreGateway.DeepCopy()
+		query := q.Thanos.Spec.Query.DeepCopy()
 		storeService := &corev1.Service{
 			ObjectMeta: q.getMeta(Name),
 			Spec: corev1.ServiceSpec{

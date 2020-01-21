@@ -55,7 +55,7 @@ func (q *Query) deployment() (runtime.Object, reconciler.DesiredState, error) {
 			},
 		}
 		// Set up args
-		deployment.Spec.Template.Spec.Containers[0].Args = q.setQueryArgs(deployment.Spec.Template.Spec.Containers[0].Args)
+		deployment.Spec.Template.Spec.Containers[0].Args = q.setArgs(deployment.Spec.Template.Spec.Containers[0].Args)
 		return deployment, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.Deployment{
