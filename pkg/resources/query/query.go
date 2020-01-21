@@ -42,18 +42,23 @@ func (q *Query) Reconcile() (*reconcile.Result, error) {
 }
 
 func (q *Query) getLabels() resources.Labels {
-	return resources.Labels{
+	labels := resources.Labels{
 		resources.NameLabel: Name,
 	}.Merge(
-		q.Thanos.Spec.Query.Labels,
 		q.GetCommonLabels(),
 	)
+	if q.Thanos.Spec.Query != nil {
+		labels.Merge(q.Thanos.Spec.Query.Labels)
+	}
+	return labels
 }
 
 func (q *Query) getMeta(name string) metav1.ObjectMeta {
 	meta := q.GetObjectMeta(name)
 	meta.Labels = q.getLabels()
-	meta.Annotations = q.Thanos.Spec.Query.Annotations
+	if q.Thanos.Spec.Query != nil {
+		meta.Annotations = q.Thanos.Spec.Query.Annotations
+	}
 	return meta
 }
 

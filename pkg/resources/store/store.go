@@ -39,18 +39,23 @@ type Store struct {
 }
 
 func (s *Store) getLabels() resources.Labels {
-	return resources.Labels{
+	labels := resources.Labels{
 		resources.NameLabel: Name,
 	}.Merge(
-		s.Thanos.Spec.Query.Labels,
 		s.GetCommonLabels(),
 	)
+	if s.Thanos.Spec.Query != nil {
+		labels.Merge(s.Thanos.Spec.Query.Labels)
+	}
+	return labels
 }
 
 func (s *Store) getMeta(name string) metav1.ObjectMeta {
 	meta := s.GetObjectMeta(name)
 	meta.Labels = s.getLabels()
-	meta.Annotations = s.Thanos.Spec.StoreGateway.Annotations
+	if s.Thanos.Spec.StoreGateway != nil {
+		meta.Annotations = s.Thanos.Spec.StoreGateway.Annotations
+	}
 	return meta
 }
 

@@ -30,7 +30,7 @@ import (
 
 func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error) {
 	if c.ObjectSore.Spec.Compactor != nil {
-		compactor := c.ObjectStoreReconciler.ObjectSore.Spec.Compactor.DeepCopy()
+		compactor := c.ObjectSore.Spec.Compactor.DeepCopy()
 		var deployment = &appsv1.Deployment{
 			ObjectMeta: c.getMeta(Name),
 			Spec: appsv1.DeploymentSpec{

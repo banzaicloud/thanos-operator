@@ -38,8 +38,6 @@ spec:
                   additionalProperties:
                     type: string
                   type: object
-                enabled:
-                  type: boolean
                 httpAddress:
                   description: Listen host:port for HTTP endpoints.
                   type: string
@@ -178,8 +176,6 @@ spec:
                     long time ranges without non-downsampleddata is not efficient
                     and useful e.g it is not possible to render all samples for a
                     human eye anyway.
-                  type: boolean
-                enabled:
                   type: boolean
                 httpAddress:
                   description: Listen host:port for HTTP endpoints.

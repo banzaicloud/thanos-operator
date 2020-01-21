@@ -21,8 +21,7 @@ import (
 )
 
 func (c *Compactor) persistentVolumeClaim() (runtime.Object, reconciler.DesiredState, error) {
-	if c.ObjectSore.Spec.BucketWeb.Enabled {
-
+	if c.ObjectSore.Spec.Compactor != nil {
 		return &corev1.PersistentVolumeClaim{
 			ObjectMeta: c.getMeta(Name),
 			Spec:       corev1.PersistentVolumeClaimSpec{

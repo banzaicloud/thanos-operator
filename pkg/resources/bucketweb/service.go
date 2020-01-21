@@ -23,19 +23,20 @@ import (
 )
 
 func (b *BucketWeb) service() (runtime.Object, reconciler.DesiredState, error) {
-	bucketWeb := b.ObjectSore.Spec.BucketWeb.DeepCopy()
-
-	if b.ObjectSore.Spec.BucketWeb.Enabled {
-
+	if b.ObjectSore.Spec.BucketWeb != nil {
+		bucketWeb := b.ObjectSore.Spec.BucketWeb.DeepCopy()
 		return &corev1.Service{
 			ObjectMeta: b.getMeta(Name),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
-						Protocol:   corev1.ProtocolTCP,
-						Name:       "http",
-						Port:       resources.GetPort(bucketWeb.HTTPAddress),
-						TargetPort: intstr.IntOrString{IntVal: resources.GetPort(bucketWeb.HTTPAddress)},
+						Protocol: corev1.ProtocolTCP,
+						Name:     "http",
+						Port:     resources.GetPort(bucketWeb.HTTPAddress),
+						TargetPort: intstr.IntOrString{
+							Type:   intstr.Int,
+							IntVal: resources.GetPort(bucketWeb.HTTPAddress),
+						},
 					},
 				},
 				Selector: b.getLabels(Name),
