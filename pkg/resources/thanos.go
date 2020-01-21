@@ -15,17 +15,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-const (
-	NameLabel      = "app.kubernetes.io/name"
-	InstanceLabel  = "app.kubernetes.io/instance"
-	VersionLabel   = "app.kubernetes.io/version"
-	ComponentLabel = "app.kubernetes.io/component"
-	ManagedByLabel = "app.kubernetes.io/managed-by"
-
-	HealthCheckPath = "/-/healthy"
-	ReadyCheckPath  = "/-/ready"
-)
-
 func GetPort(address string) int32 {
 	res := strings.Split(address, ":")
 	if len(res) > 1 {
