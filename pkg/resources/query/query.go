@@ -13,7 +13,7 @@ import (
 
 const Name = "query"
 
-func NewQuery(thanos *v1alpha1.Thanos, objectStores *v1alpha1.ObjectStoreList, reconciler *resources.ThanosComponentReconciler) *Query {
+func New(thanos *v1alpha1.Thanos, objectStores *v1alpha1.ObjectStoreList, reconciler *resources.ThanosComponentReconciler) *Query {
 	return &Query{
 		Thanos:                    thanos,
 		ObjectSores:               objectStores.Items,
@@ -65,7 +65,7 @@ func (q *Query) getStoreEndpoints() []string {
 	return endpoints
 }
 
-func (q *Query) setQueryArgs(args []string) []string {
+func (q *Query) setArgs(args []string) []string {
 	query := q.Thanos.Spec.Query.DeepCopy()
 	args = append(args, resources.GetArgs(query)...)
 	if query.QueryReplicaLabels != nil {
