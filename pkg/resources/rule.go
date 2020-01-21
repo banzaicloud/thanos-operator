@@ -40,7 +40,7 @@ func (t *ThanosComponentReconciler) setRuleArgs(args []string) []string {
 	args = append(args, getArgs(rule)...)
 	if t.Thanos.Spec.ThanosDiscovery != nil {
 		for _, s := range t.getQueryEndpoints() {
-			args = append(args, fmt.Sprintf("--query=%s.%s.svc.cluster.local:%s", s, t.Thanos.Namespace))
+			args = append(args, fmt.Sprintf("--query=%s.%s.svc.cluster.local:%s", s, t.Thanos.Namespace, GetPort(rule.HttpAddress)))
 		}
 	}
 	return args
