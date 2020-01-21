@@ -21,6 +21,7 @@ import (
 
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/utils"
+	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,29 +29,22 @@ import (
 )
 
 func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error) {
-	const app = "bucketweb"
-	name := app + "-deployment"
-	bucketWeb := b.objectStore.Spec.BucketWeb.DeepCopy()
-
-	if b.objectStore.Spec.BucketWeb.Enabled {
+	if b.ObjectSore.Spec.BucketWeb != nil {
+		bucketWeb := b.ObjectSore.Spec.BucketWeb.DeepCopy()
 
 		var deployment = &appsv1.Deployment{
-			ObjectMeta: b.objectMeta(name, &bucketWeb.BaseObject),
+			ObjectMeta: b.getMeta(Name),
 			Spec: appsv1.DeploymentSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
-					MatchLabels: map[string]string{"app": app},
+					MatchLabels: b.getLabels(Name),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:        app,
-						Labels:      map[string]string{"app": app},
-						Annotations: b.objectStore.Annotations,
-					},
+					ObjectMeta: b.getMeta(Name),
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
-								Name:  app,
+								Name:  Name,
 								Image: fmt.Sprintf("%s:%s", bucketWeb.Image.Repository, bucketWeb.Image.Tag),
 								Args: []string{
 									"bucket",
@@ -65,7 +59,7 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 								Ports: []corev1.ContainerPort{
 									{
 										Name:          "http",
-										ContainerPort: GetPort(bucketWeb.HTTPAddress),
+										ContainerPort: resources.GetPort(bucketWeb.HTTPAddress),
 										Protocol:      corev1.ProtocolTCP,
 									},
 								},
@@ -85,7 +79,7 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 								Name: "objectstore-secret",
 								VolumeSource: corev1.VolumeSource{
 									Secret: &corev1.SecretVolumeSource{
-										SecretName: b.objectStore.Spec.Config.MountFrom.SecretKeyRef.Name,
+										SecretName: b.ObjectSore.Spec.Config.MountFrom.SecretKeyRef.Name,
 									},
 								},
 							},
@@ -103,6 +97,6 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 	}
 
 	return &appsv1.Deployment{
-		ObjectMeta: b.objectMeta(name, &bucketWeb.BaseObject),
+		ObjectMeta: b.getMeta(Name),
 	}, reconciler.StateAbsent, nil
 }

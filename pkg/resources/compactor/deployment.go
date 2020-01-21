@@ -21,6 +21,7 @@ import (
 
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/utils"
+	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,29 +29,21 @@ import (
 )
 
 func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error) {
-	const app = "compactor"
-	name := app + "-deployment"
-	compactor := c.objectStore.Spec.Compactor.DeepCopy()
-
-	if c.objectStore.Spec.Compactor.Enabled {
-
+	if c.ObjectSore.Spec.Compactor != nil {
+		compactor := c.ObjectStoreReconciler.ObjectSore.Spec.Compactor.DeepCopy()
 		var deployment = &appsv1.Deployment{
-			ObjectMeta: c.objectMeta(name, &compactor.BaseObject),
+			ObjectMeta: c.getMeta(Name),
 			Spec: appsv1.DeploymentSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
-					MatchLabels: map[string]string{"app": app},
+					MatchLabels: c.getLabels(Name),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:        app,
-						Labels:      map[string]string{"app": app},
-						Annotations: c.objectStore.Annotations,
-					},
+					ObjectMeta: c.getMeta(Name),
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
-								Name:  app,
+								Name:  Name,
 								Image: fmt.Sprintf("%s:%s", compactor.Image.Repository, compactor.Image.Tag),
 								Args: []string{
 									"compact",
@@ -69,7 +62,7 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 								Ports: []corev1.ContainerPort{
 									{
 										Name:          "http",
-										ContainerPort: GetPort(compactor.HTTPAddress),
+										ContainerPort: resources.GetPort(compactor.HTTPAddress),
 										Protocol:      corev1.ProtocolTCP,
 									},
 								},
@@ -89,7 +82,7 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 								Name: "objectstore-secret",
 								VolumeSource: corev1.VolumeSource{
 									Secret: &corev1.SecretVolumeSource{
-										SecretName: c.objectStore.Spec.Config.MountFrom.SecretKeyRef.Name,
+										SecretName: c.ObjectSore.Spec.Config.MountFrom.SecretKeyRef.Name,
 									},
 								},
 							},
@@ -110,6 +103,6 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 	}
 
 	return &appsv1.Deployment{
-		ObjectMeta: c.objectMeta(name, &compactor.BaseObject),
+		ObjectMeta: c.getMeta(Name),
 	}, reconciler.StateAbsent, nil
 }

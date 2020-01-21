@@ -19,6 +19,8 @@ import (
 
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
+	"github.com/banzaicloud/thanos-operator/pkg/resources/query"
+	"github.com/banzaicloud/thanos-operator/pkg/resources/store"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/go-logr/logr"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -66,21 +68,18 @@ func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// Create resource factory
 	// Create reconciler for objects
-	genericReconciler := reconciler.NewReconciler(r.Client, r.Log, reconciler.ReconcilerOpts{})
-	thanosComponentReconciler, err := resources.NewThanosComponentReconciler(thanos, objectStores, genericReconciler)
-	if err != nil {
-		return reconcile.Result{}, err
-	}
+	thanosComponentReconciler := resources.NewThanosComponentReconciler(
+		thanos,
+		objectStores,
+		reconciler.NewReconciler(r.Client, r.Log, reconciler.ReconcilerOpts{}))
+	reconcilers := make([]resources.ComponentReconciler, 0)
 
-	result, err := thanosComponentReconciler.Reconcile()
-	if err != nil {
-		return reconcile.Result{}, err
-	}
-	if result != nil {
-		// short circuit if requested explicitly
-		return *result, err
-	}
-	return ctrl.Result{}, nil
+	// Query
+	reconcilers = append(reconcilers, query.NewQuery(thanos, objectStores, thanosComponentReconciler).Reconcile)
+	// Store
+	reconcilers = append(reconcilers, store.NewStore(thanos, objectStores, thanosComponentReconciler).Reconcile)
+
+	return resources.RunReconcilers(reconcilers)
 }
 
 func (r *ThanosReconciler) SetupWithManager(mgr ctrl.Manager) error {

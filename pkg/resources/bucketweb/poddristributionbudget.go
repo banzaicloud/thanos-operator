@@ -23,14 +23,10 @@ import (
 )
 
 func (b *BucketWeb) podDistributionBucket() (runtime.Object, reconciler.DesiredState, error) {
-	const app = "bucketweb"
-	name := app + "-poddisruptionbudget"
-	bucketWeb := b.objectStore.Spec.BucketWeb.DeepCopy()
-
-	if b.objectStore.Spec.BucketWeb.Enabled {
+	if b.ObjectSore.Spec.BucketWeb.Enabled {
 
 		return &policyv1beta1.PodDisruptionBudget{
-			ObjectMeta: b.objectMeta(name, &bucketWeb.BaseObject),
+			ObjectMeta: b.getMeta(Name),
 			Spec: policyv1beta1.PodDisruptionBudgetSpec{
 				MinAvailable: &intstr.IntOrString{IntVal: 1},
 				Selector:     &metav1.LabelSelector{},
@@ -39,6 +35,6 @@ func (b *BucketWeb) podDistributionBucket() (runtime.Object, reconciler.DesiredS
 	}
 
 	return &policyv1beta1.PodDisruptionBudget{
-		ObjectMeta: b.objectMeta(name, &bucketWeb.BaseObject),
+		ObjectMeta: b.getMeta(Name),
 	}, reconciler.StateAbsent, nil
 }

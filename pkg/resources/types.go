@@ -28,7 +28,7 @@ type Resource func() (runtime.Object, reconciler.DesiredState, error)
 
 type Labels map[string]string
 
-func (l Labels) merge(labelGroups ...Labels) Labels {
+func (l Labels) Merge(labelGroups ...Labels) Labels {
 	for _, labels := range labelGroups {
 		for k, v := range labels {
 			l[k] = v

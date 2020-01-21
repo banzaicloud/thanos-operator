@@ -16,35 +16,34 @@ package bucketweb
 
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
+	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func (b *BucketWeb) service() (runtime.Object, reconciler.DesiredState, error) {
-	const app = "bucketweb"
-	name := app + "-service"
-	bucketWeb := b.objectStore.Spec.BucketWeb.DeepCopy()
+	bucketWeb := b.ObjectSore.Spec.BucketWeb.DeepCopy()
 
-	if b.objectStore.Spec.BucketWeb.Enabled {
+	if b.ObjectSore.Spec.BucketWeb.Enabled {
 
 		return &corev1.Service{
-			ObjectMeta: b.objectMeta(name, &bucketWeb.BaseObject),
+			ObjectMeta: b.getMeta(Name),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
 						Protocol:   corev1.ProtocolTCP,
 						Name:       "http",
-						Port:       GetPort(bucketWeb.HTTPAddress),
-						TargetPort: intstr.IntOrString{IntVal: GetPort(bucketWeb.HTTPAddress)},
+						Port:       resources.GetPort(bucketWeb.HTTPAddress),
+						TargetPort: intstr.IntOrString{IntVal: resources.GetPort(bucketWeb.HTTPAddress)},
 					},
 				},
-				Selector: b.labels(),
+				Selector: b.getLabels(Name),
 			},
 		}, reconciler.StatePresent, nil
 	}
 
 	return &corev1.Service{
-		ObjectMeta: b.objectMeta(name, &bucketWeb.BaseObject),
+		ObjectMeta: b.getMeta(Name),
 	}, reconciler.StateAbsent, nil
 }
