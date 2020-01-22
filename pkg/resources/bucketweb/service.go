@@ -23,8 +23,8 @@ import (
 )
 
 func (b *BucketWeb) service() (runtime.Object, reconciler.DesiredState, error) {
-	if b.ObjectSore.Spec.BucketWeb != nil {
-		bucketWeb := b.ObjectSore.Spec.BucketWeb.DeepCopy()
+	if b.ObjectStore.Spec.BucketWeb != nil {
+		bucketWeb := b.ObjectStore.Spec.BucketWeb.DeepCopy()
 		return &corev1.Service{
 			ObjectMeta: b.getMeta(Name),
 			Spec: corev1.ServiceSpec{

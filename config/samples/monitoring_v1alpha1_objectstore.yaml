@@ -8,5 +8,4 @@ spec:
       secretKeyRef:
         name: s3-bucket
         key: object-store.yaml
-  bucketWeb:
-    enabled: true
+  bucketWeb: {}

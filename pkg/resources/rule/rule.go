@@ -36,7 +36,8 @@ func (r *Rule) Reconcile() (*reconcile.Result, error) {
 	}
 	return r.ReconcileResources(
 		[]resources.Resource{
-			r.ruleStatefulSet,
+			r.statefulset,
+			r.service,
 		})
 }
 

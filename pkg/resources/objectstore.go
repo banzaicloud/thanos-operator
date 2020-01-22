@@ -14,7 +14,7 @@ import (
 )
 
 type ObjectStoreReconciler struct {
-	ObjectSore *v1alpha1.ObjectStore
+	ObjectStore *v1alpha1.ObjectStore
 	*reconciler.GenericResourceReconciler
 }
 
@@ -39,18 +39,18 @@ func (t *ObjectStoreReconciler) GetCheck(port int32, path string) *corev1.Probe 
 
 func (t *ObjectStoreReconciler) GetCommonLabels() Labels {
 	return Labels{
-		ManagedByLabel: t.ObjectSore.Name,
+		ManagedByLabel: t.ObjectStore.Name,
 	}
 }
 
 func (t *ObjectStoreReconciler) QualifiedName(name string) string {
-	return fmt.Sprintf("%s-%s", t.ObjectSore.Name, name)
+	return fmt.Sprintf("%s-%s", t.ObjectStore.Name, name)
 }
 
 func (t *ObjectStoreReconciler) GetNameMeta(name string) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Name:      t.QualifiedName(name),
-		Namespace: t.ObjectSore.Namespace,
+		Namespace: t.ObjectStore.Namespace,
 	}
 }
 
@@ -58,10 +58,10 @@ func (t *ObjectStoreReconciler) GetObjectMeta(name string) metav1.ObjectMeta {
 	meta := t.GetNameMeta(name)
 	meta.OwnerReferences = []metav1.OwnerReference{
 		{
-			APIVersion: t.ObjectSore.APIVersion,
-			Kind:       t.ObjectSore.Kind,
-			Name:       t.ObjectSore.Name,
-			UID:        t.ObjectSore.UID,
+			APIVersion: t.ObjectStore.APIVersion,
+			Kind:       t.ObjectStore.Kind,
+			Name:       t.ObjectStore.Name,
+			UID:        t.ObjectStore.UID,
 			Controller: util.BoolPointer(true),
 		},
 	}
@@ -92,7 +92,7 @@ func (t *ObjectStoreReconciler) ReconcileResources(resourceList []Resource) (*re
 
 func NewObjectStoreReconciler(objectStore *v1alpha1.ObjectStore, genericReconciler *reconciler.GenericResourceReconciler) *ObjectStoreReconciler {
 	return &ObjectStoreReconciler{
-		ObjectSore:                objectStore,
+		ObjectStore:               objectStore,
 		GenericResourceReconciler: genericReconciler,
 	}
 }

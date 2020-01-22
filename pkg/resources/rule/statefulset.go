@@ -12,7 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-func (r *Rule) ruleStatefulSet() (runtime.Object, reconciler.DesiredState, error) {
+func (r *Rule) statefulset() (runtime.Object, reconciler.DesiredState, error) {
 	if r.Thanos.Spec.Rule != nil {
 		rule := r.Thanos.Spec.Rule.DeepCopy()
 		statefulset := &appsv1.StatefulSet{

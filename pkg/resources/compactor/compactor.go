@@ -35,8 +35,8 @@ func New(reconciler *resources.ObjectStoreReconciler) *Compactor {
 }
 
 func (c *Compactor) Reconcile() (*reconcile.Result, error) {
-	if c.ObjectSore.Spec.Compactor != nil {
-		err := mergo.Merge(c.ObjectSore.Spec.Compactor, v1alpha1.DefaultCompactor)
+	if c.ObjectStore.Spec.Compactor != nil {
+		err := mergo.Merge(c.ObjectStore.Spec.Compactor, v1alpha1.DefaultCompactor)
 		if err != nil {
 			return nil, err
 		}
@@ -52,8 +52,8 @@ func (c *Compactor) getLabels(name string) resources.Labels {
 	labels := resources.Labels{
 		resources.NameLabel: name,
 	}.Merge(c.GetCommonLabels())
-	if c.ObjectSore.Spec.Compactor != nil {
-		labels.Merge(c.ObjectSore.Spec.Compactor.Labels)
+	if c.ObjectStore.Spec.Compactor != nil {
+		labels.Merge(c.ObjectStore.Spec.Compactor.Labels)
 	}
 	return labels
 }
@@ -61,8 +61,8 @@ func (c *Compactor) getLabels(name string) resources.Labels {
 func (c *Compactor) getMeta(name string) metav1.ObjectMeta {
 	meta := c.GetObjectMeta(name)
 	meta.Labels = c.getLabels(name)
-	if c.ObjectSore.Spec.Compactor != nil {
-		meta.Annotations = c.ObjectSore.Spec.Compactor.Annotations
+	if c.ObjectStore.Spec.Compactor != nil {
+		meta.Annotations = c.ObjectStore.Spec.Compactor.Annotations
 	}
 	return meta
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
+	"github.com/banzaicloud/thanos-operator/pkg/resources/rule"
 	"github.com/banzaicloud/thanos-operator/pkg/resources/store"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/imdario/mergo"
@@ -38,6 +39,7 @@ func (q *Query) Reconcile() (*reconcile.Result, error) {
 		[]resources.Resource{
 			q.deployment,
 			q.service,
+			q.sidecarService,
 		})
 }
 
@@ -66,6 +68,9 @@ func (q *Query) getStoreEndpoints() []string {
 	var endpoints []string
 	if q.Thanos.Spec.StoreGateway != nil {
 		endpoints = append(endpoints, q.QualifiedName(store.Name))
+	}
+	if q.Thanos.Spec.Rule != nil {
+		endpoints = append(endpoints, q.QualifiedName(rule.Name))
 	}
 	return endpoints
 }

@@ -46,3 +46,48 @@ func (q *Query) service() (runtime.Object, reconciler.DesiredState, error) {
 	}
 	return delete, reconciler.StateAbsent, nil
 }
+
+func (q *Query) sidecarService() (runtime.Object, reconciler.DesiredState, error) {
+	name := "prometheus-sidecar"
+	if q.Thanos.Spec.Local != nil {
+		if q.Thanos.Spec.Query != nil {
+			query := q.Thanos.Spec.Query.DeepCopy()
+			storeService := &corev1.Service{
+				ObjectMeta: q.getMeta(name),
+				Spec: corev1.ServiceSpec{
+					Ports: []corev1.ServicePort{
+						{
+							Name:     "grpc",
+							Protocol: corev1.ProtocolTCP,
+							Port:     resources.GetPort(query.GRPCAddress),
+							TargetPort: intstr.IntOrString{
+								Type:   intstr.String,
+								StrVal: "grpc",
+							},
+						},
+						{
+							Name:     "http",
+							Protocol: corev1.ProtocolTCP,
+							Port:     resources.GetPort(query.HttpAddress),
+							TargetPort: intstr.IntOrString{
+								Type:   intstr.String,
+								StrVal: "http",
+							},
+						},
+					},
+					Selector: map[string]string{
+						"app": "prometheus",
+					},
+					Type:      corev1.ServiceTypeClusterIP,
+					ClusterIP: corev1.ClusterIPNone,
+				},
+			}
+			return storeService, reconciler.StatePresent, nil
+		}
+	}
+
+	delete := &corev1.Service{
+		ObjectMeta: q.getMeta(name),
+	}
+	return delete, reconciler.StateAbsent, nil
+}

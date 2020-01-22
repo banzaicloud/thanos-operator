@@ -35,8 +35,8 @@ func New(reconciler *resources.ObjectStoreReconciler) *BucketWeb {
 }
 
 func (c *BucketWeb) Reconcile() (*reconcile.Result, error) {
-	if c.ObjectSore.Spec.BucketWeb != nil {
-		err := mergo.Merge(c.ObjectSore.Spec.BucketWeb, v1alpha1.DefaultBucketWeb)
+	if c.ObjectStore.Spec.BucketWeb != nil {
+		err := mergo.Merge(c.ObjectStore.Spec.BucketWeb, v1alpha1.DefaultBucketWeb)
 		if err != nil {
 			return nil, err
 		}
@@ -52,8 +52,8 @@ func (c *BucketWeb) getLabels(name string) resources.Labels {
 	labels := resources.Labels{
 		resources.NameLabel: name,
 	}.Merge(c.GetCommonLabels())
-	if c.ObjectSore.Spec.BucketWeb != nil {
-		labels.Merge(c.ObjectSore.Spec.BucketWeb.Labels)
+	if c.ObjectStore.Spec.BucketWeb != nil {
+		labels.Merge(c.ObjectStore.Spec.BucketWeb.Labels)
 	}
 	return labels
 }
@@ -61,8 +61,8 @@ func (c *BucketWeb) getLabels(name string) resources.Labels {
 func (c *BucketWeb) getMeta(name string) metav1.ObjectMeta {
 	meta := c.GetObjectMeta(name)
 	meta.Labels = c.getLabels(name)
-	if c.ObjectSore.Spec.BucketWeb != nil {
-		meta.Annotations = c.ObjectSore.Spec.BucketWeb.Annotations
+	if c.ObjectStore.Spec.BucketWeb != nil {
+		meta.Annotations = c.ObjectStore.Spec.BucketWeb.Annotations
 	}
 	return meta
 }
