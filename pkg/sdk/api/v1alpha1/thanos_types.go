@@ -141,13 +141,13 @@ type ManagedTLS struct {
 }
 
 type Remote struct {
-	URLs []string `json:"urls"`
-	TLS  TLS      `json:"tls"`
+	URLs []string `json:"urls,omitempty"`
+	TLS  TLS      `json:"tls,omitempty"`
 }
 
 type Local struct {
-	URLs []string `json:"urls"`
-	TLS  TLS      `json:"tls"`
+	URLs []string `json:"urls,omitempty"`
+	TLS  TLS      `json:"tls,omitempty"`
 }
 
 type ThanosDiscovery struct {

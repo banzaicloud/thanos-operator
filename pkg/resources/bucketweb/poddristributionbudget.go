@@ -23,7 +23,7 @@ import (
 )
 
 func (b *BucketWeb) podDistributionBucket() (runtime.Object, reconciler.DesiredState, error) {
-	if b.ObjectSore.Spec.BucketWeb != nil {
+	if b.ObjectStore.Spec.BucketWeb != nil {
 
 		return &policyv1beta1.PodDisruptionBudget{
 			ObjectMeta: b.getMeta(Name),

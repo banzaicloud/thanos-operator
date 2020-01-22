@@ -5,6 +5,7 @@ metadata:
 spec:
   # Add fields here
   thanosDiscovery: {}
+  local: {}
   query: {}
   rule: {}
   storeGateway: {}

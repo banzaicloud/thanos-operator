@@ -80,9 +80,6 @@ spec:
                   items:
                     type: string
                   type: array
-              required:
-              - tls
-              - urls
               type: object
             objectStore:
               type: string
@@ -306,9 +303,6 @@ spec:
                   items:
                     type: string
                   type: array
-              required:
-              - tls
-              - urls
               type: object
             rule:
               properties:

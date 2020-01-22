@@ -29,8 +29,8 @@ import (
 )
 
 func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error) {
-	if c.ObjectSore.Spec.Compactor != nil {
-		compactor := c.ObjectSore.Spec.Compactor.DeepCopy()
+	if c.ObjectStore.Spec.Compactor != nil {
+		compactor := c.ObjectStore.Spec.Compactor.DeepCopy()
 		var deployment = &appsv1.Deployment{
 			ObjectMeta: c.getMeta(Name),
 			Spec: appsv1.DeploymentSpec{
@@ -82,7 +82,7 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 								Name: "objectstore-secret",
 								VolumeSource: corev1.VolumeSource{
 									Secret: &corev1.SecretVolumeSource{
-										SecretName: c.ObjectSore.Spec.Config.MountFrom.SecretKeyRef.Name,
+										SecretName: c.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Name,
 									},
 								},
 							},

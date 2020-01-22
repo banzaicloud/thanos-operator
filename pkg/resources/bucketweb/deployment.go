@@ -29,8 +29,8 @@ import (
 )
 
 func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error) {
-	if b.ObjectSore.Spec.BucketWeb != nil {
-		bucketWeb := b.ObjectSore.Spec.BucketWeb.DeepCopy()
+	if b.ObjectStore.Spec.BucketWeb != nil {
+		bucketWeb := b.ObjectStore.Spec.BucketWeb.DeepCopy()
 		var deployment = &appsv1.Deployment{
 			ObjectMeta: b.getMeta(Name),
 			Spec: appsv1.DeploymentSpec{
@@ -78,7 +78,7 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 								Name: "objectstore-secret",
 								VolumeSource: corev1.VolumeSource{
 									Secret: &corev1.SecretVolumeSource{
-										SecretName: b.ObjectSore.Spec.Config.MountFrom.SecretKeyRef.Name,
+										SecretName: b.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Name,
 									},
 								},
 							},

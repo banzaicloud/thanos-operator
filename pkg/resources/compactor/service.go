@@ -23,8 +23,8 @@ import (
 )
 
 func (c *Compactor) service() (runtime.Object, reconciler.DesiredState, error) {
-	if c.ObjectSore.Spec.Compactor != nil {
-		compactor := c.ObjectSore.Spec.Compactor.DeepCopy()
+	if c.ObjectStore.Spec.Compactor != nil {
+		compactor := c.ObjectStore.Spec.Compactor.DeepCopy()
 		return &corev1.Service{
 			ObjectMeta: c.getMeta(Name),
 			Spec: corev1.ServiceSpec{

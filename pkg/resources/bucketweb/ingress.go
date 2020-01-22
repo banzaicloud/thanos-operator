@@ -23,8 +23,8 @@ import (
 )
 
 func (b *BucketWeb) ingress() (runtime.Object, reconciler.DesiredState, error) {
-	if b.ObjectSore.Spec.BucketWeb != nil {
-		bucketWeb := b.ObjectSore.Spec.BucketWeb.DeepCopy()
+	if b.ObjectStore.Spec.BucketWeb != nil {
+		bucketWeb := b.ObjectStore.Spec.BucketWeb.DeepCopy()
 		var ingress = &extensionsv1beta1.Ingress{
 			ObjectMeta: b.getMeta(Name),
 			Spec: extensionsv1beta1.IngressSpec{
