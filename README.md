@@ -40,8 +40,12 @@ prometheus:
       objectStorageConfig:
         name: thanos
         key: object-store.yaml
+  externalLabels: thanos-operator-test
 ```
+
+Remember to set `externalLabels` as it identifies the Prometheus instance for Thanos.
+
 ### Install prometheus-operator
 ```
-helm install stable/prometheus-operator -f thanos-sidecar.yaml
+helm install --name monitor stable/prometheus-operator -f thanos-sidecar.yaml
 ```
