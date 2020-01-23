@@ -72,6 +72,9 @@ func (q *Query) getStoreEndpoints() []string {
 	if q.Thanos.Spec.Rule != nil {
 		endpoints = append(endpoints, q.QualifiedName(rule.Name))
 	}
+	if q.Thanos.Spec.ThanosDiscovery != nil {
+		endpoints = append(endpoints, q.QualifiedName("prometheus-sidecar"))
+	}
 	return endpoints
 }
 
