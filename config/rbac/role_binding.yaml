@@ -1,28 +1,12 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: thanos-editor-rolebinding
+  name: manager-rolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: thanos-editor-role
+  name: manager-role
 subjects:
 - kind: ServiceAccount
   name: default
   namespace: system
-
----
-
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: objectstore-editor-rolebinding
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: thanos-editor-role
-subjects:
-  - kind: ServiceAccount
-    name: default
-    namespace: system
-

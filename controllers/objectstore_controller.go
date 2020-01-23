@@ -39,6 +39,8 @@ type ObjectStoreReconciler struct {
 
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=objectstores,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=objectstores/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=extensions;apps,resources=deployments;statefulsets,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch;create;update;patch;delete
 
 func (r *ObjectStoreReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	result := ctrl.Result{}
