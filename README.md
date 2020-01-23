@@ -40,7 +40,7 @@ prometheus:
       objectStorageConfig:
         name: thanos
         key: object-store.yaml
-  externalLabels: thanos-operator-test
+    externalLabels: thanos-operator-test
 ```
 
 Remember to set `externalLabels` as it identifies the Prometheus instance for Thanos.
