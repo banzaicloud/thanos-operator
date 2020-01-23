@@ -49,6 +49,7 @@ var DefaultCompactor = &Compactor{
 	RetentionResolution1h:  metav1.Duration{Duration: 0},
 	BlockSyncConcurrency:   20,
 	CompactConcurrency:     1,
+	Wait:                   true,
 }
 
 type Compactor struct {
