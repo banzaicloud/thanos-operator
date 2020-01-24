@@ -15,6 +15,8 @@
 package v1alpha1
 
 import (
+	"github.com/banzaicloud/logging-operator/pkg/sdk/model/secret"
+	"github.com/banzaicloud/operator-tools/pkg/volume"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -59,6 +61,7 @@ var DefaultRule = Rule{
 			PullPolicy: defaultPullPolicy,
 		},
 	},
+	DataDir:     "./data",
 	LogLevel:    "info",
 	HttpAddress: "0.0.0.0:10902",
 	GRPCAddress: "0.0.0.0:10901",
@@ -183,6 +186,10 @@ type Rule struct {
 	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
 	// Time to wait after an interrupt received for HTTP Server.
 	HttpGracePeriod string `json:"http_grace_period,omitempty" thanos:"--http-grace-period=%s"`
+	// Data directory.
+	DataDir string `json:"dataDir,omitempty"`
+	// Kubernetes volume abstraction refers to different types of volumes to be mounted to pods: emptyDir, hostPath, pvc.
+	DataVolume *volume.KubernetesVolume `json:"dataVolume,omitempty"`
 	// Listen ip:port address for gRPC endpoints
 	GRPCAddress string `json:"grpcAddress,omitempty" thanos:"--grpc-address=%s"`
 	// Time to wait after an interrupt received for GRPC Server.

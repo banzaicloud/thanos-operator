@@ -300,6 +300,11 @@ func (in *Query) DeepCopy() *Query {
 func (in *Rule) DeepCopyInto(out *Rule) {
 	*out = *in
 	in.BaseObject.DeepCopyInto(&out.BaseObject)
+	if in.DataVolume != nil {
+		in, out := &in.DataVolume, &out.DataVolume
+		*out = new(volume.KubernetesVolume)
+		(*in).DeepCopyInto(*out)
+	}
 	if in.Labels != nil {
 		in, out := &in.Labels, &out.Labels
 		*out = make(map[string]string, len(*in))
