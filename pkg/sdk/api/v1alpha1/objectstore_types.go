@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/banzaicloud/logging-operator/pkg/sdk/model/secret"
+	"github.com/banzaicloud/operator-tools/pkg/volume"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -60,6 +61,8 @@ type Compactor struct {
 	HTTPGracePeriod metav1.Duration `json:"httpGracePeriod,omitempty"`
 	// Data directory in which to cache blocks and process compactions.
 	DataDir string `json:"dataDir,omitempty"`
+	// Kubernetes volume abstraction refers to different types of volumes to be mounted to pods: emptyDir, hostPath, pvc.
+	DataVolume *volume.KubernetesVolume `json:"dataVolume,omitempty"`
 	// Minimum age of fresh (non-compacted) blocks before they are being processed.
 	// Malformed blocks older than the maximum of consistency-delay and 48h0m0s will be removed.
 	ConsistencyDelay metav1.Duration `json:"consistencyDelay,omitempty"`

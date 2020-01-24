@@ -19,6 +19,7 @@
 package v1alpha1
 
 import (
+	"github.com/banzaicloud/operator-tools/pkg/volume"
 	"k8s.io/api/core/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
@@ -92,6 +93,11 @@ func (in *Compactor) DeepCopyInto(out *Compactor) {
 	*out = *in
 	in.BaseObject.DeepCopyInto(&out.BaseObject)
 	out.HTTPGracePeriod = in.HTTPGracePeriod
+	if in.DataVolume != nil {
+		in, out := &in.DataVolume, &out.DataVolume
+		*out = new(volume.KubernetesVolume)
+		(*in).DeepCopyInto(*out)
+	}
 	out.ConsistencyDelay = in.ConsistencyDelay
 	out.RetentionResolutionRaw = in.RetentionResolutionRaw
 	out.RetentionResolution5m = in.RetentionResolution5m

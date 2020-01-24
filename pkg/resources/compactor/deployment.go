@@ -99,6 +99,14 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 			deployment.Spec.Template.Spec.Containers[0].Args = append(deployment.Spec.Template.Spec.Containers[0].Args, "--downsampling.disable")
 		}
 
+		if compactor.DataVolume != nil {
+			deployment.Spec.Template.Spec.Containers[0].VolumeMounts = append(deployment.Spec.Template.Spec.Containers[0].VolumeMounts, corev1.VolumeMount{
+				Name:      "datadir",
+				MountPath: compactor.DataDir,
+			})
+			deployment.Spec.Template.Spec.Volumes = append(deployment.Spec.Template.Spec.Volumes, compactor.DataVolume.GetVolume("datadir"))
+		}
+
 		return deployment, reconciler.StatePresent, nil
 	}
 
