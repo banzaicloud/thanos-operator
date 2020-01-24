@@ -1,0 +1,26 @@
+# permissions to do edit storeendpoints.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: storeendpoint-editor-role
+rules:
+- apiGroups:
+  - monitoring.banzaicloud.io
+  resources:
+  - storeendpoints
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - monitoring.banzaicloud.io
+  resources:
+  - storeendpoints/status
+  verbs:
+  - get
+  - patch
+  - update

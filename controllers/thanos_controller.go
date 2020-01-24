@@ -58,8 +58,8 @@ func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return reconcile.Result{}, err
 	}
 	// Collect ObjectStores TODO better way to handle this
-	objectStores := &v1alpha1.ObjectStoreList{}
-	err = r.Client.List(context.TODO(), objectStores)
+	storeEndpoints := &v1alpha1.StoreEndpointList{}
+	err = r.Client.List(context.TODO(), storeEndpoints)
 	if err != nil {
 		// Object not found, return.  Created objects are automatically garbage collected.
 		// For additional cleanup logic use finalizers.
@@ -73,16 +73,16 @@ func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	// Create reconciler for objects
 	thanosComponentReconciler := resources.NewThanosComponentReconciler(
 		thanos,
-		objectStores,
+		storeEndpoints,
 		reconciler.NewReconciler(r.Client, r.Log, reconciler.ReconcilerOpts{}))
 	reconcilers := make([]resources.ComponentReconciler, 0)
 
 	// Query
-	reconcilers = append(reconcilers, query.New(thanos, objectStores, thanosComponentReconciler).Reconcile)
+	reconcilers = append(reconcilers, query.New(thanos, thanosComponentReconciler).Reconcile)
 	// Store
-	reconcilers = append(reconcilers, store.New(thanos, objectStores, thanosComponentReconciler).Reconcile)
+	reconcilers = append(reconcilers, store.New(thanos, thanosComponentReconciler).Reconcile)
 	// Rule
-	reconcilers = append(reconcilers, rule.New(thanos, objectStores, thanosComponentReconciler).Reconcile)
+	reconcilers = append(reconcilers, rule.New(thanos, thanosComponentReconciler).Reconcile)
 
 	return resources.RunReconcilers(reconcilers)
 }

@@ -28,8 +28,8 @@ func GetPort(address string) int32 {
 }
 
 type ThanosComponentReconciler struct {
-	Thanos      *v1alpha1.Thanos
-	ObjectSores []v1alpha1.ObjectStore
+	Thanos         *v1alpha1.Thanos
+	StoreEndpoints []v1alpha1.StoreEndpoint
 	*reconciler.GenericResourceReconciler
 }
 
@@ -62,15 +62,19 @@ func (t *ThanosComponentReconciler) QualifiedName(name string) string {
 	return fmt.Sprintf("%s-%s", t.Thanos.Name, name)
 }
 
-func (t *ThanosComponentReconciler) GetNameMeta(name string) metav1.ObjectMeta {
+func (t *ThanosComponentReconciler) GetNameMeta(name string, namespaceOverride string) metav1.ObjectMeta {
+	namespace := t.Thanos.Namespace
+	if namespaceOverride != "" {
+		namespace = namespaceOverride
+	}
 	return metav1.ObjectMeta{
 		Name:      t.QualifiedName(name),
-		Namespace: t.Thanos.Namespace,
+		Namespace: namespace,
 	}
 }
 
-func (t *ThanosComponentReconciler) GetObjectMeta(name string) metav1.ObjectMeta {
-	meta := t.GetNameMeta(name)
+func (t *ThanosComponentReconciler) GetObjectMeta(name string, namespaceOverride string) metav1.ObjectMeta {
+	meta := t.GetNameMeta(name, namespaceOverride)
 	meta.OwnerReferences = []metav1.OwnerReference{
 		{
 			APIVersion: t.Thanos.APIVersion,
@@ -81,6 +85,23 @@ func (t *ThanosComponentReconciler) GetObjectMeta(name string) metav1.ObjectMeta
 		},
 	}
 	return meta
+}
+
+func (t *ThanosComponentReconciler) GetStoreEndpoint() (*v1alpha1.StoreEndpoint, error) {
+	var storeEndpoint *v1alpha1.StoreEndpoint
+	if t.Thanos.Spec.StoreEndpoint != nil {
+		for _, o := range t.StoreEndpoints {
+			if o.Name == *t.Thanos.Spec.StoreEndpoint {
+				storeEndpoint = o.DeepCopy()
+			}
+		}
+	} else {
+		return nil, fmt.Errorf("missing storeEndpoint from %q", t.Thanos.Name)
+	}
+	if storeEndpoint == nil {
+		return nil, fmt.Errorf("unknown StoreEndpoint: %q", *t.Thanos.Spec.StoreEndpoint)
+	}
+	return storeEndpoint, nil
 }
 
 func (t *ThanosComponentReconciler) ReconcileResources(resourceList []Resource) (*reconcile.Result, error) {
@@ -105,10 +126,10 @@ func (t *ThanosComponentReconciler) ReconcileResources(resourceList []Resource) 
 	return nil, nil
 }
 
-func NewThanosComponentReconciler(thanos *v1alpha1.Thanos, objectStores *v1alpha1.ObjectStoreList, genericReconciler *reconciler.GenericResourceReconciler) *ThanosComponentReconciler {
+func NewThanosComponentReconciler(thanos *v1alpha1.Thanos, storeEndpoints *v1alpha1.StoreEndpointList, genericReconciler *reconciler.GenericResourceReconciler) *ThanosComponentReconciler {
 	return &ThanosComponentReconciler{
 		Thanos:                    thanos,
-		ObjectSores:               objectStores.Items,
+		StoreEndpoints:            storeEndpoints.Items,
 		GenericResourceReconciler: genericReconciler,
 	}
 }

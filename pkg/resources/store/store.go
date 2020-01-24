@@ -8,12 +8,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-const Name = "store"
-
-func New(thanos *v1alpha1.Thanos, objectStores *v1alpha1.ObjectStoreList, reconciler *resources.ThanosComponentReconciler) *Store {
+func New(thanos *v1alpha1.Thanos, reconciler *resources.ThanosComponentReconciler) *Store {
 	return &Store{
 		Thanos:                    thanos,
-		ObjectSores:               objectStores.Items,
 		ThanosComponentReconciler: reconciler,
 	}
 }
@@ -33,14 +30,13 @@ func (s *Store) Reconcile() (*reconcile.Result, error) {
 }
 
 type Store struct {
-	Thanos      *v1alpha1.Thanos
-	ObjectSores []v1alpha1.ObjectStore
+	Thanos *v1alpha1.Thanos
 	*resources.ThanosComponentReconciler
 }
 
 func (s *Store) getLabels() resources.Labels {
 	labels := resources.Labels{
-		resources.NameLabel: Name,
+		resources.NameLabel: v1alpha1.StoreName,
 	}.Merge(
 		s.GetCommonLabels(),
 	)
@@ -51,7 +47,7 @@ func (s *Store) getLabels() resources.Labels {
 }
 
 func (s *Store) getMeta(name string) metav1.ObjectMeta {
-	meta := s.GetObjectMeta(name)
+	meta := s.GetObjectMeta(name, "")
 	meta.Labels = s.getLabels()
 	if s.Thanos.Spec.StoreGateway != nil {
 		meta.Annotations = s.Thanos.Spec.StoreGateway.Annotations

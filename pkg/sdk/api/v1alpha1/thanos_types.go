@@ -15,14 +15,13 @@
 package v1alpha1
 
 import (
-	"github.com/banzaicloud/logging-operator/pkg/sdk/model/secret"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
 	thanosImageRepository = "quay.io/thanos/thanos"
-	thanosImageTag        = "v0.9.0"
+	thanosImageTag        = "v0.10.1"
 	defaultPullPolicy     = corev1.PullIfNotPresent
 )
 
@@ -67,19 +66,17 @@ var DefaultRule = Rule{
 
 // ThanosSpec defines the desired state of Thanos
 type ThanosSpec struct {
-	Remote          *Remote          `json:"remote,omitempty"`
-	ThanosDiscovery *ThanosDiscovery `json:"thanosDiscovery,omitempty"`
-	Local           *Local           `json:"local,omitempty"`
-	StoreGateway    *StoreGateway    `json:"storeGateway,omitempty"`
-	Rule            *Rule            `json:"rule,omitempty"`
-	ObjectStore     *string          `json:"objectStore,omitempty"`
-	Query           *Query           `json:"query,omitempty"`
+	StoreEndpoint *string       `json:"storeEndpoint,omitempty"`
+	StoreGateway  *StoreGateway `json:"storeGateway,omitempty"`
+	Rule          *Rule         `json:"rule,omitempty"`
+	Query         *Query        `json:"query,omitempty"`
 }
 
 type Query struct {
-	BaseObject `json:",inline"`
-	LogLevel   string `json:"logLevel,omitempty" thanos:"--log.level=%s"`
-	LogFormat  string `json:"logFormat,omitempty" thanos:"--log.format=%s"`
+	BaseObject     `json:",inline"`
+	QueryDiscovery bool   `json:"queryDiscovery,omitempty"`
+	LogLevel       string `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat      string `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Listen host:port for HTTP endpoints.
 	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
 	// Time to wait after an interrupt received for HTTP Server.
@@ -129,25 +126,6 @@ type Query struct {
 	//	If a Store doesn't send any data in this specified duration then a Store will be ignored
 	//	and partial data will be returned if it's enabled. 0 disables timeout.
 	StoreResponseTimeout metav1.Duration `json:"storeResponseTimeout,omitempty" thanos:"--store.response-timeout=%s"`
-}
-
-type TLS struct {
-	Managed     ManagedTLS    `json:"managedTLS,omitempty"`
-	Certificate secret.Secret `json:"certificate,omitempty"`
-}
-
-// TODO how the runtime generated certificate will work
-type ManagedTLS struct {
-}
-
-type Remote struct {
-	URLs []string `json:"urls,omitempty"`
-	TLS  TLS      `json:"tls,omitempty"`
-}
-
-type Local struct {
-	URLs []string `json:"urls,omitempty"`
-	TLS  TLS      `json:"tls,omitempty"`
 }
 
 type ThanosDiscovery struct {

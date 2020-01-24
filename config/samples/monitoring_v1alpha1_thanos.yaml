@@ -4,9 +4,7 @@ metadata:
   name: thanos-sample
 spec:
   # Add fields here
-  thanosDiscovery: {}
-  local: {}
   query: {}
   rule: {}
   storeGateway: {}
-  objectStore: objectstore-sample
+  storeEndpoint: storeendpoint-sample

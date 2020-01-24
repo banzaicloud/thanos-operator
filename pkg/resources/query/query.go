@@ -4,27 +4,22 @@ import (
 	"fmt"
 
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
-	"github.com/banzaicloud/thanos-operator/pkg/resources/rule"
-	"github.com/banzaicloud/thanos-operator/pkg/resources/store"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/imdario/mergo"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-const Name = "query"
-
-func New(thanos *v1alpha1.Thanos, objectStores *v1alpha1.ObjectStoreList, reconciler *resources.ThanosComponentReconciler) *Query {
+func New(thanos *v1alpha1.Thanos, reconciler *resources.ThanosComponentReconciler) *Query {
 	return &Query{
 		Thanos:                    thanos,
-		ObjectSores:               objectStores.Items,
 		ThanosComponentReconciler: reconciler,
 	}
 }
 
 type Query struct {
-	Thanos      *v1alpha1.Thanos
-	ObjectSores []v1alpha1.ObjectStore
+	Thanos         *v1alpha1.Thanos
+	StoreEndpoints []v1alpha1.StoreEndpoint
 	*resources.ThanosComponentReconciler
 }
 
@@ -39,13 +34,12 @@ func (q *Query) Reconcile() (*reconcile.Result, error) {
 		[]resources.Resource{
 			q.deployment,
 			q.service,
-			q.sidecarService,
 		})
 }
 
 func (q *Query) getLabels() resources.Labels {
 	labels := resources.Labels{
-		resources.NameLabel: Name,
+		resources.NameLabel: v1alpha1.QueryName,
 	}.Merge(
 		q.GetCommonLabels(),
 	)
@@ -55,8 +49,12 @@ func (q *Query) getLabels() resources.Labels {
 	return labels
 }
 
-func (q *Query) getMeta(name string) metav1.ObjectMeta {
-	meta := q.GetObjectMeta(name)
+func (q *Query) getMeta(name string, params ...string) metav1.ObjectMeta {
+	namespace := ""
+	if len(params) > 0 {
+		namespace = params[0]
+	}
+	meta := q.GetObjectMeta(name, namespace)
 	meta.Labels = q.getLabels()
 	if q.Thanos.Spec.Query != nil {
 		meta.Annotations = q.Thanos.Spec.Query.Annotations
@@ -66,14 +64,22 @@ func (q *Query) getMeta(name string) metav1.ObjectMeta {
 
 func (q *Query) getStoreEndpoints() []string {
 	var endpoints []string
+	// Discover local StoreGateway
 	if q.Thanos.Spec.StoreGateway != nil {
-		endpoints = append(endpoints, q.QualifiedName(store.Name))
+		url := fmt.Sprintf("--store=dnssrvnoa+_grpc._tcp.%s.%s.svc.cluster.local", q.QualifiedName(v1alpha1.StoreName), q.Thanos.Namespace)
+		endpoints = append(endpoints, url)
 	}
+	// Discover local Rule
 	if q.Thanos.Spec.Rule != nil {
-		endpoints = append(endpoints, q.QualifiedName(rule.Name))
+		url := fmt.Sprintf("--store=dnssrvnoa+_grpc._tcp.%s.%s.svc.cluster.local", q.QualifiedName(v1alpha1.RuleName), q.Thanos.Namespace)
+		endpoints = append(endpoints, url)
 	}
-	if q.Thanos.Spec.ThanosDiscovery != nil {
-		endpoints = append(endpoints, q.QualifiedName("prometheus-sidecar"))
+	// Discover StoreEndpoint aka Sidecars
+	endpoint, err := q.GetStoreEndpoint()
+	if err == nil {
+		if url := endpoint.GetStoreURL(); url != "" {
+			endpoints = append(endpoints, fmt.Sprintf("--store=dnssrvnoa+%s", url))
+		}
 	}
 	return endpoints
 }
@@ -92,10 +98,9 @@ func (q *Query) setArgs(args []string) []string {
 		}
 	}
 	// Add discovery args
-	if q.Thanos.Spec.ThanosDiscovery != nil {
-		for _, s := range q.getStoreEndpoints() {
-			args = append(args, fmt.Sprintf("--store=dnssrvnoa+_grpc._tcp.%s.%s.svc.cluster.local", s, q.Thanos.Namespace))
-		}
+	for _, s := range q.getStoreEndpoints() {
+		args = append(args, s)
 	}
+
 	return args
 }

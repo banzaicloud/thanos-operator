@@ -3,6 +3,7 @@ package rule
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
+	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -10,15 +11,15 @@ import (
 
 func (r *Rule) service() (runtime.Object, reconciler.DesiredState, error) {
 	if r.Thanos.Spec.Rule != nil {
-		query := r.Thanos.Spec.Rule.DeepCopy()
+		rule := r.Thanos.Spec.Rule.DeepCopy()
 		storeService := &corev1.Service{
-			ObjectMeta: r.getMeta(Name),
+			ObjectMeta: r.getMeta(v1alpha1.RuleName),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
 						Name:     "grpc",
 						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(query.GRPCAddress),
+						Port:     resources.GetPort(rule.GRPCAddress),
 						TargetPort: intstr.IntOrString{
 							Type:   intstr.String,
 							StrVal: "grpc",
@@ -27,14 +28,14 @@ func (r *Rule) service() (runtime.Object, reconciler.DesiredState, error) {
 					{
 						Name:     "http",
 						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(query.HttpAddress),
+						Port:     resources.GetPort(rule.HttpAddress),
 						TargetPort: intstr.IntOrString{
 							Type:   intstr.String,
 							StrVal: "http",
 						},
 					},
 				},
-				Selector:  r.getLabels(Name),
+				Selector:  r.getLabels(v1alpha1.RuleName),
 				Type:      corev1.ServiceTypeClusterIP,
 				ClusterIP: corev1.ClusterIPNone,
 			},
@@ -43,7 +44,7 @@ func (r *Rule) service() (runtime.Object, reconciler.DesiredState, error) {
 
 	}
 	delete := &corev1.Service{
-		ObjectMeta: r.getMeta(Name),
+		ObjectMeta: r.getMeta(v1alpha1.RuleName),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

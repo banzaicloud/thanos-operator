@@ -11,18 +11,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-const Name = "rule"
-
 type Rule struct {
-	Thanos      *v1alpha1.Thanos
-	ObjectSores []v1alpha1.ObjectStore
+	Thanos *v1alpha1.Thanos
 	*resources.ThanosComponentReconciler
 }
 
-func New(thanos *v1alpha1.Thanos, objectStores *v1alpha1.ObjectStoreList, reconciler *resources.ThanosComponentReconciler) *Rule {
+func New(thanos *v1alpha1.Thanos, reconciler *resources.ThanosComponentReconciler) *Rule {
 	return &Rule{
 		Thanos:                    thanos,
-		ObjectSores:               objectStores.Items,
 		ThanosComponentReconciler: reconciler,
 	}
 }
@@ -54,7 +50,7 @@ func (r *Rule) getLabels(name string) resources.Labels {
 }
 
 func (r *Rule) getMeta(name string) metav1.ObjectMeta {
-	meta := r.GetObjectMeta(name)
+	meta := r.GetObjectMeta(name, "")
 	meta.Labels = r.getLabels(name)
 	meta.Annotations = r.Thanos.Spec.Rule.Annotations
 	return meta
@@ -63,7 +59,7 @@ func (r *Rule) getMeta(name string) metav1.ObjectMeta {
 func (r *Rule) getQueryEndpoints() []string {
 	var endpoints []string
 	if r.Thanos.Spec.Query != nil {
-		endpoints = append(endpoints, r.QualifiedName("query-service"))
+		endpoints = append(endpoints, r.QualifiedName(v1alpha1.QueryName))
 	}
 	return endpoints
 }
@@ -71,11 +67,11 @@ func (r *Rule) getQueryEndpoints() []string {
 func (r *Rule) setArgs(args []string) []string {
 	rule := r.Thanos.Spec.Rule.DeepCopy()
 	args = append(args, resources.GetArgs(rule)...)
-	if r.Thanos.Spec.ThanosDiscovery != nil {
-		for _, s := range r.getQueryEndpoints() {
-			url := fmt.Sprintf("--query=%s.%s.svc.cluster.local:%s", s, r.Thanos.Namespace, strconv.Itoa(int(resources.GetPort(rule.HttpAddress))))
-			args = append(args, url)
-		}
+
+	for _, s := range r.getQueryEndpoints() {
+		url := fmt.Sprintf("--query=%s.%s.svc.cluster.local:%s", s, r.Thanos.Namespace, strconv.Itoa(int(resources.GetPort(rule.HttpAddress))))
+		args = append(args, url)
 	}
+
 	return args
 }
