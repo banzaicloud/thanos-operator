@@ -21,12 +21,12 @@ import (
 )
 
 func (c *Compactor) persistentVolumeClaim() (runtime.Object, reconciler.DesiredState, error) {
-	if c.ObjectStore.Spec.Compactor != nil {
+	if c.ObjectStore.Spec.Compactor != nil &&
+		c.ObjectStore.Spec.Compactor.DataVolume != nil &&
+		c.ObjectStore.Spec.Compactor.DataVolume.PersistentVolumeClaim != nil {
 		return &corev1.PersistentVolumeClaim{
 			ObjectMeta: c.getMeta(Name),
-			Spec:       corev1.PersistentVolumeClaimSpec{
-				//Selector: c.labels(),
-			},
+			Spec:       c.ObjectStore.Spec.Compactor.DataVolume.PersistentVolumeClaim.PersistentVolumeClaimSpec,
 		}, reconciler.StatePresent, nil
 	}
 
