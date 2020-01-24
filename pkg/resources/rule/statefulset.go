@@ -74,6 +74,32 @@ func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, e
 			},
 		}
 		statefulset.Spec.Template.Spec.Containers[0].Args = r.setArgs(statefulset.Spec.Template.Spec.Containers[0].Args)
+
+		if r.Thanos.Spec.Rule.DataVolume != nil {
+			if r.Thanos.Spec.Rule.DataVolume.PersistentVolumeClaim != nil {
+				statefulset.Spec.Template.Spec.Containers[0].VolumeMounts = append(statefulset.Spec.Template.Spec.Containers[0].VolumeMounts, corev1.VolumeMount{
+					Name:      r.QualifiedName(r.Thanos.Spec.Rule.DataVolume.PersistentVolumeClaim.PersistentVolumeSource.ClaimName),
+					MountPath: r.Thanos.Spec.Rule.DataDir,
+				})
+				statefulset.Spec.VolumeClaimTemplates = []corev1.PersistentVolumeClaim{
+					{
+						ObjectMeta: r.getMeta(r.Thanos.Spec.Rule.DataVolume.PersistentVolumeClaim.PersistentVolumeSource.ClaimName),
+						Spec:       r.Thanos.Spec.Rule.DataVolume.PersistentVolumeClaim.PersistentVolumeClaimSpec,
+						Status: corev1.PersistentVolumeClaimStatus{
+							Phase: corev1.ClaimPending,
+						},
+					},
+				}
+			} else {
+				statefulset.Spec.Template.Spec.Containers[0].VolumeMounts = append(statefulset.Spec.Template.Spec.Containers[0].VolumeMounts, corev1.VolumeMount{
+					Name:      "datadir",
+					MountPath: r.Thanos.Spec.Rule.DataDir,
+				})
+				statefulset.Spec.Template.Spec.Volumes = append(statefulset.Spec.Template.Spec.Volumes, r.Thanos.Spec.Rule.DataVolume.GetVolume("datadir"))
+			}
+
+		}
+
 		return statefulset, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.StatefulSet{
