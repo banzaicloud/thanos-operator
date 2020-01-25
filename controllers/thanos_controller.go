@@ -16,6 +16,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
@@ -25,10 +26,14 @@ import (
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/go-logr/logr"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
 // ThanosReconciler reconciles a Thanos object
@@ -45,7 +50,7 @@ type ThanosReconciler struct {
 
 func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	_ = context.Background()
-	_ = r.Log.WithValues("thanos", req.NamespacedName)
+	log := r.Log.WithValues("thanos", req.NamespacedName)
 
 	thanos := &v1alpha1.Thanos{}
 	err := r.Client.Get(context.TODO(), req.NamespacedName, thanos)
@@ -78,7 +83,7 @@ func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	thanosComponentReconciler := resources.NewThanosComponentReconciler(
 		thanos,
 		storeEndpointList,
-		reconciler.NewReconciler(r.Client, r.Log, reconciler.ReconcilerOpts{}))
+		reconciler.NewReconciler(r.Client, log, reconciler.ReconcilerOpts{}))
 	reconcilers := make([]resources.ComponentReconciler, 0)
 
 	// Query
@@ -92,7 +97,34 @@ func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 }
 
 func (r *ThanosReconciler) SetupWithManager(mgr ctrl.Manager) error {
+
+	requestMapper := &handler.EnqueueRequestsFromMapFunc{
+		ToRequests: handler.ToRequestsFunc(func(mapObject handler.MapObject) []reconcile.Request {
+			object, err := meta.Accessor(mapObject.Object)
+			if err != nil {
+				return nil
+			}
+			if o, ok := object.(*v1alpha1.StoreEndpoint); ok {
+				thanos := &v1alpha1.Thanos{}
+				err = mgr.GetClient().Get(context.TODO(), types.NamespacedName{Name: o.Spec.Thanos}, thanos)
+				if err != nil {
+					r.Log.Info(fmt.Sprintf("failed to get thanos resources %q for endpoint %q: %s", o.Spec.Thanos, o.Name, err))
+					return nil
+				}
+				return []reconcile.Request{
+					{
+						NamespacedName: types.NamespacedName{
+							Namespace: thanos.Namespace,
+							Name:      thanos.Name,
+						},
+					},
+				}
+			}
+			return nil
+		}),
+	}
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.Thanos{}).
+		Watches(&source.Kind{Type: &v1alpha1.StoreEndpoint{}}, requestMapper).
 		Complete(r)
 }
