@@ -57,7 +57,7 @@ func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		}
 		return reconcile.Result{}, err
 	}
-	// Collect ObjectStores TODO better way to handle this
+	// Collect StoreEndpoints for matching Thanos CR
 	storeEndpoints := &v1alpha1.StoreEndpointList{}
 	err = r.Client.List(context.TODO(), storeEndpoints)
 	if err != nil {
@@ -68,21 +68,25 @@ func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		}
 		return reconcile.Result{}, err
 	}
-
-	// Create resource factory
+	var storeEndpointList []v1alpha1.StoreEndpoint
+	for _, s := range storeEndpoints.Items {
+		if s.Spec.Thanos == thanos.Name {
+			storeEndpointList = append(storeEndpointList, s)
+		}
+	}
 	// Create reconciler for objects
 	thanosComponentReconciler := resources.NewThanosComponentReconciler(
 		thanos,
-		storeEndpoints,
+		storeEndpointList,
 		reconciler.NewReconciler(r.Client, r.Log, reconciler.ReconcilerOpts{}))
 	reconcilers := make([]resources.ComponentReconciler, 0)
 
 	// Query
-	reconcilers = append(reconcilers, query.New(thanos, thanosComponentReconciler).Reconcile)
+	reconcilers = append(reconcilers, query.New(thanosComponentReconciler).Reconcile)
 	// Store
-	reconcilers = append(reconcilers, store.New(thanos, thanosComponentReconciler).Reconcile)
+	reconcilers = append(reconcilers, store.New(thanosComponentReconciler).Reconcile)
 	// Rule
-	reconcilers = append(reconcilers, rule.New(thanos, thanosComponentReconciler).Reconcile)
+	reconcilers = append(reconcilers, rule.New(thanosComponentReconciler).Reconcile)
 
 	return resources.RunReconcilers(reconcilers)
 }

@@ -8,34 +8,28 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-const sidecar = "prometheus-sidecar"
-
 type endpointService struct {
 	*v1alpha1.StoreEndpoint
 }
 
-func (e *endpointService) EndpointService() (runtime.Object, reconciler.DesiredState, error) {
-	return sidecarService(e.StoreEndpoint)
-}
-
-func sidecarService(endpoint *v1alpha1.StoreEndpoint) (runtime.Object, reconciler.DesiredState, error) {
-	if endpoint.Spec.Selector != nil {
+func (e *endpointService) sidecarService() (runtime.Object, reconciler.DesiredState, error) {
+	if e.Spec.Selector != nil {
 		var grpcPort int32 = 10901
 		var httpPort int32 = 10902
 		labels := map[string]string{
 			"app": "prometheus",
 		}
-		if endpoint.Spec.Selector.GRPCPort != 0 {
-			grpcPort = endpoint.Spec.Selector.GRPCPort
+		if e.Spec.Selector.GRPCPort != 0 {
+			grpcPort = e.Spec.Selector.GRPCPort
 		}
-		if endpoint.Spec.Selector.HTTPPort != 0 {
-			httpPort = endpoint.Spec.Selector.HTTPPort
+		if e.Spec.Selector.HTTPPort != 0 {
+			httpPort = e.Spec.Selector.HTTPPort
 		}
-		if endpoint.Spec.Selector.Labels != nil {
-			labels = endpoint.Spec.Selector.Labels
+		if e.Spec.Selector.Labels != nil {
+			labels = e.Spec.Selector.Labels
 		}
 		storeService := &corev1.Service{
-			ObjectMeta: getMeta(endpoint),
+			ObjectMeta: getMeta(e.StoreEndpoint),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
@@ -65,7 +59,7 @@ func sidecarService(endpoint *v1alpha1.StoreEndpoint) (runtime.Object, reconcile
 		return storeService, reconciler.StatePresent, nil
 	}
 	delete := &corev1.Service{
-		ObjectMeta: getMeta(endpoint),
+		ObjectMeta: getMeta(e.StoreEndpoint),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

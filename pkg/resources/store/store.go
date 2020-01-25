@@ -1,6 +1,8 @@
 package store
 
 import (
+	"fmt"
+
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/imdario/mergo"
@@ -8,11 +10,42 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-func New(thanos *v1alpha1.Thanos, reconciler *resources.ThanosComponentReconciler) *Store {
+func New(reconciler *resources.ThanosComponentReconciler) *Store {
 	return &Store{
-		Thanos:                    thanos,
 		ThanosComponentReconciler: reconciler,
 	}
+}
+
+type storeInstance struct {
+	*Store
+	*v1alpha1.StoreEndpoint
+}
+
+func (s *storeInstance) getName() string {
+	return fmt.Sprintf("%s-%s", s.StoreEndpoint.Name, v1alpha1.StoreName)
+}
+
+func (s *storeInstance) getSvc() string {
+	return fmt.Sprintf("_grpc._tcp.%s.%s.svc.cluster.local", s.getName(), s.StoreEndpoint.Namespace)
+}
+
+func (s *Store) resourceFactory() []resources.Resource {
+	var resourceList []resources.Resource
+
+	for _, endpoint := range s.StoreEndpoints {
+		resourceList = append(resourceList, (&storeInstance{s, &endpoint}).deployment)
+		resourceList = append(resourceList, (&storeInstance{s, &endpoint}).service)
+	}
+
+	return resourceList
+}
+
+func (r *Store) GetServiceURLS() []string {
+	var urls []string
+	for _, endpoint := range r.StoreEndpoints {
+		urls = append(urls, (&storeInstance{r, &endpoint}).getSvc())
+	}
+	return urls
 }
 
 func (s *Store) Reconcile() (*reconcile.Result, error) {
@@ -22,15 +55,10 @@ func (s *Store) Reconcile() (*reconcile.Result, error) {
 			return nil, err
 		}
 	}
-	return s.ReconcileResources(
-		[]resources.Resource{
-			s.deployment,
-			s.service,
-		})
+	return s.ReconcileResources(s.resourceFactory())
 }
 
 type Store struct {
-	Thanos *v1alpha1.Thanos
 	*resources.ThanosComponentReconciler
 }
 

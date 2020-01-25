@@ -12,15 +12,44 @@ import (
 )
 
 type Rule struct {
-	Thanos *v1alpha1.Thanos
 	*resources.ThanosComponentReconciler
 }
 
-func New(thanos *v1alpha1.Thanos, reconciler *resources.ThanosComponentReconciler) *Rule {
+type ruleInstance struct {
+	*Rule
+	*v1alpha1.StoreEndpoint
+}
+
+func (r *ruleInstance) getName() string {
+	return fmt.Sprintf("%s-%s", r.StoreEndpoint.Name, v1alpha1.RuleName)
+}
+
+func (r *ruleInstance) getSvc() string {
+	return fmt.Sprintf("_grpc._tcp.%s.%s.svc.cluster.local", r.getName(), r.StoreEndpoint.Namespace)
+}
+
+func New(reconciler *resources.ThanosComponentReconciler) *Rule {
 	return &Rule{
-		Thanos:                    thanos,
 		ThanosComponentReconciler: reconciler,
 	}
+}
+
+func (r *Rule) resourceFactory() []resources.Resource {
+	var resourceList []resources.Resource
+
+	for _, endpoint := range r.StoreEndpoints {
+		resourceList = append(resourceList, (&ruleInstance{r, &endpoint}).statefulset)
+		resourceList = append(resourceList, (&ruleInstance{r, &endpoint}).service)
+	}
+
+	return resourceList
+}
+func (r *Rule) GetServiceURLS() []string {
+	var urls []string
+	for _, endpoint := range r.StoreEndpoints {
+		urls = append(urls, (&ruleInstance{r, &endpoint}).getSvc())
+	}
+	return urls
 }
 
 func (r *Rule) Reconcile() (*reconcile.Result, error) {
@@ -30,11 +59,7 @@ func (r *Rule) Reconcile() (*reconcile.Result, error) {
 			return nil, err
 		}
 	}
-	return r.ReconcileResources(
-		[]resources.Resource{
-			r.statefulset,
-			r.service,
-		})
+	return r.ReconcileResources(r.resourceFactory())
 }
 
 func (r *Rule) getLabels(name string) resources.Labels {

@@ -4,21 +4,21 @@ import (
 	"fmt"
 
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
+	"github.com/banzaicloud/thanos-operator/pkg/resources/rule"
+	"github.com/banzaicloud/thanos-operator/pkg/resources/store"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/imdario/mergo"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-func New(thanos *v1alpha1.Thanos, reconciler *resources.ThanosComponentReconciler) *Query {
+func New(reconciler *resources.ThanosComponentReconciler) *Query {
 	return &Query{
-		Thanos:                    thanos,
 		ThanosComponentReconciler: reconciler,
 	}
 }
 
 type Query struct {
-	Thanos         *v1alpha1.Thanos
 	StoreEndpoints []v1alpha1.StoreEndpoint
 	*resources.ThanosComponentReconciler
 }
@@ -66,18 +66,19 @@ func (q *Query) getStoreEndpoints() []string {
 	var endpoints []string
 	// Discover local StoreGateway
 	if q.Thanos.Spec.StoreGateway != nil {
-		url := fmt.Sprintf("--store=dnssrvnoa+_grpc._tcp.%s.%s.svc.cluster.local", q.QualifiedName(v1alpha1.StoreName), q.Thanos.Namespace)
-		endpoints = append(endpoints, url)
+		for _, u := range store.New(q.ThanosComponentReconciler).GetServiceURLS() {
+			endpoints = append(endpoints, fmt.Sprintf("--store=dnssrvnoa+%s", u))
+		}
 	}
 	// Discover local Rule
 	if q.Thanos.Spec.Rule != nil {
-		url := fmt.Sprintf("--store=dnssrvnoa+_grpc._tcp.%s.%s.svc.cluster.local", q.QualifiedName(v1alpha1.RuleName), q.Thanos.Namespace)
-		endpoints = append(endpoints, url)
+		for _, u := range rule.New(q.ThanosComponentReconciler).GetServiceURLS() {
+			endpoints = append(endpoints, fmt.Sprintf("--store=dnssrvnoa+%s", u))
+		}
 	}
 	// Discover StoreEndpoint aka Sidecars
-	endpoint, err := q.GetStoreEndpoint()
-	if err == nil {
-		if url := endpoint.GetStoreURL(); url != "" {
+	for _, endpoint := range q.StoreEndpoints {
+		if url := endpoint.GetServiceURL(); url != "" {
 			endpoints = append(endpoints, fmt.Sprintf("--store=dnssrvnoa+%s", url))
 		}
 	}

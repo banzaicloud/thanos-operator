@@ -7,4 +7,3 @@ spec:
   query: {}
   rule: {}
   storeGateway: {}
-  storeEndpoint: storeendpoint-sample

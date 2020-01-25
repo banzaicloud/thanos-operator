@@ -66,10 +66,9 @@ var DefaultRule = Rule{
 
 // ThanosSpec defines the desired state of Thanos
 type ThanosSpec struct {
-	StoreEndpoint *string       `json:"storeEndpoint,omitempty"`
-	StoreGateway  *StoreGateway `json:"storeGateway,omitempty"`
-	Rule          *Rule         `json:"rule,omitempty"`
-	Query         *Query        `json:"query,omitempty"`
+	StoreGateway *StoreGateway `json:"storeGateway,omitempty"`
+	Rule         *Rule         `json:"rule,omitempty"`
+	Query        *Query        `json:"query,omitempty"`
 }
 
 type Query struct {

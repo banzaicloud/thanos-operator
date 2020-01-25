@@ -4,6 +4,7 @@ metadata:
   name: storeendpoint-sample
 spec:
   # Add fields here
+  thanos: thanos-sample
   config:
     mountFrom:
       secretKeyRef:

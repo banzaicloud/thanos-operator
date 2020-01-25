@@ -9,11 +9,12 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func (r *Rule) service() (runtime.Object, reconciler.DesiredState, error) {
+func (r *ruleInstance) service() (runtime.Object, reconciler.DesiredState, error) {
+	name := r.getName()
 	if r.Thanos.Spec.Rule != nil {
 		rule := r.Thanos.Spec.Rule.DeepCopy()
 		storeService := &corev1.Service{
-			ObjectMeta: r.getMeta(v1alpha1.RuleName),
+			ObjectMeta: r.getMeta(name),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
@@ -44,7 +45,7 @@ func (r *Rule) service() (runtime.Object, reconciler.DesiredState, error) {
 
 	}
 	delete := &corev1.Service{
-		ObjectMeta: r.getMeta(v1alpha1.RuleName),
+		ObjectMeta: r.getMeta(name),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

@@ -13,25 +13,23 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-func (s *Store) deployment() (runtime.Object, reconciler.DesiredState, error) {
-	storeEndpoint, err := s.GetStoreEndpoint()
-	if err != nil {
-		return nil, nil, err
-	}
-	if s.Thanos.Spec.StoreGateway != nil {
-		if storeEndpoint.Spec.Config.MountFrom == nil {
-			return nil, nil, fmt.Errorf("missing config for StorageGateway %q", storeEndpoint.Name)
+func (s *storeInstance) deployment() (runtime.Object, reconciler.DesiredState, error) {
+	storeGateway := s.Store.Thanos.Spec.StoreGateway
+	name := s.getName()
+	if storeGateway != nil {
+		if s.StoreEndpoint.Spec.Config.MountFrom == nil {
+			return nil, nil, fmt.Errorf("missing config for StorageGateway %q", s.StoreEndpoint.Name)
 		}
-		store := s.Thanos.Spec.StoreGateway.DeepCopy()
+		store := storeGateway.DeepCopy()
 		var deployment = &appsv1.Deployment{
-			ObjectMeta: s.getMeta(v1alpha1.StoreName),
+			ObjectMeta: s.getMeta(name),
 			Spec: appsv1.DeploymentSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
 					MatchLabels: s.getLabels(),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: s.getMeta(v1alpha1.StoreName),
+					ObjectMeta: s.getMeta(name),
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
@@ -39,7 +37,7 @@ func (s *Store) deployment() (runtime.Object, reconciler.DesiredState, error) {
 								Image: fmt.Sprintf("%s:%s", store.Image.Repository, store.Image.Tag),
 								Args: []string{
 									"store",
-									fmt.Sprintf("--objstore.config-file=/etc/config/%s", storeEndpoint.Spec.Config.MountFrom.SecretKeyRef.Key),
+									fmt.Sprintf("--objstore.config-file=/etc/config/%s", s.StoreEndpoint.Spec.Config.MountFrom.SecretKeyRef.Key),
 								},
 								Ports: []corev1.ContainerPort{
 									{
@@ -71,7 +69,7 @@ func (s *Store) deployment() (runtime.Object, reconciler.DesiredState, error) {
 								Name: "objectstore-secret",
 								VolumeSource: corev1.VolumeSource{
 									Secret: &corev1.SecretVolumeSource{
-										SecretName: storeEndpoint.Spec.Config.MountFrom.SecretKeyRef.Name,
+										SecretName: s.StoreEndpoint.Spec.Config.MountFrom.SecretKeyRef.Name,
 									},
 								},
 							},
@@ -85,7 +83,7 @@ func (s *Store) deployment() (runtime.Object, reconciler.DesiredState, error) {
 		return deployment, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.Deployment{
-		ObjectMeta: s.getMeta(v1alpha1.StoreName),
+		ObjectMeta: s.getMeta(name),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

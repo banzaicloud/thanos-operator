@@ -98,10 +98,14 @@ spec:
                 namespaces:
                   type: string
               type: object
+            thanos:
+              type: string
             url:
               description: Foo is an example field of StoreEndpoint. Edit StoreEndpoint_types.go
                 to remove/update
               type: string
+          required:
+          - thanos
           type: object
         status:
           description: StoreEndpointStatus defines the observed state of StoreEndpoint

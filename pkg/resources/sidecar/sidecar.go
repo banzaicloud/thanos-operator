@@ -45,8 +45,7 @@ func (s *Sidecar) serviceFactory() []resources.Resource {
 	var serviceList []resources.Resource
 
 	for _, endpoint := range s.StoreEndpoints {
-		es := endpointService{&endpoint}
-		serviceList = append(serviceList, es.EndpointService)
+		serviceList = append(serviceList, (&endpointService{&endpoint}).sidecarService)
 	}
 
 	return serviceList

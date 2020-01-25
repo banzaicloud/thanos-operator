@@ -34,6 +34,7 @@ type StoreEndpointSpec struct {
 	URL      string              `json:"url,omitempty"`
 	Selector *KubernetesSelector `json:"selector,omitempty"`
 	Config   secret.Secret       `json:"config,omitempty"`
+	Thanos   string              `json:"thanos"`
 }
 
 type KubernetesSelector struct {
@@ -61,7 +62,7 @@ type StoreEndpoint struct {
 	Status StoreEndpointStatus `json:"status,omitempty"`
 }
 
-func (s *StoreEndpoint) GetStoreURL() string {
+func (s *StoreEndpoint) GetServiceURL() string {
 	if s.Spec.URL != "" {
 		return s.Spec.URL
 	}

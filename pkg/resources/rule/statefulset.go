@@ -13,22 +13,19 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-func (r *Rule) statefulset() (runtime.Object, reconciler.DesiredState, error) {
-	storeEndpoint, err := r.GetStoreEndpoint()
-	if err != nil {
-		return nil, nil, err
-	}
+func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, error) {
+	name := fmt.Sprintf("%s-%s", r.StoreEndpoint.Name, v1alpha1.RuleName)
 	if r.Thanos.Spec.Rule != nil {
 		rule := r.Thanos.Spec.Rule.DeepCopy()
 		statefulset := &appsv1.StatefulSet{
-			ObjectMeta: r.getMeta(v1alpha1.RuleName),
+			ObjectMeta: r.getMeta(name),
 			Spec: appsv1.StatefulSetSpec{
 				Replicas: util.IntPointer(1),
 				Selector: &metav1.LabelSelector{
-					MatchLabels: r.getLabels(v1alpha1.RuleName),
+					MatchLabels: r.getLabels(name),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: r.getMeta(v1alpha1.RuleName),
+					ObjectMeta: r.getMeta(name),
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
@@ -36,7 +33,7 @@ func (r *Rule) statefulset() (runtime.Object, reconciler.DesiredState, error) {
 								Image: fmt.Sprintf("%s:%s", rule.Image.Repository, rule.Image.Tag),
 								Args: []string{
 									"rule",
-									fmt.Sprintf("--objstore.config-file=/etc/config/%s", storeEndpoint.Spec.Config.MountFrom.SecretKeyRef.Key),
+									fmt.Sprintf("--objstore.config-file=/etc/config/%s", r.StoreEndpoint.Spec.Config.MountFrom.SecretKeyRef.Key),
 								},
 								WorkingDir: "",
 								Ports: []corev1.ContainerPort{
@@ -69,7 +66,7 @@ func (r *Rule) statefulset() (runtime.Object, reconciler.DesiredState, error) {
 								Name: "objectstore-secret",
 								VolumeSource: corev1.VolumeSource{
 									Secret: &corev1.SecretVolumeSource{
-										SecretName: storeEndpoint.Spec.Config.MountFrom.SecretKeyRef.Name,
+										SecretName: r.StoreEndpoint.Spec.Config.MountFrom.SecretKeyRef.Name,
 									},
 								},
 							},
@@ -82,7 +79,7 @@ func (r *Rule) statefulset() (runtime.Object, reconciler.DesiredState, error) {
 		return statefulset, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.StatefulSet{
-		ObjectMeta: r.getMeta(v1alpha1.RuleName),
+		ObjectMeta: r.getMeta(name),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

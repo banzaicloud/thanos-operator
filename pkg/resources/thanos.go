@@ -87,23 +87,6 @@ func (t *ThanosComponentReconciler) GetObjectMeta(name string, namespaceOverride
 	return meta
 }
 
-func (t *ThanosComponentReconciler) GetStoreEndpoint() (*v1alpha1.StoreEndpoint, error) {
-	var storeEndpoint *v1alpha1.StoreEndpoint
-	if t.Thanos.Spec.StoreEndpoint != nil {
-		for _, o := range t.StoreEndpoints {
-			if o.Name == *t.Thanos.Spec.StoreEndpoint {
-				storeEndpoint = o.DeepCopy()
-			}
-		}
-	} else {
-		return nil, fmt.Errorf("missing storeEndpoint from %q", t.Thanos.Name)
-	}
-	if storeEndpoint == nil {
-		return nil, fmt.Errorf("unknown StoreEndpoint: %q", *t.Thanos.Spec.StoreEndpoint)
-	}
-	return storeEndpoint, nil
-}
-
 func (t *ThanosComponentReconciler) ReconcileResources(resourceList []Resource) (*reconcile.Result, error) {
 	// Generate objects from resources
 	for _, res := range resourceList {
@@ -126,10 +109,10 @@ func (t *ThanosComponentReconciler) ReconcileResources(resourceList []Resource) 
 	return nil, nil
 }
 
-func NewThanosComponentReconciler(thanos *v1alpha1.Thanos, storeEndpoints *v1alpha1.StoreEndpointList, genericReconciler *reconciler.GenericResourceReconciler) *ThanosComponentReconciler {
+func NewThanosComponentReconciler(thanos *v1alpha1.Thanos, storeEndpoints []v1alpha1.StoreEndpoint, genericReconciler *reconciler.GenericResourceReconciler) *ThanosComponentReconciler {
 	return &ThanosComponentReconciler{
 		Thanos:                    thanos,
-		StoreEndpoints:            storeEndpoints.Items,
+		StoreEndpoints:            storeEndpoints,
 		GenericResourceReconciler: genericReconciler,
 	}
 }

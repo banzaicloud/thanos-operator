@@ -381,8 +381,6 @@ spec:
                     of Promethus.
                   type: string
               type: object
-            storeEndpoint:
-              type: string
             storeGateway:
               properties:
                 annotations:
