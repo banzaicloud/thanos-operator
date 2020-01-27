@@ -45,6 +45,7 @@ func (c *Compactor) Reconcile() (*reconcile.Result, error) {
 		//c.persistentVolumeClaim,
 		c.deployment,
 		c.service,
+		c.persistentVolumeClaim,
 	})
 }
 

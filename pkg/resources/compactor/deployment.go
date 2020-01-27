@@ -101,10 +101,15 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 
 		if compactor.DataVolume != nil {
 			deployment.Spec.Template.Spec.Containers[0].VolumeMounts = append(deployment.Spec.Template.Spec.Containers[0].VolumeMounts, corev1.VolumeMount{
-				Name:      "datadir",
+				Name:      c.QualifiedName("datadir"),
 				MountPath: compactor.DataDir,
 			})
-			deployment.Spec.Template.Spec.Volumes = append(deployment.Spec.Template.Spec.Volumes, compactor.DataVolume.GetVolume("datadir"))
+			dataVolume := compactor.DataVolume.DeepCopy()
+			if dataVolume.PersistentVolumeClaim != nil {
+				dataVolume.PersistentVolumeClaim.PersistentVolumeSource.ClaimName = c.QualifiedName(dataVolume.PersistentVolumeClaim.PersistentVolumeSource.ClaimName)
+			}
+
+			deployment.Spec.Template.Spec.Volumes = append(deployment.Spec.Template.Spec.Volumes, dataVolume.GetVolume(c.QualifiedName("datadir")))
 		}
 
 		return deployment, reconciler.StatePresent, nil
