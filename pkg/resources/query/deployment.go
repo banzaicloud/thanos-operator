@@ -6,6 +6,7 @@ import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
+	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -16,14 +17,14 @@ func (q *Query) deployment() (runtime.Object, reconciler.DesiredState, error) {
 	if q.Thanos.Spec.Query != nil {
 		query := q.Thanos.Spec.Query.DeepCopy()
 		var deployment = &appsv1.Deployment{
-			ObjectMeta: q.getMeta(Name),
+			ObjectMeta: q.getMeta(v1alpha1.QueryName),
 			Spec: appsv1.DeploymentSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
 					MatchLabels: q.getLabels(),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: q.getMeta(Name),
+					ObjectMeta: q.getMeta(v1alpha1.QueryName),
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
@@ -59,7 +60,7 @@ func (q *Query) deployment() (runtime.Object, reconciler.DesiredState, error) {
 		return deployment, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.Deployment{
-		ObjectMeta: q.getMeta(Name),
+		ObjectMeta: q.getMeta(v1alpha1.QueryName),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

@@ -8,17 +8,17 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func (r *Rule) service() (runtime.Object, reconciler.DesiredState, error) {
+func (r *ruleInstance) service() (runtime.Object, reconciler.DesiredState, error) {
 	if r.Thanos.Spec.Rule != nil {
-		query := r.Thanos.Spec.Rule.DeepCopy()
+		rule := r.Thanos.Spec.Rule.DeepCopy()
 		storeService := &corev1.Service{
-			ObjectMeta: r.getMeta(Name),
+			ObjectMeta: r.getMeta(),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
 						Name:     "grpc",
 						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(query.GRPCAddress),
+						Port:     resources.GetPort(rule.GRPCAddress),
 						TargetPort: intstr.IntOrString{
 							Type:   intstr.String,
 							StrVal: "grpc",
@@ -27,14 +27,14 @@ func (r *Rule) service() (runtime.Object, reconciler.DesiredState, error) {
 					{
 						Name:     "http",
 						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(query.HttpAddress),
+						Port:     resources.GetPort(rule.HttpAddress),
 						TargetPort: intstr.IntOrString{
 							Type:   intstr.String,
 							StrVal: "http",
 						},
 					},
 				},
-				Selector:  r.getLabels(Name),
+				Selector:  r.getLabels(),
 				Type:      corev1.ServiceTypeClusterIP,
 				ClusterIP: corev1.ClusterIPNone,
 			},
@@ -43,7 +43,7 @@ func (r *Rule) service() (runtime.Object, reconciler.DesiredState, error) {
 
 	}
 	delete := &corev1.Service{
-		ObjectMeta: r.getMeta(Name),
+		ObjectMeta: r.getMeta(),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

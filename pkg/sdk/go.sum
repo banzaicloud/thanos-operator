@@ -33,6 +33,7 @@ github.com/banzaicloud/logging-operator v0.0.0-20200107212637-8598193c9ebb h1:TA
 github.com/banzaicloud/logging-operator/pkg/sdk v0.0.0-20200107212637-8598193c9ebb h1:7FkJIVlsKOsVbaML7nt4MJToPD15LMcosCm5sk0yrmQ=
 github.com/banzaicloud/logging-operator/pkg/sdk v0.0.0-20200107212637-8598193c9ebb/go.mod h1:hpGBWQB1W12XdYXrxDVO2hQApS7P/N2uNwsgJI/tAWo=
 github.com/banzaicloud/operator-tools v0.0.0-20200109153432-0ff490ae57fc/go.mod h1:kbNJy96ahnLo9ns118nXkr7mTVz/QvxOSyWyBc1Bm1s=
+github.com/banzaicloud/operator-tools v0.1.0 h1:sIJUsaCDsBcS6mFZbe2rHOQwlvf1t2OagNBj2qHwsEM=
 github.com/banzaicloud/operator-tools v0.1.0/go.mod h1:GHB/Hblw07+st5dlKO4znCjLrRUxBPQKRMKq8frf/WI=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/bitly/go-simplejson v0.5.0/go.mod h1:cXHtHw4XUPsvGaxgjIAn8PhEWG9NfngEKAMDJEczWVA=

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/banzaicloud/logging-operator/pkg/sdk/util"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/imdario/mergo"
@@ -11,20 +12,61 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-const Name = "rule"
-
 type Rule struct {
-	Thanos      *v1alpha1.Thanos
-	ObjectSores []v1alpha1.ObjectStore
 	*resources.ThanosComponentReconciler
 }
 
-func New(thanos *v1alpha1.Thanos, objectStores *v1alpha1.ObjectStoreList, reconciler *resources.ThanosComponentReconciler) *Rule {
+type ruleInstance struct {
+	*Rule
+	*v1alpha1.StoreEndpoint
+}
+
+func (r *ruleInstance) getName() string {
+	return fmt.Sprintf("%s-%s", r.StoreEndpoint.Name, v1alpha1.RuleName)
+}
+
+func (r *ruleInstance) getMeta() metav1.ObjectMeta {
+	meta := r.GetNameMeta(r.getName(), "")
+	meta.OwnerReferences = []metav1.OwnerReference{
+		{
+			APIVersion: r.StoreEndpoint.APIVersion,
+			Kind:       r.StoreEndpoint.Kind,
+			Name:       r.StoreEndpoint.Name,
+			UID:        r.StoreEndpoint.UID,
+			Controller: util.BoolPointer(true),
+		},
+	}
+	meta.Labels = r.Rule.getLabels()
+	meta.Annotations = r.Thanos.Spec.Rule.Annotations
+	return meta
+}
+
+func (r *ruleInstance) getSvc() string {
+	return fmt.Sprintf("_grpc._tcp.%s.%s.svc.cluster.local", r.getName(), r.StoreEndpoint.Namespace)
+}
+
+func New(reconciler *resources.ThanosComponentReconciler) *Rule {
 	return &Rule{
-		Thanos:                    thanos,
-		ObjectSores:               objectStores.Items,
 		ThanosComponentReconciler: reconciler,
 	}
+}
+
+func (r *Rule) resourceFactory() []resources.Resource {
+	var resourceList []resources.Resource
+
+	for _, endpoint := range r.StoreEndpoints {
+		resourceList = append(resourceList, (&ruleInstance{r, endpoint.DeepCopy()}).statefulset)
+		resourceList = append(resourceList, (&ruleInstance{r, endpoint.DeepCopy()}).service)
+	}
+
+	return resourceList
+}
+func (r *Rule) GetServiceURLS() []string {
+	var urls []string
+	for _, endpoint := range r.StoreEndpoints {
+		urls = append(urls, (&ruleInstance{r, &endpoint}).getSvc())
+	}
+	return urls
 }
 
 func (r *Rule) Reconcile() (*reconcile.Result, error) {
@@ -34,16 +76,12 @@ func (r *Rule) Reconcile() (*reconcile.Result, error) {
 			return nil, err
 		}
 	}
-	return r.ReconcileResources(
-		[]resources.Resource{
-			r.statefulset,
-			r.service,
-		})
+	return r.ReconcileResources(r.resourceFactory())
 }
 
-func (r *Rule) getLabels(name string) resources.Labels {
+func (r *Rule) getLabels() resources.Labels {
 	labels := resources.Labels{
-		resources.NameLabel: name,
+		resources.NameLabel: v1alpha1.RuleName,
 	}.Merge(
 		r.GetCommonLabels(),
 	)
@@ -53,17 +91,10 @@ func (r *Rule) getLabels(name string) resources.Labels {
 	return labels
 }
 
-func (r *Rule) getMeta(name string) metav1.ObjectMeta {
-	meta := r.GetObjectMeta(name)
-	meta.Labels = r.getLabels(name)
-	meta.Annotations = r.Thanos.Spec.Rule.Annotations
-	return meta
-}
-
 func (r *Rule) getQueryEndpoints() []string {
 	var endpoints []string
 	if r.Thanos.Spec.Query != nil {
-		endpoints = append(endpoints, r.QualifiedName("query-service"))
+		endpoints = append(endpoints, r.QualifiedName(v1alpha1.QueryName))
 	}
 	return endpoints
 }
@@ -71,11 +102,11 @@ func (r *Rule) getQueryEndpoints() []string {
 func (r *Rule) setArgs(args []string) []string {
 	rule := r.Thanos.Spec.Rule.DeepCopy()
 	args = append(args, resources.GetArgs(rule)...)
-	if r.Thanos.Spec.ThanosDiscovery != nil {
-		for _, s := range r.getQueryEndpoints() {
-			url := fmt.Sprintf("--query=%s.%s.svc.cluster.local:%s", s, r.Thanos.Namespace, strconv.Itoa(int(resources.GetPort(rule.HttpAddress))))
-			args = append(args, url)
-		}
+
+	for _, s := range r.getQueryEndpoints() {
+		url := fmt.Sprintf("--query=%s.%s.svc.cluster.local:%s", s, r.Thanos.Namespace, strconv.Itoa(int(resources.GetPort(rule.HttpAddress))))
+		args = append(args, url)
 	}
+
 	return args
 }

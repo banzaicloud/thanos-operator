@@ -12,18 +12,18 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-func (r *Rule) statefulset() (runtime.Object, reconciler.DesiredState, error) {
+func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, error) {
 	if r.Thanos.Spec.Rule != nil {
 		rule := r.Thanos.Spec.Rule.DeepCopy()
 		statefulset := &appsv1.StatefulSet{
-			ObjectMeta: r.getMeta(Name),
+			ObjectMeta: r.getMeta(),
 			Spec: appsv1.StatefulSetSpec{
 				Replicas: util.IntPointer(1),
 				Selector: &metav1.LabelSelector{
-					MatchLabels: r.getLabels(Name),
+					MatchLabels: r.getLabels(),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: r.getMeta(Name),
+					ObjectMeta: r.getMeta(),
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
@@ -31,6 +31,7 @@ func (r *Rule) statefulset() (runtime.Object, reconciler.DesiredState, error) {
 								Image: fmt.Sprintf("%s:%s", rule.Image.Repository, rule.Image.Tag),
 								Args: []string{
 									"rule",
+									fmt.Sprintf("--objstore.config-file=/etc/config/%s", r.StoreEndpoint.Spec.Config.MountFrom.SecretKeyRef.Key),
 								},
 								WorkingDir: "",
 								Ports: []corev1.ContainerPort{
@@ -45,10 +46,27 @@ func (r *Rule) statefulset() (runtime.Object, reconciler.DesiredState, error) {
 										Protocol:      corev1.ProtocolTCP,
 									},
 								},
+								VolumeMounts: []corev1.VolumeMount{
+									{
+										Name:      "objectstore-secret",
+										ReadOnly:  true,
+										MountPath: "/etc/config/",
+									},
+								},
 								Resources:       rule.Resources,
 								LivenessProbe:   r.GetCheck(resources.GetPort(rule.HttpAddress), resources.HealthCheckPath),
 								ReadinessProbe:  r.GetCheck(resources.GetPort(rule.HttpAddress), resources.ReadyCheckPath),
 								ImagePullPolicy: rule.Image.PullPolicy,
+							},
+						},
+						Volumes: []corev1.Volume{
+							{
+								Name: "objectstore-secret",
+								VolumeSource: corev1.VolumeSource{
+									Secret: &corev1.SecretVolumeSource{
+										SecretName: r.StoreEndpoint.Spec.Config.MountFrom.SecretKeyRef.Name,
+									},
+								},
 							},
 						},
 					},
@@ -59,7 +77,7 @@ func (r *Rule) statefulset() (runtime.Object, reconciler.DesiredState, error) {
 		return statefulset, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.StatefulSet{
-		ObjectMeta: r.getMeta(Name),
+		ObjectMeta: r.getMeta(),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

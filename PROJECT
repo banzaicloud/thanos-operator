@@ -7,4 +7,7 @@ resources:
 - group: monitoring
   kind: Thanos
   version: v1alpha1
+- group: monitoring
+  kind: StoreEndpoint
+  version: v1alpha1
 version: "2"
