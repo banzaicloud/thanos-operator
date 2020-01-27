@@ -3,6 +3,7 @@ package store
 import (
 	"fmt"
 
+	"github.com/banzaicloud/logging-operator/pkg/sdk/util"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/imdario/mergo"
@@ -25,6 +26,22 @@ func (s *storeInstance) getName() string {
 	return fmt.Sprintf("%s-%s", s.StoreEndpoint.Name, v1alpha1.StoreName)
 }
 
+func (s *storeInstance) getMeta() metav1.ObjectMeta {
+	meta := s.GetNameMeta(s.getName(), "")
+	meta.OwnerReferences = []metav1.OwnerReference{
+		{
+			APIVersion: s.StoreEndpoint.APIVersion,
+			Kind:       s.StoreEndpoint.Kind,
+			Name:       s.StoreEndpoint.Name,
+			UID:        s.StoreEndpoint.UID,
+			Controller: util.BoolPointer(true),
+		},
+	}
+	meta.Labels = s.Store.getLabels()
+	meta.Annotations = s.Thanos.Spec.StoreGateway.Annotations
+	return meta
+}
+
 func (s *storeInstance) getSvc() string {
 	return fmt.Sprintf("_grpc._tcp.%s.%s.svc.cluster.local", s.getName(), s.StoreEndpoint.Namespace)
 }
@@ -33,8 +50,8 @@ func (s *Store) resourceFactory() []resources.Resource {
 	var resourceList []resources.Resource
 
 	for _, endpoint := range s.StoreEndpoints {
-		resourceList = append(resourceList, (&storeInstance{s, &endpoint}).deployment)
-		resourceList = append(resourceList, (&storeInstance{s, &endpoint}).service)
+		resourceList = append(resourceList, (&storeInstance{s, endpoint.DeepCopy()}).deployment)
+		resourceList = append(resourceList, (&storeInstance{s, endpoint.DeepCopy()}).service)
 	}
 
 	return resourceList
@@ -68,19 +85,10 @@ func (s *Store) getLabels() resources.Labels {
 	}.Merge(
 		s.GetCommonLabels(),
 	)
-	if s.Thanos.Spec.Query != nil {
-		labels.Merge(s.Thanos.Spec.Query.Labels)
+	if s.Thanos.Spec.StoreGateway != nil {
+		labels.Merge(s.Thanos.Spec.StoreGateway.Labels)
 	}
 	return labels
-}
-
-func (s *Store) getMeta(name string) metav1.ObjectMeta {
-	meta := s.GetObjectMeta(name, "")
-	meta.Labels = s.getLabels()
-	if s.Thanos.Spec.StoreGateway != nil {
-		meta.Annotations = s.Thanos.Spec.StoreGateway.Annotations
-	}
-	return meta
 }
 
 func (s *Store) setArgs(args []string) []string {

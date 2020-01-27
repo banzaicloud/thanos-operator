@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/banzaicloud/logging-operator/pkg/sdk/util"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/imdario/mergo"
@@ -24,6 +25,22 @@ func (r *ruleInstance) getName() string {
 	return fmt.Sprintf("%s-%s", r.StoreEndpoint.Name, v1alpha1.RuleName)
 }
 
+func (r *ruleInstance) getMeta() metav1.ObjectMeta {
+	meta := r.GetNameMeta(r.getName(), "")
+	meta.OwnerReferences = []metav1.OwnerReference{
+		{
+			APIVersion: r.StoreEndpoint.APIVersion,
+			Kind:       r.StoreEndpoint.Kind,
+			Name:       r.StoreEndpoint.Name,
+			UID:        r.StoreEndpoint.UID,
+			Controller: util.BoolPointer(true),
+		},
+	}
+	meta.Labels = r.Rule.getLabels()
+	meta.Annotations = r.Thanos.Spec.Rule.Annotations
+	return meta
+}
+
 func (r *ruleInstance) getSvc() string {
 	return fmt.Sprintf("_grpc._tcp.%s.%s.svc.cluster.local", r.getName(), r.StoreEndpoint.Namespace)
 }
@@ -38,8 +55,8 @@ func (r *Rule) resourceFactory() []resources.Resource {
 	var resourceList []resources.Resource
 
 	for _, endpoint := range r.StoreEndpoints {
-		resourceList = append(resourceList, (&ruleInstance{r, &endpoint}).statefulset)
-		resourceList = append(resourceList, (&ruleInstance{r, &endpoint}).service)
+		resourceList = append(resourceList, (&ruleInstance{r, endpoint.DeepCopy()}).statefulset)
+		resourceList = append(resourceList, (&ruleInstance{r, endpoint.DeepCopy()}).service)
 	}
 
 	return resourceList
@@ -62,9 +79,9 @@ func (r *Rule) Reconcile() (*reconcile.Result, error) {
 	return r.ReconcileResources(r.resourceFactory())
 }
 
-func (r *Rule) getLabels(name string) resources.Labels {
+func (r *Rule) getLabels() resources.Labels {
 	labels := resources.Labels{
-		resources.NameLabel: name,
+		resources.NameLabel: v1alpha1.RuleName,
 	}.Merge(
 		r.GetCommonLabels(),
 	)
@@ -72,13 +89,6 @@ func (r *Rule) getLabels(name string) resources.Labels {
 		labels.Merge(r.Thanos.Spec.Rule.Labels)
 	}
 	return labels
-}
-
-func (r *Rule) getMeta(name string) metav1.ObjectMeta {
-	meta := r.GetObjectMeta(name, "")
-	meta.Labels = r.getLabels(name)
-	meta.Annotations = r.Thanos.Spec.Rule.Annotations
-	return meta
 }
 
 func (r *Rule) getQueryEndpoints() []string {

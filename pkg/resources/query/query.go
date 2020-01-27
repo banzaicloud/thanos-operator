@@ -2,6 +2,7 @@ package query
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/resources/rule"
@@ -85,9 +86,12 @@ func (q *Query) getStoreEndpoints() []string {
 	return endpoints
 }
 
-func (q *Query) setArgs(args []string) []string {
+func (q *Query) setArgs(originArgs []string) []string {
 	query := q.Thanos.Spec.Query.DeepCopy()
-	args = append(args, resources.GetArgs(query)...)
+	// Get args from the tags
+	args := resources.GetArgs(query)
+
+	// Handle special args
 	if query.QueryReplicaLabels != nil {
 		for _, l := range query.QueryReplicaLabels {
 			args = append(args, fmt.Sprintf("--query.replica-label=%s", l))
@@ -102,6 +106,9 @@ func (q *Query) setArgs(args []string) []string {
 	for _, s := range q.getStoreEndpoints() {
 		args = append(args, s)
 	}
-
-	return args
+	// Sort generated args to prevent accidental diffs
+	sort.Strings(args)
+	// Concat original and computed args
+	finalArgs := append(originArgs, args...)
+	return finalArgs
 }

@@ -9,11 +9,10 @@ import (
 )
 
 func (s *storeInstance) service() (runtime.Object, reconciler.DesiredState, error) {
-	name := s.getName()
 	if s.Thanos.Spec.StoreGateway != nil {
 		store := s.Thanos.Spec.StoreGateway.DeepCopy()
 		storeService := &corev1.Service{
-			ObjectMeta: s.getMeta(name),
+			ObjectMeta: s.getMeta(),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
@@ -44,7 +43,7 @@ func (s *storeInstance) service() (runtime.Object, reconciler.DesiredState, erro
 
 	}
 	delete := &corev1.Service{
-		ObjectMeta: s.getMeta(name),
+		ObjectMeta: s.getMeta(),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

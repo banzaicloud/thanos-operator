@@ -6,7 +6,6 @@ import (
 	"github.com/banzaicloud/logging-operator/pkg/sdk/util"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
-	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -14,18 +13,17 @@ import (
 )
 
 func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, error) {
-	name := fmt.Sprintf("%s-%s", r.StoreEndpoint.Name, v1alpha1.RuleName)
 	if r.Thanos.Spec.Rule != nil {
 		rule := r.Thanos.Spec.Rule.DeepCopy()
 		statefulset := &appsv1.StatefulSet{
-			ObjectMeta: r.getMeta(name),
+			ObjectMeta: r.getMeta(),
 			Spec: appsv1.StatefulSetSpec{
 				Replicas: util.IntPointer(1),
 				Selector: &metav1.LabelSelector{
-					MatchLabels: r.getLabels(name),
+					MatchLabels: r.getLabels(),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: r.getMeta(name),
+					ObjectMeta: r.getMeta(),
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
@@ -79,7 +77,7 @@ func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, e
 		return statefulset, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.StatefulSet{
-		ObjectMeta: r.getMeta(name),
+		ObjectMeta: r.getMeta(),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

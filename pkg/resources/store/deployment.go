@@ -15,21 +15,20 @@ import (
 
 func (s *storeInstance) deployment() (runtime.Object, reconciler.DesiredState, error) {
 	storeGateway := s.Store.Thanos.Spec.StoreGateway
-	name := s.getName()
 	if storeGateway != nil {
 		if s.StoreEndpoint.Spec.Config.MountFrom == nil {
 			return nil, nil, fmt.Errorf("missing config for StorageGateway %q", s.StoreEndpoint.Name)
 		}
 		store := storeGateway.DeepCopy()
 		var deployment = &appsv1.Deployment{
-			ObjectMeta: s.getMeta(name),
+			ObjectMeta: s.getMeta(),
 			Spec: appsv1.DeploymentSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
 					MatchLabels: s.getLabels(),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: s.getMeta(name),
+					ObjectMeta: s.getMeta(),
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
@@ -83,7 +82,7 @@ func (s *storeInstance) deployment() (runtime.Object, reconciler.DesiredState, e
 		return deployment, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.Deployment{
-		ObjectMeta: s.getMeta(name),
+		ObjectMeta: s.getMeta(),
 	}
 	return delete, reconciler.StateAbsent, nil
 }
