@@ -102,6 +102,7 @@ func (r *ThanosReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		ToRequests: handler.ToRequestsFunc(func(mapObject handler.MapObject) []reconcile.Request {
 			object, err := meta.Accessor(mapObject.Object)
 			if err != nil {
+				r.Log.Error(err, "unable to access object")
 				return nil
 			}
 			if o, ok := object.(*v1alpha1.StoreEndpoint); ok {
