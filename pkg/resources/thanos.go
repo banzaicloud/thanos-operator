@@ -29,6 +29,7 @@ func GetPort(address string) int32 {
 
 type ThanosComponentReconciler struct {
 	Thanos         *v1alpha1.Thanos
+	ThanosList     []v1alpha1.Thanos
 	StoreEndpoints []v1alpha1.StoreEndpoint
 	*reconciler.GenericResourceReconciler
 }
@@ -68,7 +69,7 @@ func (t *ThanosComponentReconciler) GetNameMeta(name string, namespaceOverride s
 		namespace = namespaceOverride
 	}
 	return metav1.ObjectMeta{
-		Name:      t.QualifiedName(name),
+		Name:      name,
 		Namespace: namespace,
 	}
 }
@@ -109,9 +110,10 @@ func (t *ThanosComponentReconciler) ReconcileResources(resourceList []Resource) 
 	return nil, nil
 }
 
-func NewThanosComponentReconciler(thanos *v1alpha1.Thanos, storeEndpoints []v1alpha1.StoreEndpoint, genericReconciler *reconciler.GenericResourceReconciler) *ThanosComponentReconciler {
+func NewThanosComponentReconciler(thanos *v1alpha1.Thanos, thanosList []v1alpha1.Thanos, storeEndpoints []v1alpha1.StoreEndpoint, genericReconciler *reconciler.GenericResourceReconciler) *ThanosComponentReconciler {
 	return &ThanosComponentReconciler{
 		Thanos:                    thanos,
+		ThanosList:                thanosList,
 		StoreEndpoints:            storeEndpoints,
 		GenericResourceReconciler: genericReconciler,
 	}

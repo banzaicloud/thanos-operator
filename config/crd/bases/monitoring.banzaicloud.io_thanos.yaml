@@ -83,8 +83,6 @@ spec:
                 queryDefaultEvaluationInterval:
                   description: "\tSet default evaluation interval for sub queries."
                   type: string
-                queryDiscovery:
-                  type: boolean
                 queryMaxConcurrent:
                   description: Maximum number of queries processed concurrently by
                     query node.
@@ -208,6 +206,8 @@ spec:
                     of Promethus.
                   type: string
               type: object
+            queryDiscovery:
+              type: boolean
             rule:
               properties:
                 alertLabelDrop:

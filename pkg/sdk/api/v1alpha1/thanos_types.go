@@ -69,16 +69,16 @@ var DefaultRule = Rule{
 
 // ThanosSpec defines the desired state of Thanos
 type ThanosSpec struct {
-	StoreGateway *StoreGateway `json:"storeGateway,omitempty"`
-	Rule         *Rule         `json:"rule,omitempty"`
-	Query        *Query        `json:"query,omitempty"`
+	QueryDiscovery bool          `json:"queryDiscovery,omitempty"`
+	StoreGateway   *StoreGateway `json:"storeGateway,omitempty"`
+	Rule           *Rule         `json:"rule,omitempty"`
+	Query          *Query        `json:"query,omitempty"`
 }
 
 type Query struct {
-	BaseObject     `json:",inline"`
-	QueryDiscovery bool   `json:"queryDiscovery,omitempty"`
-	LogLevel       string `json:"logLevel,omitempty" thanos:"--log.level=%s"`
-	LogFormat      string `json:"logFormat,omitempty" thanos:"--log.format=%s"`
+	BaseObject `json:",inline"`
+	LogLevel   string `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat  string `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Listen host:port for HTTP endpoints.
 	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
 	// Time to wait after an interrupt received for HTTP Server.

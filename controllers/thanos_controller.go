@@ -62,6 +62,22 @@ func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		}
 		return reconcile.Result{}, err
 	}
+	thanosList := &v1alpha1.ThanosList{}
+	err = r.Client.List(context.TODO(), thanosList)
+	if err != nil {
+		// Object not found, return.  Created objects are automatically garbage collected.
+		// For additional cleanup logic use finalizers.
+		if apierrors.IsNotFound(err) {
+			return reconcile.Result{}, nil
+		}
+		return reconcile.Result{}, err
+	}
+	var thanosInstances []v1alpha1.Thanos
+	for _, t := range thanosList.Items {
+		if t.Name != thanos.Name {
+			thanosInstances = append(thanosInstances, t)
+		}
+	}
 	// Collect StoreEndpoints for matching Thanos CR
 	storeEndpoints := &v1alpha1.StoreEndpointList{}
 	err = r.Client.List(context.TODO(), storeEndpoints)
@@ -82,6 +98,7 @@ func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	// Create reconciler for objects
 	thanosComponentReconciler := resources.NewThanosComponentReconciler(
 		thanos,
+		thanosInstances,
 		storeEndpointList,
 		reconciler.NewReconciler(r.Client, log, reconciler.ReconcilerOpts{}))
 	reconcilers := make([]resources.ComponentReconciler, 0)
