@@ -125,10 +125,24 @@ spec:
 ```
 
 ## Remote Thanos for Prometheus
-
-- Remote URLs
+Remote URLs
   - format: `http(s)://<fqdn>:<port>`
-  - tls: ?
+
+StoreEndpoint
+```
+apiVersion: monitoring.banzaicloud.io/v1alpha1
+kind: StoreEndpoint
+metadata:
+  name: storeendpoint-sample
+spec:
+  thanos: thanos-sample
+  config:
+    mountFrom:
+      secretKeyRef:
+        name: thanos
+        key: object-store.yaml
+  url: http://example.com:10901
+```
 
 ## Multi Thanos Observer
 
