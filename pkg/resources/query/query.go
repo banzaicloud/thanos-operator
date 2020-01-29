@@ -98,7 +98,7 @@ func (q *Query) getStoreEndpoints() []string {
 	// Discover StoreEndpoint aka Sidecars
 	for _, endpoint := range q.StoreEndpoints {
 		if url := endpoint.GetServiceURL(); url != "" {
-			endpoints = append(endpoints, fmt.Sprintf("--store=dnssrvnoa+%s", url))
+			endpoints = append(endpoints, fmt.Sprintf("--store=%s", url))
 		}
 	}
 	return endpoints
