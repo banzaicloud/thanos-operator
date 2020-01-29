@@ -22,7 +22,7 @@ type ruleInstance struct {
 }
 
 func (r *ruleInstance) getName() string {
-	return fmt.Sprintf("%s-%s", r.StoreEndpoint.Name, v1alpha1.RuleName)
+	return r.QualifiedName(fmt.Sprintf("%s-%s", r.StoreEndpoint.Name, v1alpha1.RuleName))
 }
 
 func (r *ruleInstance) getMeta() metav1.ObjectMeta {
@@ -64,7 +64,7 @@ func (r *Rule) resourceFactory() []resources.Resource {
 func (r *Rule) GetServiceURLS() []string {
 	var urls []string
 	for _, endpoint := range r.StoreEndpoints {
-		urls = append(urls, (&ruleInstance{r, &endpoint}).getSvc())
+		urls = append(urls, (&ruleInstance{r, endpoint.DeepCopy()}).getSvc())
 	}
 	return urls
 }

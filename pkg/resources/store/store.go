@@ -23,7 +23,7 @@ type storeInstance struct {
 }
 
 func (s *storeInstance) getName() string {
-	return fmt.Sprintf("%s-%s", s.StoreEndpoint.Name, v1alpha1.StoreName)
+	return s.QualifiedName(fmt.Sprintf("%s-%s", s.StoreEndpoint.Name, v1alpha1.StoreName))
 }
 
 func (s *storeInstance) getMeta() metav1.ObjectMeta {
@@ -60,7 +60,7 @@ func (s *Store) resourceFactory() []resources.Resource {
 func (r *Store) GetServiceURLS() []string {
 	var urls []string
 	for _, endpoint := range r.StoreEndpoints {
-		urls = append(urls, (&storeInstance{r, &endpoint}).getSvc())
+		urls = append(urls, (&storeInstance{r, endpoint.DeepCopy()}).getSvc())
 	}
 	return urls
 }

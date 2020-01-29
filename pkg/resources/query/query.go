@@ -50,6 +50,14 @@ func (q *Query) getLabels() resources.Labels {
 	return labels
 }
 
+func (q *Query) getName() string {
+	return q.QualifiedName(v1alpha1.QueryName)
+}
+
+func (q *Query) getSvc() string {
+	return fmt.Sprintf("_grpc._tcp.%s.%s.svc.cluster.local", q.getName(), q.Thanos.Namespace)
+}
+
 func (q *Query) getMeta(name string, params ...string) metav1.ObjectMeta {
 	namespace := ""
 	if len(params) > 0 {
@@ -65,6 +73,16 @@ func (q *Query) getMeta(name string, params ...string) metav1.ObjectMeta {
 
 func (q *Query) getStoreEndpoints() []string {
 	var endpoints []string
+	// Discover all query instance
+	if q.Thanos.Spec.QueryDiscovery {
+		for _, t := range q.ThanosList {
+			if t.Spec.Query != nil {
+				reconciler := resources.NewThanosComponentReconciler(t.DeepCopy(), nil, nil, nil)
+				svc := (&Query{nil, reconciler}).getSvc()
+				endpoints = append(endpoints, fmt.Sprintf("--store=dnssrvnoa+%s", svc))
+			}
+		}
+	}
 	// Discover local StoreGateway
 	if q.Thanos.Spec.StoreGateway != nil {
 		for _, u := range store.New(q.ThanosComponentReconciler).GetServiceURLS() {
