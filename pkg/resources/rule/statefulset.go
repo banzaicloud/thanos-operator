@@ -83,13 +83,17 @@ func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, e
 				})
 				statefulset.Spec.VolumeClaimTemplates = []corev1.PersistentVolumeClaim{
 					{
-						ObjectMeta: r.getMeta(r.Thanos.Spec.Rule.DataVolume.PersistentVolumeClaim.PersistentVolumeSource.ClaimName),
+						ObjectMeta: r.getMeta(),
 						Spec:       r.Thanos.Spec.Rule.DataVolume.PersistentVolumeClaim.PersistentVolumeClaimSpec,
 						Status: corev1.PersistentVolumeClaimStatus{
 							Phase: corev1.ClaimPending,
 						},
 					},
 				}
+				if r.Thanos.Spec.Rule.DataVolume.PersistentVolumeClaim.PersistentVolumeSource.ClaimName != "" {
+					statefulset.Spec.VolumeClaimTemplates[0].Name = r.Thanos.Spec.Rule.DataVolume.PersistentVolumeClaim.PersistentVolumeSource.ClaimName
+				}
+
 			} else {
 				statefulset.Spec.Template.Spec.Containers[0].VolumeMounts = append(statefulset.Spec.Template.Spec.Containers[0].VolumeMounts, corev1.VolumeMount{
 					Name:      "datadir",

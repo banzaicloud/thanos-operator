@@ -35,6 +35,8 @@ spec:
             config:
               properties:
                 mountFrom:
+                  description: Refers to a secret value to be used through a volume
+                    mount
                   properties:
                     secretKeyRef:
                       description: SecretKeySelector selects a key of a Secret.
@@ -56,8 +58,10 @@ spec:
                       type: object
                   type: object
                 value:
+                  description: Refers to a non-secret value
                   type: string
                 valueFrom:
+                  description: Refers to a secret value to be used directly
                   properties:
                     secretKeyRef:
                       description: SecretKeySelector selects a key of a Secret.

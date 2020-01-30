@@ -15,7 +15,6 @@
 package v1alpha1
 
 import (
-	"github.com/banzaicloud/logging-operator/pkg/sdk/model/secret"
 	"github.com/banzaicloud/operator-tools/pkg/volume"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -73,7 +72,7 @@ var DefaultRule = Rule{
 			PullPolicy: defaultPullPolicy,
 		},
 	},
-	DataDir:     "./data",
+	DataDir: "./data",
 	Metrics: &Metrics{
 		Interval:       "15s",
 		Timeout:        "5s",
