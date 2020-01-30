@@ -24,13 +24,18 @@ func (c *Compactor) persistentVolumeClaim() (runtime.Object, reconciler.DesiredS
 	if c.ObjectStore.Spec.Compactor != nil &&
 		c.ObjectStore.Spec.Compactor.DataVolume != nil &&
 		c.ObjectStore.Spec.Compactor.DataVolume.PersistentVolumeClaim != nil {
-		return &corev1.PersistentVolumeClaim{
-			ObjectMeta: c.getMeta(c.ObjectStore.Spec.Compactor.DataVolume.PersistentVolumeClaim.PersistentVolumeSource.ClaimName),
+		pvc := &corev1.PersistentVolumeClaim{
+			ObjectMeta: c.getMeta(),
 			Spec:       c.ObjectStore.Spec.Compactor.DataVolume.PersistentVolumeClaim.PersistentVolumeClaimSpec,
-		}, reconciler.StatePresent, nil
+		}
+		if c.ObjectStore.Spec.Compactor.DataVolume.PersistentVolumeClaim.PersistentVolumeSource.ClaimName != "" {
+			pvc.Name = c.ObjectStore.Spec.Compactor.DataVolume.PersistentVolumeClaim.PersistentVolumeSource.ClaimName
+		}
+		return pvc, reconciler.StatePresent, nil
 	}
 
-	return &corev1.PersistentVolumeClaim{
-		ObjectMeta: c.getMeta(c.ObjectStore.Spec.Compactor.DataVolume.PersistentVolumeClaim.PersistentVolumeSource.ClaimName),
-	}, reconciler.StateAbsent, nil
+	pvc := &corev1.PersistentVolumeClaim{
+		ObjectMeta: c.getMeta(),
+	}
+	return pvc, reconciler.StateAbsent, nil
 }
