@@ -35,6 +35,7 @@ func (q *Query) Reconcile() (*reconcile.Result, error) {
 		[]resources.Resource{
 			q.deployment,
 			q.service,
+			q.serviceMonitor,
 		})
 }
 

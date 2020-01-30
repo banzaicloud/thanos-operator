@@ -26,7 +26,7 @@ func (b *BucketWeb) ingress() (runtime.Object, reconciler.DesiredState, error) {
 	if b.ObjectStore.Spec.BucketWeb != nil {
 		bucketWeb := b.ObjectStore.Spec.BucketWeb.DeepCopy()
 		var ingress = &extensionsv1beta1.Ingress{
-			ObjectMeta: b.getMeta(Name),
+			ObjectMeta: b.getMeta(),
 			Spec: extensionsv1beta1.IngressSpec{
 				//TLS: []extensionsv1beta1.IngressTLS{
 				//	{
@@ -42,7 +42,7 @@ func (b *BucketWeb) ingress() (runtime.Object, reconciler.DesiredState, error) {
 									{
 										Path: "/",
 										Backend: extensionsv1beta1.IngressBackend{
-											ServiceName: b.QualifiedName(Name),
+											ServiceName: b.getName(),
 											ServicePort: intstr.IntOrString{IntVal: resources.GetPort(bucketWeb.HTTPAddress)},
 										},
 									},
@@ -58,6 +58,6 @@ func (b *BucketWeb) ingress() (runtime.Object, reconciler.DesiredState, error) {
 	}
 
 	return &extensionsv1beta1.Ingress{
-		ObjectMeta: b.getMeta(Name),
+		ObjectMeta: b.getMeta(),
 	}, reconciler.StateAbsent, nil
 }

@@ -48,21 +48,25 @@ func (c *BucketWeb) Reconcile() (*reconcile.Result, error) {
 	})
 }
 
-func (c *BucketWeb) getLabels(name string) resources.Labels {
+func (c *BucketWeb) getName() string {
+	return c.QualifiedName(Name)
+}
+
+func (b *BucketWeb) getLabels() resources.Labels {
 	labels := resources.Labels{
-		resources.NameLabel: name,
-	}.Merge(c.GetCommonLabels())
-	if c.ObjectStore.Spec.BucketWeb != nil {
-		labels.Merge(c.ObjectStore.Spec.BucketWeb.Labels)
+		resources.NameLabel: b.getName(),
+	}.Merge(b.GetCommonLabels())
+	if b.ObjectStore.Spec.BucketWeb != nil {
+		labels.Merge(b.ObjectStore.Spec.BucketWeb.Labels)
 	}
 	return labels
 }
 
-func (c *BucketWeb) getMeta(name string) metav1.ObjectMeta {
-	meta := c.GetObjectMeta(name)
-	meta.Labels = c.getLabels(name)
-	if c.ObjectStore.Spec.BucketWeb != nil {
-		meta.Annotations = c.ObjectStore.Spec.BucketWeb.Annotations
+func (b *BucketWeb) getMeta() metav1.ObjectMeta {
+	meta := b.GetObjectMeta(b.getName())
+	meta.Labels = b.getLabels()
+	if b.ObjectStore.Spec.BucketWeb != nil {
+		meta.Annotations = b.ObjectStore.Spec.BucketWeb.Annotations
 	}
 	return meta
 }

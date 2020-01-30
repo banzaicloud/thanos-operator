@@ -71,6 +71,23 @@ spec:
                   type: string
                 logLevel:
                   type: string
+                metrics:
+                  description: Metrics defines the service monitor endpoints
+                  properties:
+                    interval:
+                      type: string
+                    path:
+                      type: string
+                    port:
+                      format: int32
+                      type: integer
+                    prometheusAnnotations:
+                      type: boolean
+                    serviceMonitor:
+                      type: boolean
+                    timeout:
+                      type: string
+                  type: object
                 nodeSelector:
                   additionalProperties:
                     type: string
@@ -469,6 +486,23 @@ spec:
                   type: string
                 logLevel:
                   type: string
+                metrics:
+                  description: Metrics defines the service monitor endpoints
+                  properties:
+                    interval:
+                      type: string
+                    path:
+                      type: string
+                    port:
+                      format: int32
+                      type: integer
+                    prometheusAnnotations:
+                      type: boolean
+                    serviceMonitor:
+                      type: boolean
+                    timeout:
+                      type: string
+                  type: object
                 nodeSelector:
                   additionalProperties:
                     type: string
@@ -624,6 +658,23 @@ spec:
                   type: string
                 logLevel:
                   type: string
+                metrics:
+                  description: Metrics defines the service monitor endpoints
+                  properties:
+                    interval:
+                      type: string
+                    path:
+                      type: string
+                    port:
+                      format: int32
+                      type: integer
+                    prometheusAnnotations:
+                      type: boolean
+                    serviceMonitor:
+                      type: boolean
+                    timeout:
+                      type: string
+                  type: object
                 nodeSelector:
                   additionalProperties:
                     type: string

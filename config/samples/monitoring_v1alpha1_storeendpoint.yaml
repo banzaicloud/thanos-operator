@@ -10,4 +10,20 @@ spec:
       secretKeyRef:
         name: thanos
         key: object-store.yaml
-  #selector: {}
+  selector: {}
+
+---
+
+#apiVersion: monitoring.banzaicloud.io/v1alpha1
+#kind: StoreEndpoint
+#metadata:
+#  name: storeendpoint-sample2
+#spec:
+#  # Add fields here
+#  thanos: thanos-sample
+#  config:
+#    mountFrom:
+#      secretKeyRef:
+#        name: thanos
+#        key: object-store.yaml
+#  #selector: {}

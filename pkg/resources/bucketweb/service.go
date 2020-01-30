@@ -26,7 +26,7 @@ func (b *BucketWeb) service() (runtime.Object, reconciler.DesiredState, error) {
 	if b.ObjectStore.Spec.BucketWeb != nil {
 		bucketWeb := b.ObjectStore.Spec.BucketWeb.DeepCopy()
 		return &corev1.Service{
-			ObjectMeta: b.getMeta(Name),
+			ObjectMeta: b.getMeta(),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
@@ -39,12 +39,12 @@ func (b *BucketWeb) service() (runtime.Object, reconciler.DesiredState, error) {
 						},
 					},
 				},
-				Selector: b.getLabels(Name),
+				Selector: b.getLabels(),
 			},
 		}, reconciler.StatePresent, nil
 	}
 
 	return &corev1.Service{
-		ObjectMeta: b.getMeta(Name),
+		ObjectMeta: b.getMeta(),
 	}, reconciler.StateAbsent, nil
 }

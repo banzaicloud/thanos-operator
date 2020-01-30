@@ -26,6 +26,7 @@ const (
 	VersionLabel   = "app.kubernetes.io/version"
 	ComponentLabel = "app.kubernetes.io/component"
 	ManagedByLabel = "app.kubernetes.io/managed-by"
+	StoreEndpoint  = "monitoring.banzaicloud.io/storeendpoint"
 
 	HealthCheckPath = "/-/healthy"
 	ReadyCheckPath  = "/-/ready"

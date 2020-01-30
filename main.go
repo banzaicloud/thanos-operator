@@ -37,6 +37,7 @@ func init() {
 	_ = clientgoscheme.AddToScheme(scheme)
 
 	_ = monitoringv1alpha1.AddToScheme(scheme)
+	_ = monitoringv1alpha1.ServiceMonitorAddToScheme(scheme)
 	// +kubebuilder:scaffold:scheme
 }
 

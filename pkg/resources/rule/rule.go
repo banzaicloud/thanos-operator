@@ -36,7 +36,7 @@ func (r *ruleInstance) getMeta() metav1.ObjectMeta {
 			Controller: util.BoolPointer(true),
 		},
 	}
-	meta.Labels = r.Rule.getLabels()
+	meta.Labels = r.getLabels()
 	meta.Annotations = r.Thanos.Spec.Rule.Annotations
 	return meta
 }
@@ -79,9 +79,10 @@ func (r *Rule) Reconcile() (*reconcile.Result, error) {
 	return r.ReconcileResources(r.resourceFactory())
 }
 
-func (r *Rule) getLabels() resources.Labels {
+func (r *ruleInstance) getLabels() resources.Labels {
 	labels := resources.Labels{
-		resources.NameLabel: v1alpha1.RuleName,
+		resources.NameLabel:     v1alpha1.RuleName,
+		resources.StoreEndpoint: r.StoreEndpoint.Name,
 	}.Merge(
 		r.GetCommonLabels(),
 	)
