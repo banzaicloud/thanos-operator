@@ -35,6 +35,12 @@ var DefaultQuery = Query{
 			PullPolicy: defaultPullPolicy,
 		},
 	},
+	Metrics: &Metrics{
+		Interval:       "15s",
+		Timeout:        "5s",
+		Path:           "/metrics",
+		ServiceMonitor: false,
+	},
 	LogLevel:    "info",
 	HttpAddress: "0.0.0.0:10902",
 	GRPCAddress: "0.0.0.0:10901",
@@ -47,6 +53,12 @@ var DefaultStoreGateway = StoreGateway{
 			Tag:        thanosImageTag,
 			PullPolicy: defaultPullPolicy,
 		},
+	},
+	Metrics: &Metrics{
+		Interval:       "15s",
+		Timeout:        "5s",
+		Path:           "/metrics",
+		ServiceMonitor: false,
 	},
 	LogLevel:    "info",
 	HttpAddress: "0.0.0.0:10902",
@@ -62,6 +74,12 @@ var DefaultRule = Rule{
 		},
 	},
 	DataDir:     "./data",
+	Metrics: &Metrics{
+		Interval:       "15s",
+		Timeout:        "5s",
+		Path:           "/metrics",
+		ServiceMonitor: false,
+	},
 	LogLevel:    "info",
 	HttpAddress: "0.0.0.0:10902",
 	GRPCAddress: "0.0.0.0:10901",
@@ -75,10 +93,21 @@ type ThanosSpec struct {
 	Query          *Query        `json:"query,omitempty"`
 }
 
+// Metrics defines the service monitor endpoints
+type Metrics struct {
+	Interval              string `json:"interval,omitempty"`
+	Timeout               string `json:"timeout,omitempty"`
+	Port                  int32  `json:"port,omitempty"`
+	Path                  string `json:"path,omitempty"`
+	ServiceMonitor        bool   `json:"serviceMonitor,omitempty"`
+	PrometheusAnnotations bool   `json:"prometheusAnnotations,omitempty"`
+}
+
 type Query struct {
 	BaseObject `json:",inline"`
-	LogLevel   string `json:"logLevel,omitempty" thanos:"--log.level=%s"`
-	LogFormat  string `json:"logFormat,omitempty" thanos:"--log.format=%s"`
+	Metrics    *Metrics `json:"metrics,omitempty"`
+	LogLevel   string   `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat  string   `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Listen host:port for HTTP endpoints.
 	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
 	// Time to wait after an interrupt received for HTTP Server.
@@ -150,8 +179,9 @@ type TimeRange struct {
 
 type StoreGateway struct {
 	BaseObject `json:",inline"`
-	LogLevel   string `json:"logLevel,omitempty" thanos:"--log.level=%s"`
-	LogFormat  string `json:"logFormat,omitempty" thanos:"--log.format=%s"`
+	Metrics    *Metrics `json:"metrics,omitempty"`
+	LogLevel   string   `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat  string   `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Listen host:port for HTTP endpoints.
 	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
 	// Time to wait after an interrupt received for HTTP Server.
@@ -180,8 +210,9 @@ type StoreGateway struct {
 
 type Rule struct {
 	BaseObject `json:",inline"`
-	LogLevel   string `json:"logLevel,omitempty" thanos:"--log.level=%s"`
-	LogFormat  string `json:"logFormat,omitempty" thanos:"--log.format=%s"`
+	Metrics    *Metrics `json:"metrics,omitempty"`
+	LogLevel   string   `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat  string   `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Listen host:port for HTTP endpoints.
 	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
 	// Time to wait after an interrupt received for HTTP Server.

@@ -26,7 +26,7 @@ func (c *Compactor) service() (runtime.Object, reconciler.DesiredState, error) {
 	if c.ObjectStore.Spec.Compactor != nil {
 		compactor := c.ObjectStore.Spec.Compactor.DeepCopy()
 		return &corev1.Service{
-			ObjectMeta: c.getMeta(Name),
+			ObjectMeta: c.getMeta(),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
@@ -36,12 +36,12 @@ func (c *Compactor) service() (runtime.Object, reconciler.DesiredState, error) {
 						TargetPort: intstr.IntOrString{IntVal: resources.GetPort(compactor.HTTPAddress)},
 					},
 				},
-				Selector: c.getLabels(Name),
+				Selector: c.getLabels(),
 			},
 		}, reconciler.StatePresent, nil
 	}
 
 	return &corev1.Service{
-		ObjectMeta: c.getMeta(Name),
+		ObjectMeta: c.getMeta(),
 	}, reconciler.StateAbsent, nil
 }

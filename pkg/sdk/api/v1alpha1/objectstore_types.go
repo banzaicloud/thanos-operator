@@ -41,6 +41,12 @@ var DefaultCompactor = &Compactor{
 			PullPolicy: defaultPullPolicy,
 		},
 	},
+	Metrics: &Metrics{
+		Interval:       "15s",
+		Timeout:        "5s",
+		Path:           "/metrics",
+		ServiceMonitor: false,
+	},
 	HTTPAddress:            "0.0.0.0:10902",
 	HTTPGracePeriod:        metav1.Duration{Duration: 2 * time.Minute},
 	DataDir:                "./data",
@@ -55,6 +61,7 @@ var DefaultCompactor = &Compactor{
 
 type Compactor struct {
 	BaseObject `json:",inline"`
+	Metrics    *Metrics `json:"metrics,omitempty"`
 	// Listen host:port for HTTP endpoints.
 	HTTPAddress string `json:"httpAddress,omitempty"`
 	// Time to wait after an interrupt received for HTTP Server.
@@ -93,6 +100,12 @@ var DefaultBucketWeb = &BucketWeb{
 			PullPolicy: defaultPullPolicy,
 		},
 	},
+	Metrics: &Metrics{
+		Interval:       "15s",
+		Timeout:        "5s",
+		Path:           "/metrics",
+		ServiceMonitor: false,
+	},
 	HTTPAddress:     "0.0.0.0:10902",
 	HTTPGracePeriod: metav1.Duration{Duration: 2 * time.Minute},
 	Refresh:         metav1.Duration{Duration: 30 * time.Minute},
@@ -101,6 +114,7 @@ var DefaultBucketWeb = &BucketWeb{
 
 type BucketWeb struct {
 	BaseObject `json:",inline"`
+	Metrics    *Metrics `json:"metrics,omitempty"`
 	// Listen host:port for HTTP endpoints.
 	HTTPAddress string `json:"httpAddress,omitempty"`
 	// Time to wait after an interrupt received for HTTP Server.

@@ -47,6 +47,7 @@ type ThanosReconciler struct {
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=thanos/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=extensions;apps,resources=deployments;statefulsets,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=monitoring.coreos.com,resources=servicemonitors,verbs=get;list;watch;create;update;patch;delete
 
 func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	_ = context.Background()

@@ -32,14 +32,14 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 	if b.ObjectStore.Spec.BucketWeb != nil {
 		bucketWeb := b.ObjectStore.Spec.BucketWeb.DeepCopy()
 		var deployment = &appsv1.Deployment{
-			ObjectMeta: b.getMeta(Name),
+			ObjectMeta: b.getMeta(),
 			Spec: appsv1.DeploymentSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
-					MatchLabels: b.getLabels(Name),
+					MatchLabels: b.getLabels(),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: b.getMeta(Name),
+					ObjectMeta: b.getMeta(),
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
@@ -96,6 +96,6 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 	}
 
 	return &appsv1.Deployment{
-		ObjectMeta: b.getMeta(Name),
+		ObjectMeta: b.getMeta(),
 	}, reconciler.StateAbsent, nil
 }

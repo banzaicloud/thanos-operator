@@ -4,6 +4,22 @@ metadata:
   name: thanos-sample
 spec:
   # Add fields here
-  query: {}
+  query:
+    metrics:
+      serviceMonitor: true
   rule: {}
-  storeGateway: {}
+  storeGateway:
+    metrics:
+      serviceMonitor: true
+
+
+---
+
+apiVersion: monitoring.banzaicloud.io/v1alpha1
+kind: Thanos
+metadata:
+  name: query
+spec:
+  # Add fields here
+  query: {}
+  queryDiscovery: true

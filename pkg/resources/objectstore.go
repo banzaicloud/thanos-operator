@@ -49,7 +49,7 @@ func (t *ObjectStoreReconciler) QualifiedName(name string) string {
 
 func (t *ObjectStoreReconciler) GetNameMeta(name string) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
-		Name:      t.QualifiedName(name),
+		Name:      name,
 		Namespace: t.ObjectStore.Namespace,
 	}
 }

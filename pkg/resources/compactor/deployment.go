@@ -32,14 +32,14 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 	if c.ObjectStore.Spec.Compactor != nil {
 		compactor := c.ObjectStore.Spec.Compactor.DeepCopy()
 		var deployment = &appsv1.Deployment{
-			ObjectMeta: c.getMeta(Name),
+			ObjectMeta: c.getMeta(),
 			Spec: appsv1.DeploymentSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
-					MatchLabels: c.getLabels(Name),
+					MatchLabels: c.getLabels(),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: c.getMeta(Name),
+					ObjectMeta: c.getMeta(),
 					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
 							{
@@ -116,6 +116,6 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 	}
 
 	return &appsv1.Deployment{
-		ObjectMeta: c.getMeta(Name),
+		ObjectMeta: c.getMeta(),
 	}, reconciler.StateAbsent, nil
 }

@@ -45,13 +45,18 @@ func (c *Compactor) Reconcile() (*reconcile.Result, error) {
 		//c.persistentVolumeClaim,
 		c.deployment,
 		c.service,
+		c.serviceMonitor,
 		c.persistentVolumeClaim,
 	})
 }
 
-func (c *Compactor) getLabels(name string) resources.Labels {
+func (c *Compactor) getName() string {
+	return c.QualifiedName(Name)
+}
+
+func (c *Compactor) getLabels() resources.Labels {
 	labels := resources.Labels{
-		resources.NameLabel: name,
+		resources.NameLabel: c.getName(),
 	}.Merge(c.GetCommonLabels())
 	if c.ObjectStore.Spec.Compactor != nil {
 		labels.Merge(c.ObjectStore.Spec.Compactor.Labels)
@@ -59,9 +64,9 @@ func (c *Compactor) getLabels(name string) resources.Labels {
 	return labels
 }
 
-func (c *Compactor) getMeta(name string) metav1.ObjectMeta {
-	meta := c.GetObjectMeta(name)
-	meta.Labels = c.getLabels(name)
+func (c *Compactor) getMeta() metav1.ObjectMeta {
+	meta := c.GetObjectMeta(c.getName())
+	meta.Labels = c.getLabels()
 	if c.ObjectStore.Spec.Compactor != nil {
 		meta.Annotations = c.ObjectStore.Spec.Compactor.Annotations
 	}

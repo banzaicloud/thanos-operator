@@ -37,7 +37,7 @@ func (s *storeInstance) getMeta() metav1.ObjectMeta {
 			Controller: util.BoolPointer(true),
 		},
 	}
-	meta.Labels = s.Store.getLabels()
+	meta.Labels = s.getLabels()
 	meta.Annotations = s.Thanos.Spec.StoreGateway.Annotations
 	return meta
 }
@@ -52,6 +52,7 @@ func (s *Store) resourceFactory() []resources.Resource {
 	for _, endpoint := range s.StoreEndpoints {
 		resourceList = append(resourceList, (&storeInstance{s, endpoint.DeepCopy()}).deployment)
 		resourceList = append(resourceList, (&storeInstance{s, endpoint.DeepCopy()}).service)
+		resourceList = append(resourceList, (&storeInstance{s, endpoint.DeepCopy()}).serviceMonitor)
 	}
 
 	return resourceList
@@ -79,9 +80,10 @@ type Store struct {
 	*resources.ThanosComponentReconciler
 }
 
-func (s *Store) getLabels() resources.Labels {
+func (s *storeInstance) getLabels() resources.Labels {
 	labels := resources.Labels{
-		resources.NameLabel: v1alpha1.StoreName,
+		resources.NameLabel:     v1alpha1.StoreName,
+		resources.StoreEndpoint: s.StoreEndpoint.Name,
 	}.Merge(
 		s.GetCommonLabels(),
 	)
