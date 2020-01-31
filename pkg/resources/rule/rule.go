@@ -25,6 +25,22 @@ func (r *ruleInstance) getName() string {
 	return r.QualifiedName(fmt.Sprintf("%s-%s", r.StoreEndpoint.Name, v1alpha1.RuleName))
 }
 
+func (r *ruleInstance) getVolumeMeta(name string) metav1.ObjectMeta {
+	meta := r.GetNameMeta(name, "")
+	meta.OwnerReferences = []metav1.OwnerReference{
+		{
+			APIVersion: r.StoreEndpoint.APIVersion,
+			Kind:       r.StoreEndpoint.Kind,
+			Name:       r.StoreEndpoint.Name,
+			UID:        r.StoreEndpoint.UID,
+			Controller: util.BoolPointer(true),
+		},
+	}
+	meta.Labels = r.getLabels()
+	meta.Annotations = r.Thanos.Spec.Rule.Annotations
+	return meta
+}
+
 func (r *ruleInstance) getMeta() metav1.ObjectMeta {
 	meta := r.GetNameMeta(r.getName(), "")
 	meta.OwnerReferences = []metav1.OwnerReference{

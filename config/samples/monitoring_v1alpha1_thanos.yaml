@@ -7,7 +7,15 @@ spec:
   query:
     metrics:
       serviceMonitor: true
-  rule: {}
+  rule:
+    dataVolume:
+      pvc:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
   storeGateway:
     metrics:
       serviceMonitor: true

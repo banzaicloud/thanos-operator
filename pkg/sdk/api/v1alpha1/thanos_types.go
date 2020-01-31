@@ -72,7 +72,7 @@ var DefaultRule = Rule{
 			PullPolicy: defaultPullPolicy,
 		},
 	},
-	DataDir: "./data",
+	DataDir: "/data",
 	Metrics: &Metrics{
 		Interval:       "15s",
 		Timeout:        "5s",

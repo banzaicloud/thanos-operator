@@ -9,4 +9,12 @@ spec:
         name: thanos
         key: object-store.yaml
   bucketWeb: {}
-  compactor: {}
+  compactor:
+    dataVolume:
+      pvc:
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
