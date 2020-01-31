@@ -49,7 +49,7 @@ var DefaultCompactor = &Compactor{
 	},
 	HTTPAddress:            "0.0.0.0:10902",
 	HTTPGracePeriod:        metav1.Duration{Duration: 2 * time.Minute},
-	DataDir:                "./data",
+	DataDir:                "/data",
 	ConsistencyDelay:       metav1.Duration{Duration: 30 * time.Minute},
 	RetentionResolutionRaw: metav1.Duration{Duration: 0},
 	RetentionResolution5m:  metav1.Duration{Duration: 0},
