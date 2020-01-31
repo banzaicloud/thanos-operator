@@ -2,24 +2,15 @@
 
 ## Custom resources
 
-TODO link CRD documentation
+The API reference of CRDs are documented [here](types/Readme.md)
 
-### Thanos
- - Query
- - Store
- - Rule 
- 
-### ObjectStore
- - Compactor
- - Bucket
+# Single Cluster Install
 
-### StoreEndpoint
- - Sidecar
- - StoreAPI addresses
+In this scenario we deploy a full featured Prometheus with Thanos as long term storage.
 
-## Single Cluster Install
+## Prerequisites for Thanos
 
-#### Install secret
+### Install secret
 
 Example S3 configuration
 ```
@@ -37,7 +28,7 @@ Deploy the secret on Kubernetes
 kubectl create secret generic thanos --from-file=object-store.yaml=object-store.yaml
 ```
 
-#### Install Prometheus Operator
+### Install Prometheus Operator
 
 > Note: Prometheus-operator and Thanos MUST be in the same namespace.
 
@@ -56,13 +47,21 @@ prometheus:
 
 Remember to set `externalLabels` as it identifies the Prometheus instance for Thanos.
 
-#### Install prometheus-operator
+### Install prometheus-operator
 ```
 helm install --name monitor stable/prometheus-operator -f thanos-sidecar.yaml
 ```
 
-#### Install Thanos Operator
+## Install Thanos Operator
 
+For now the kustomize deploy model is available
+
+```
+make install
+make deploy IMG=banzaicloud/thanos-operator:latest
+```
+
+### Apply CRDs for single cluster
 Thanos
 ```
 apiVersion: monitoring.banzaicloud.io/v1alpha1
@@ -112,7 +111,7 @@ spec:
 You can define different Prometheuses and Endpoints via `StoreEndpoint` CRs.
 
 ## Query discovery
-Automatically discover all query on the cluster
+Automatically discover all Query instances (created by CRD) on the cluster
 
 ```
 apiVersion: monitoring.banzaicloud.io/v1alpha1
@@ -124,7 +123,7 @@ spec:
   queryDiscovery: true
 ```
 
-## Remote Thanos for Prometheus
+## Remote Prometheus for Thanos
 Remote URLs
   - format: `http(s)://<fqdn>:<port>`
 
@@ -146,19 +145,4 @@ spec:
 
 ## Multi Thanos Observer
 
-- Select endpoints based on labels
-  - Namespace?
-  - Labels?
-  - Pods/Svc?
-
-## Sidecar SD
-As sidecars is only useful for Query it should be under query key
-sidecars:
-  - namespaces (optional) | []string | default: same namespace
-    labels (optional) | default: app=prometheus
-    url (optional) | default: ""
-    
-Based on `namespaces` and `labels` the operator creates services and adds
-them to query parameters.
-
-The `url` attribute has priority and requires FQDN
+- TODO
