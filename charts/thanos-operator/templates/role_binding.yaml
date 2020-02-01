@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "thanos-operator.fullname" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "thanos-operator.fullname" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "thanos-operator.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace}}
