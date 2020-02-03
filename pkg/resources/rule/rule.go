@@ -20,8 +20,12 @@ type ruleInstance struct {
 	*v1alpha1.StoreEndpoint
 }
 
-func (r *ruleInstance) getName() string {
-	return r.QualifiedName(fmt.Sprintf("%s-%s", r.StoreEndpoint.Name, v1alpha1.RuleName))
+func (r *ruleInstance) getName(suffix ...string) string {
+	name := r.QualifiedName(fmt.Sprintf("%s-%s", r.StoreEndpoint.Name, v1alpha1.RuleName))
+	if len(suffix) > 0 {
+		name = name + "-" + suffix[0]
+	}
+	return name
 }
 
 func (r *ruleInstance) getVolumeMeta(name string) metav1.ObjectMeta {
@@ -40,8 +44,12 @@ func (r *ruleInstance) getVolumeMeta(name string) metav1.ObjectMeta {
 	return meta
 }
 
-func (r *ruleInstance) getMeta() metav1.ObjectMeta {
-	meta := r.GetNameMeta(r.getName(), "")
+func (r *ruleInstance) getMeta(suffix ...string) metav1.ObjectMeta {
+	nameSuffix := ""
+	if len(suffix) > 0 {
+		nameSuffix = suffix[0]
+	}
+	meta := r.GetNameMeta(r.getName(nameSuffix), "")
 	meta.OwnerReferences = []metav1.OwnerReference{
 		{
 			APIVersion: r.StoreEndpoint.APIVersion,
@@ -72,6 +80,8 @@ func (r *Rule) resourceFactory() []resources.Resource {
 	for _, endpoint := range r.StoreEndpoints {
 		resourceList = append(resourceList, (&ruleInstance{r, endpoint.DeepCopy()}).statefulset)
 		resourceList = append(resourceList, (&ruleInstance{r, endpoint.DeepCopy()}).service)
+		resourceList = append(resourceList, (&ruleInstance{r, endpoint.DeepCopy()}).ingressHTTP)
+		resourceList = append(resourceList, (&ruleInstance{r, endpoint.DeepCopy()}).ingressGRPC)
 	}
 
 	return resourceList

@@ -22,22 +22,26 @@ type Sidecar struct {
 	*resources.StoreEndpointComponentReconciler
 }
 
-func getMeta(endpoint *v1alpha1.StoreEndpoint) metav1.ObjectMeta {
+func (e *endpointService) getName() string {
+	return fmt.Sprintf("%s-%s", e.Name, v1alpha1.SidecarName)
+}
+
+func (e *endpointService) getMeta() metav1.ObjectMeta {
 	meta := metav1.ObjectMeta{
-		Name:      fmt.Sprintf("%s-%s", endpoint.Name, v1alpha1.SidecarName),
-		Namespace: endpoint.Namespace,
+		Name:      e.getName(),
+		Namespace: e.Namespace,
 	}
 	meta.OwnerReferences = []metav1.OwnerReference{
 		{
-			APIVersion: endpoint.APIVersion,
-			Kind:       endpoint.Kind,
-			Name:       endpoint.Name,
-			UID:        endpoint.UID,
-			Controller: utils.BoolPointer(true),
+			APIVersion: e.APIVersion,
+			Kind:       e.Kind,
+			Name:       e.Name,
+			UID:        e.UID,
+			Controller: util.BoolPointer(true),
 		},
 	}
-	meta.Labels = endpoint.Labels
-	meta.Annotations = endpoint.Annotations
+	meta.Labels = e.Labels
+	meta.Annotations = e.Annotations
 	return meta
 }
 
@@ -45,7 +49,8 @@ func (s *Sidecar) serviceFactory() []resources.Resource {
 	var serviceList []resources.Resource
 
 	for _, endpoint := range s.StoreEndpoints {
-		serviceList = append(serviceList, (&endpointService{&endpoint}).sidecarService)
+		serviceList = append(serviceList, (&endpointService{endpoint.DeepCopy()}).sidecarService)
+		serviceList = append(serviceList, (&endpointService{endpoint.DeepCopy()}).ingressGRPC)
 	}
 
 	return serviceList
