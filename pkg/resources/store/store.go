@@ -3,7 +3,7 @@ package store
 import (
 	"fmt"
 
-	"github.com/banzaicloud/logging-operator/pkg/sdk/util"
+	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/imdario/mergo"
@@ -34,7 +34,7 @@ func (s *storeInstance) getMeta() metav1.ObjectMeta {
 			Kind:       s.StoreEndpoint.Kind,
 			Name:       s.StoreEndpoint.Name,
 			UID:        s.StoreEndpoint.UID,
-			Controller: util.BoolPointer(true),
+			Controller: utils.BoolPointer(true),
 		},
 	}
 	meta.Labels = s.getLabels()

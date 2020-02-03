@@ -17,7 +17,7 @@ package v1alpha1
 import (
 	"time"
 
-	"github.com/banzaicloud/logging-operator/pkg/sdk/model/secret"
+	"github.com/banzaicloud/operator-tools/pkg/secret"
 	"github.com/banzaicloud/operator-tools/pkg/volume"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

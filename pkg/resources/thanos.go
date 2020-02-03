@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"emperror.dev/errors"
-	"github.com/banzaicloud/logging-operator/pkg/sdk/util"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
+	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -82,7 +82,7 @@ func (t *ThanosComponentReconciler) GetObjectMeta(name string, namespaceOverride
 			Kind:       t.Thanos.Kind,
 			Name:       t.Thanos.Name,
 			UID:        t.Thanos.UID,
-			Controller: util.BoolPointer(true),
+			Controller: utils.BoolPointer(true),
 		},
 	}
 	return meta
