@@ -10,10 +10,10 @@ import (
 
 func (q *Query) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
 	if q.Thanos.Spec.Query != nil &&
-		q.Thanos.Spec.Query.Ingress != nil {
-		queryIngress := q.Thanos.Spec.Query.Ingress
+		q.Thanos.Spec.Query.HTTPIngress != nil {
+		queryIngress := q.Thanos.Spec.Query.HTTPIngress
 		ingress := &v1beta1.Ingress{
-			ObjectMeta: q.getMeta(q.getName()),
+			ObjectMeta: q.getMeta(q.getName("http")),
 			Spec: v1beta1.IngressSpec{
 				Rules: []v1beta1.IngressRule{
 					{
@@ -49,7 +49,53 @@ func (q *Query) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
 		return ingress, reconciler.StatePresent, nil
 	}
 	delete := &corev1.Service{
-		ObjectMeta: q.getMeta(q.getName()),
+		ObjectMeta: q.getMeta(q.getName("http")),
+	}
+	return delete, reconciler.StateAbsent, nil
+}
+
+func (q *Query) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
+	if q.Thanos.Spec.Query != nil &&
+		q.Thanos.Spec.Query.GRPCIngress != nil {
+		queryIngress := q.Thanos.Spec.Query.GRPCIngress
+		ingress := &v1beta1.Ingress{
+			ObjectMeta: q.getMeta(q.getName("grpc")),
+			Spec: v1beta1.IngressSpec{
+				Rules: []v1beta1.IngressRule{
+					{
+						Host: queryIngress.Host,
+						IngressRuleValue: v1beta1.IngressRuleValue{
+							HTTP: &v1beta1.HTTPIngressRuleValue{
+								Paths: []v1beta1.HTTPIngressPath{
+									{
+										Path: queryIngress.Path,
+										Backend: v1beta1.IngressBackend{
+											ServiceName: q.getName(),
+											ServicePort: intstr.IntOrString{
+												Type:   intstr.String,
+												StrVal: "grpc",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		}
+		if queryIngress.Certificate != "" {
+			ingress.Spec.TLS = []v1beta1.IngressTLS{
+				{
+					Hosts:      []string{queryIngress.Host},
+					SecretName: queryIngress.Certificate,
+				},
+			}
+		}
+		return ingress, reconciler.StatePresent, nil
+	}
+	delete := &corev1.Service{
+		ObjectMeta: q.getMeta(q.getName("grpc")),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

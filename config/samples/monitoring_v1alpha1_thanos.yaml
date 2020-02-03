@@ -7,7 +7,9 @@ spec:
   query:
     metrics:
       serviceMonitor: true
-    ingress: {}
+    HTTPIngress: {}
+    GRPCIngress: {}
+    GRPCClientCertificate: example-com-tls
   rule:
     dataVolume:
       pvc:
@@ -19,6 +21,7 @@ spec:
               storage: 1Gi
           volumeMode: "Filesystem"
   storeGateway:
+    GRPCServerCertificate: example-com-tls
     metrics:
       serviceMonitor: true
 

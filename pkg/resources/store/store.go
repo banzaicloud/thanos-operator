@@ -11,6 +11,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
+const serverCertMountPath = "/etc/tls/server"
+
 func New(reconciler *resources.ThanosComponentReconciler) *Store {
 	return &Store{
 		ThanosComponentReconciler: reconciler,
@@ -58,10 +60,10 @@ func (s *Store) resourceFactory() []resources.Resource {
 	return resourceList
 }
 
-func (r *Store) GetServiceURLS() []string {
+func (s *Store) GetServiceURLS() []string {
 	var urls []string
-	for _, endpoint := range r.StoreEndpoints {
-		urls = append(urls, (&storeInstance{r, endpoint.DeepCopy()}).getSvc())
+	for _, endpoint := range s.StoreEndpoints {
+		urls = append(urls, (&storeInstance{s, endpoint.DeepCopy()}).getSvc())
 	}
 	return urls
 }
@@ -96,5 +98,10 @@ func (s *storeInstance) getLabels() resources.Labels {
 func (s *Store) setArgs(args []string) []string {
 	store := s.Thanos.Spec.StoreGateway.DeepCopy()
 	args = append(args, resources.GetArgs(store)...)
+	if s.Thanos.Spec.StoreGateway.GRPCServerCertificate != "" {
+		args = append(args, fmt.Sprintf("--grpc-server-tls-cert=%s/%s", serverCertMountPath, "tls.crt"))
+		args = append(args, fmt.Sprintf("--grpc-server-tls-key=%s/%s", serverCertMountPath, "tls.key"))
+		args = append(args, fmt.Sprintf("--grpc-server-tls-client-ca=%s/%s", serverCertMountPath, "ca.crt"))
+	}
 	return args
 }
