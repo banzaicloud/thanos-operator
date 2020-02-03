@@ -86,10 +86,11 @@ var DefaultRule = Rule{
 
 // ThanosSpec defines the desired state of Thanos
 type ThanosSpec struct {
-	QueryDiscovery bool          `json:"queryDiscovery,omitempty"`
-	StoreGateway   *StoreGateway `json:"storeGateway,omitempty"`
-	Rule           *Rule         `json:"rule,omitempty"`
-	Query          *Query        `json:"query,omitempty"`
+	QueryDiscovery                               bool          `json:"queryDiscovery,omitempty"`
+	StoreGateway                                 *StoreGateway `json:"storeGateway,omitempty"`
+	Rule                                         *Rule         `json:"rule,omitempty"`
+	Query                                        *Query        `json:"query,omitempty"`
+	EnableRecreateWorkloadOnImmutableFieldChange bool          `json:"enableRecreateWorkloadOnImmutableFieldChange,omitempty"`
 }
 
 // Metrics defines the service monitor endpoints
@@ -102,9 +103,16 @@ type Metrics struct {
 	PrometheusAnnotations bool   `json:"prometheusAnnotations,omitempty"`
 }
 
+type Ingress struct {
+	Certificate string `json:"certificate,omitempty"`
+	Host        string `json:"host,omitempty"`
+	Path        string `json:"path,omitempty"`
+}
+
 type Query struct {
 	BaseObject `json:",inline"`
 	Metrics    *Metrics `json:"metrics,omitempty"`
+	Ingress    *Ingress `json:"ingress,omitempty"`
 	LogLevel   string   `json:"logLevel,omitempty" thanos:"--log.level=%s"`
 	LogFormat  string   `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Listen host:port for HTTP endpoints.

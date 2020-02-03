@@ -32,6 +32,8 @@ spec:
         spec:
           description: ThanosSpec defines the desired state of Thanos
           properties:
+            enableRecreateWorkloadOnImmutableFieldChange:
+              type: boolean
             query:
               properties:
                 annotations:
@@ -59,6 +61,15 @@ spec:
                     repository:
                       type: string
                     tag:
+                      type: string
+                  type: object
+                ingress:
+                  properties:
+                    certificate:
+                      type: string
+                    host:
+                      type: string
+                    path:
                       type: string
                   type: object
                 labels:

@@ -3,10 +3,11 @@ kind: Thanos
 metadata:
   name: thanos-sample
 spec:
-  # Add fields here
+  enableRecreateWorkloadOnImmutableFieldChange: true
   query:
     metrics:
       serviceMonitor: true
+    ingress: {}
   rule:
     dataVolume:
       pvc:
@@ -16,6 +17,7 @@ spec:
           resources:
             requests:
               storage: 1Gi
+          volumeMode: "Filesystem"
   storeGateway:
     metrics:
       serviceMonitor: true
