@@ -36,6 +36,7 @@ func (q *Query) Reconcile() (*reconcile.Result, error) {
 			q.deployment,
 			q.service,
 			q.serviceMonitor,
+			q.ingressHTTP,
 		})
 }
 

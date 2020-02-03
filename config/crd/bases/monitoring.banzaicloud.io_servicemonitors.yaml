@@ -202,7 +202,8 @@ spec:
                     description: Name or number of the target port of the endpoint.
                       Mutually exclusive with port.
                   tlsConfig:
-                    description: TLS configuration to use when scraping the endpoint
+                    description: Certificate configuration to use when scraping the
+                      endpoint
                     properties:
                       caFile:
                         description: The CA cert to use for the targets.

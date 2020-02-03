@@ -28,7 +28,7 @@ func (b *BucketWeb) ingress() (runtime.Object, reconciler.DesiredState, error) {
 		var ingress = &extensionsv1beta1.Ingress{
 			ObjectMeta: b.getMeta(),
 			Spec: extensionsv1beta1.IngressSpec{
-				//TLS: []extensionsv1beta1.IngressTLS{
+				//Certificate: []extensionsv1beta1.IngressTLS{
 				//	{
 				//		Hosts: []string{"/"},
 				//	},
