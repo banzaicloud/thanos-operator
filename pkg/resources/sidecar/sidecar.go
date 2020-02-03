@@ -3,7 +3,7 @@ package sidecar
 import (
 	"fmt"
 
-	"github.com/banzaicloud/logging-operator/pkg/sdk/util"
+	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -33,7 +33,7 @@ func getMeta(endpoint *v1alpha1.StoreEndpoint) metav1.ObjectMeta {
 			Kind:       endpoint.Kind,
 			Name:       endpoint.Name,
 			UID:        endpoint.UID,
-			Controller: util.BoolPointer(true),
+			Controller: utils.BoolPointer(true),
 		},
 	}
 	meta.Labels = endpoint.Labels

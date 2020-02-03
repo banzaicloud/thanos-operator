@@ -3,8 +3,8 @@ package rule
 import (
 	"fmt"
 
-	"github.com/banzaicloud/logging-operator/pkg/sdk/util"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
+	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -18,7 +18,7 @@ func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, e
 		statefulset := &appsv1.StatefulSet{
 			ObjectMeta: r.getMeta(),
 			Spec: appsv1.StatefulSetSpec{
-				Replicas: util.IntPointer(1),
+				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
 					MatchLabels: r.getLabels(),
 				},
