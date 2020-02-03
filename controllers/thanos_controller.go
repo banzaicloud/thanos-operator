@@ -96,12 +96,18 @@ func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			storeEndpointList = append(storeEndpointList, s)
 		}
 	}
+	reconcilerOpts := reconciler.ReconcilerOpts{
+		EnableRecreateWorkloadOnImmutableFieldChange: thanos.Spec.EnableRecreateWorkloadOnImmutableFieldChange,
+		EnableRecreateWorkloadOnImmutableFieldChangeHelp: "Object has to be recreated, but refusing to remove without explicitly being told so. " +
+			"Use thanos.spec.enableRecreateWorkloadOnImmutableFieldChange to move on but make sure to understand the consequences. " +
+			"As of rule, to avoid data loss, make sure to use a persistent volume for buffers, which is the default, unless explicitly disabled or configured differently.",
+	}
 	// Create reconciler for objects
 	thanosComponentReconciler := resources.NewThanosComponentReconciler(
 		thanos,
 		thanosInstances,
 		storeEndpointList,
-		reconciler.NewReconciler(r.Client, log, reconciler.ReconcilerOpts{}))
+		reconciler.NewReconciler(r.Client, log, reconcilerOpts))
 	reconcilers := make([]resources.ComponentReconciler, 0)
 
 	// Query

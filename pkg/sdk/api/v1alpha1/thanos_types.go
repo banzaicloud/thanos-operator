@@ -219,10 +219,12 @@ type StoreGateway struct {
 }
 
 type Rule struct {
-	BaseObject `json:",inline"`
-	Metrics    *Metrics `json:"metrics,omitempty"`
-	LogLevel   string   `json:"logLevel,omitempty" thanos:"--log.level=%s"`
-	LogFormat  string   `json:"logFormat,omitempty" thanos:"--log.format=%s"`
+	BaseObject  `json:",inline"`
+	Metrics     *Metrics `json:"metrics,omitempty"`
+	HTTPIngress *Ingress `json:"HTTPIngress,omitempty"`
+	GRPCIngress *Ingress `json:"GRPCIngress,omitempty"`
+	LogLevel    string   `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat   string   `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Listen host:port for HTTP endpoints.
 	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
 	// Time to wait after an interrupt received for HTTP Server.

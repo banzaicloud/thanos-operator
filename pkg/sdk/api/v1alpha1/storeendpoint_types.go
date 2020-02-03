@@ -31,10 +31,13 @@ const (
 // StoreEndpointSpec defines the desired state of StoreEndpoint
 type StoreEndpointSpec struct {
 	// Foo is an example field of StoreEndpoint. Edit StoreEndpoint_types.go to remove/update
-	URL      string              `json:"url,omitempty"`
-	Selector *KubernetesSelector `json:"selector,omitempty"`
-	Config   secret.Secret       `json:"config,omitempty"`
-	Thanos   string              `json:"thanos"`
+	URL                   string              `json:"url,omitempty"`
+	Selector              *KubernetesSelector `json:"selector,omitempty"`
+	Config                secret.Secret       `json:"config,omitempty"`
+	Thanos                string              `json:"thanos"`
+	Ingress               *Ingress            `json:"ingress,omitempty"`
+	GRPCServerCertificate string              `json:"GRPCServerCertificate,omitempty"`
+	GRPCClientCertificate string              `json:"GRPCClientCertificate,omitempty"`
 }
 
 type KubernetesSelector struct {

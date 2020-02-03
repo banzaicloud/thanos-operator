@@ -29,7 +29,7 @@ func (e *endpointService) sidecarService() (runtime.Object, reconciler.DesiredSt
 			labels = e.Spec.Selector.Labels
 		}
 		storeService := &corev1.Service{
-			ObjectMeta: getMeta(e.StoreEndpoint),
+			ObjectMeta: e.getMeta(),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
@@ -59,7 +59,7 @@ func (e *endpointService) sidecarService() (runtime.Object, reconciler.DesiredSt
 		return storeService, reconciler.StatePresent, nil
 	}
 	delete := &corev1.Service{
-		ObjectMeta: getMeta(e.StoreEndpoint),
+		ObjectMeta: e.getMeta(),
 	}
 	return delete, reconciler.StateAbsent, nil
 }
