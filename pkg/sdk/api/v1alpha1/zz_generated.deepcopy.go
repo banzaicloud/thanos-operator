@@ -417,8 +417,13 @@ func (in *Query) DeepCopyInto(out *Query) {
 		*out = new(Metrics)
 		**out = **in
 	}
-	if in.Ingress != nil {
-		in, out := &in.Ingress, &out.Ingress
+	if in.HTTPIngress != nil {
+		in, out := &in.HTTPIngress, &out.HTTPIngress
+		*out = new(Ingress)
+		**out = **in
+	}
+	if in.GRPCIngress != nil {
+		in, out := &in.GRPCIngress, &out.GRPCIngress
 		*out = new(Ingress)
 		**out = **in
 	}

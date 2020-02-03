@@ -48,8 +48,10 @@ func (q *Query) deployment() (runtime.Object, reconciler.DesiredState, error) {
 								ImagePullPolicy: query.Image.PullPolicy,
 								LivenessProbe:   q.GetCheck(resources.GetPort(query.HttpAddress), resources.HealthCheckPath),
 								ReadinessProbe:  q.GetCheck(resources.GetPort(query.HttpAddress), resources.ReadyCheckPath),
+								VolumeMounts:    q.getVolumeMounts(),
 							},
 						},
+						Volumes: q.getVolumes(),
 					},
 				},
 			},
@@ -62,4 +64,31 @@ func (q *Query) deployment() (runtime.Object, reconciler.DesiredState, error) {
 		ObjectMeta: q.getMeta(q.getName()),
 	}
 	return delete, reconciler.StateAbsent, nil
+}
+
+func (q *Query) getVolumeMounts() []corev1.VolumeMount {
+	volumeMounts := []corev1.VolumeMount{}
+	if q.Thanos.Spec.Query.GRPCClientCertificate != "" {
+		volumeMounts = append(volumeMounts, corev1.VolumeMount{
+			Name:      "client-certificate",
+			ReadOnly:  true,
+			MountPath: serverCertMountPath,
+		})
+	}
+	return volumeMounts
+}
+
+func (q *Query) getVolumes() []corev1.Volume {
+	volumes := []corev1.Volume{}
+	if q.Thanos.Spec.Query.GRPCClientCertificate != "" {
+		volumes = append(volumes, corev1.Volume{
+			Name: "client-certificate",
+			VolumeSource: corev1.VolumeSource{
+				Secret: &corev1.SecretVolumeSource{
+					SecretName: q.Thanos.Spec.Query.GRPCClientCertificate,
+				},
+			},
+		})
+	}
+	return volumes
 }

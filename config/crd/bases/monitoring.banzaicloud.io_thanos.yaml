@@ -36,6 +36,26 @@ spec:
               type: boolean
             query:
               properties:
+                GRPCClientCertificate:
+                  type: string
+                GRPCIngress:
+                  properties:
+                    certificate:
+                      type: string
+                    host:
+                      type: string
+                    path:
+                      type: string
+                  type: object
+                HTTPIngress:
+                  properties:
+                    certificate:
+                      type: string
+                    host:
+                      type: string
+                    path:
+                      type: string
+                  type: object
                 annotations:
                   additionalProperties:
                     type: string
@@ -61,15 +81,6 @@ spec:
                     repository:
                       type: string
                     tag:
-                      type: string
-                  type: object
-                ingress:
-                  properties:
-                    certificate:
-                      type: string
-                    host:
-                      type: string
-                    path:
                       type: string
                   type: object
                 labels:
@@ -621,6 +632,8 @@ spec:
               type: object
             storeGateway:
               properties:
+                GRPCServerCertificate:
+                  type: string
                 annotations:
                   additionalProperties:
                     type: string

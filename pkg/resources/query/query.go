@@ -13,6 +13,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
+const serverCertMountPath = "/etc/tls/server"
+
 func New(reconciler *resources.ThanosComponentReconciler) *Query {
 	return &Query{
 		ThanosComponentReconciler: reconciler,
@@ -37,6 +39,7 @@ func (q *Query) Reconcile() (*reconcile.Result, error) {
 			q.service,
 			q.serviceMonitor,
 			q.ingressHTTP,
+			q.ingressGRPC,
 		})
 }
 
@@ -52,8 +55,12 @@ func (q *Query) getLabels() resources.Labels {
 	return labels
 }
 
-func (q *Query) getName() string {
-	return q.QualifiedName(v1alpha1.QueryName)
+func (q *Query) getName(suffix ...string) string {
+	name := v1alpha1.QueryName
+	if len(suffix) > 0 {
+		name = name + "-" + suffix[0]
+	}
+	return q.QualifiedName(name)
 }
 
 func (q *Query) getSvc() string {
@@ -111,6 +118,14 @@ func (q *Query) setArgs(originArgs []string) []string {
 	// Get args from the tags
 	args := resources.GetArgs(query)
 
+	if query.GRPCClientCertificate != "" {
+		args = append(args, "--grpc-client-tls-secure")
+		args = append(args, fmt.Sprintf("--grpc-client-tls-cert=%s/%s", serverCertMountPath, "tls.crt"))
+		args = append(args, fmt.Sprintf("--grpc-client-tls-key=%s/%s", serverCertMountPath, "tls.key"))
+		args = append(args, fmt.Sprintf("--grpc-client-tls-ca=%s/%s", serverCertMountPath, "ca.crt"))
+		args = append(args, "--grpc-client-server-name=example.com") //TODO this is dummy now
+
+	}
 	// Handle special args
 	if query.QueryReplicaLabels != nil {
 		for _, l := range query.QueryReplicaLabels {

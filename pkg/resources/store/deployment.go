@@ -50,33 +50,19 @@ func (s *storeInstance) deployment() (runtime.Object, reconciler.DesiredState, e
 										Protocol:      corev1.ProtocolTCP,
 									},
 								},
-								VolumeMounts: []corev1.VolumeMount{
-									{
-										Name:      "objectstore-secret",
-										ReadOnly:  true,
-										MountPath: "/etc/config/",
-									},
-								},
+								VolumeMounts:    s.getVolumeMounts(),
 								Resources:       store.Resources,
 								ImagePullPolicy: store.Image.PullPolicy,
 								LivenessProbe:   s.GetCheck(resources.GetPort(store.HttpAddress), resources.HealthCheckPath),
 								ReadinessProbe:  s.GetCheck(resources.GetPort(store.HttpAddress), resources.ReadyCheckPath),
 							},
 						},
-						Volumes: []corev1.Volume{
-							{
-								Name: "objectstore-secret",
-								VolumeSource: corev1.VolumeSource{
-									Secret: &corev1.SecretVolumeSource{
-										SecretName: s.StoreEndpoint.Spec.Config.MountFrom.SecretKeyRef.Name,
-									},
-								},
-							},
-						},
+						Volumes: s.getVolumes(),
 					},
 				},
 			},
 		}
+
 		// Set up args
 		deployment.Spec.Template.Spec.Containers[0].Args = s.setArgs(deployment.Spec.Template.Spec.Containers[0].Args)
 		return deployment, reconciler.StatePresent, nil
@@ -85,4 +71,46 @@ func (s *storeInstance) deployment() (runtime.Object, reconciler.DesiredState, e
 		ObjectMeta: s.getMeta(),
 	}
 	return delete, reconciler.StateAbsent, nil
+}
+
+func (s *storeInstance) getVolumeMounts() []corev1.VolumeMount {
+	volumeMounts := []corev1.VolumeMount{
+		{
+			Name:      "objectstore-secret",
+			ReadOnly:  true,
+			MountPath: "/etc/config/",
+		},
+	}
+	if s.Thanos.Spec.StoreGateway.GRPCServerCertificate != "" {
+		volumeMounts = append(volumeMounts, corev1.VolumeMount{
+			Name:      "server-certificate",
+			ReadOnly:  true,
+			MountPath: serverCertMountPath,
+		})
+	}
+	return volumeMounts
+}
+
+func (s *storeInstance) getVolumes() []corev1.Volume {
+	volumes := []corev1.Volume{
+		{
+			Name: "objectstore-secret",
+			VolumeSource: corev1.VolumeSource{
+				Secret: &corev1.SecretVolumeSource{
+					SecretName: s.StoreEndpoint.Spec.Config.MountFrom.SecretKeyRef.Name,
+				},
+			},
+		},
+	}
+	if s.Thanos.Spec.StoreGateway.GRPCServerCertificate != "" {
+		volumes = append(volumes, corev1.Volume{
+			Name: "server-certificate",
+			VolumeSource: corev1.VolumeSource{
+				Secret: &corev1.SecretVolumeSource{
+					SecretName: s.Thanos.Spec.StoreGateway.GRPCServerCertificate,
+				},
+			},
+		})
+	}
+	return volumes
 }
