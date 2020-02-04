@@ -83,6 +83,15 @@ spec:
                       type: object
                   type: object
               type: object
+            ingress:
+              properties:
+                certificate:
+                  type: string
+                host:
+                  type: string
+                path:
+                  type: string
+              type: object
             selector:
               properties:
                 annotations:
