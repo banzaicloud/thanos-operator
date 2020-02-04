@@ -247,6 +247,24 @@ spec:
               type: boolean
             rule:
               properties:
+                GRPCIngress:
+                  properties:
+                    certificate:
+                      type: string
+                    host:
+                      type: string
+                    path:
+                      type: string
+                  type: object
+                HTTPIngress:
+                  properties:
+                    certificate:
+                      type: string
+                    host:
+                      type: string
+                    path:
+                      type: string
+                  type: object
                 alertLabelDrop:
                   additionalProperties:
                     type: string

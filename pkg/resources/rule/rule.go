@@ -22,7 +22,7 @@ type ruleInstance struct {
 
 func (r *ruleInstance) getName(suffix ...string) string {
 	name := r.QualifiedName(fmt.Sprintf("%s-%s", r.StoreEndpoint.Name, v1alpha1.RuleName))
-	if len(suffix) > 0 {
+	if len(suffix) > 0 && suffix[0] != "" {
 		name = name + "-" + suffix[0]
 	}
 	return name
