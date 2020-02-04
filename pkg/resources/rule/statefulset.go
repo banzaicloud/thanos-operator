@@ -78,7 +78,7 @@ func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, e
 		if r.Thanos.Spec.Rule.DataVolume != nil {
 			if r.Thanos.Spec.Rule.DataVolume.PersistentVolumeClaim != nil {
 				statefulset.Spec.Template.Spec.Containers[0].VolumeMounts = append(statefulset.Spec.Template.Spec.Containers[0].VolumeMounts, corev1.VolumeMount{
-					Name:      r.getName(),
+					Name:      "data-volume",
 					MountPath: r.Thanos.Spec.Rule.DataDir,
 				})
 				statefulset.Spec.VolumeClaimTemplates = []corev1.PersistentVolumeClaim{
@@ -92,10 +92,10 @@ func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, e
 				}
 			} else {
 				statefulset.Spec.Template.Spec.Containers[0].VolumeMounts = append(statefulset.Spec.Template.Spec.Containers[0].VolumeMounts, corev1.VolumeMount{
-					Name:      "datadir",
+					Name:      "data-volume",
 					MountPath: r.Thanos.Spec.Rule.DataDir,
 				})
-				statefulset.Spec.Template.Spec.Volumes = append(statefulset.Spec.Template.Spec.Volumes, r.Thanos.Spec.Rule.DataVolume.GetVolume("datadir"))
+				statefulset.Spec.Template.Spec.Volumes = append(statefulset.Spec.Template.Spec.Volumes, r.Thanos.Spec.Rule.DataVolume.GetVolume("data-volume"))
 			}
 
 		}
