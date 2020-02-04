@@ -5,6 +5,7 @@ import (
 
 	"emperror.dev/errors"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
+	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -61,7 +62,7 @@ func (t *ObjectStoreReconciler) GetObjectMeta(name string) metav1.ObjectMeta {
 			Kind:       t.ObjectStore.Kind,
 			Name:       t.ObjectStore.Name,
 			UID:        t.ObjectStore.UID,
-			Controller: util.BoolPointer(true),
+			Controller: utils.BoolPointer(true),
 		},
 	}
 	return meta

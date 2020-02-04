@@ -37,7 +37,7 @@ func (e *endpointService) getMeta() metav1.ObjectMeta {
 			Kind:       e.Kind,
 			Name:       e.Name,
 			UID:        e.UID,
-			Controller: util.BoolPointer(true),
+			Controller: utils.BoolPointer(true),
 		},
 	}
 	meta.Labels = e.Labels

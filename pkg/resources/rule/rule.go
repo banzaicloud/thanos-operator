@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/imdario/mergo"
@@ -36,7 +37,7 @@ func (r *ruleInstance) getVolumeMeta(name string) metav1.ObjectMeta {
 			Kind:       r.StoreEndpoint.Kind,
 			Name:       r.StoreEndpoint.Name,
 			UID:        r.StoreEndpoint.UID,
-			Controller: util.BoolPointer(true),
+			Controller: utils.BoolPointer(true),
 		},
 	}
 	meta.Labels = r.getLabels()
@@ -56,7 +57,7 @@ func (r *ruleInstance) getMeta(suffix ...string) metav1.ObjectMeta {
 			Kind:       r.StoreEndpoint.Kind,
 			Name:       r.StoreEndpoint.Name,
 			UID:        r.StoreEndpoint.UID,
-			Controller: util.BoolPointer(true),
+			Controller: utils.BoolPointer(true),
 		},
 	}
 	meta.Labels = r.getLabels()
