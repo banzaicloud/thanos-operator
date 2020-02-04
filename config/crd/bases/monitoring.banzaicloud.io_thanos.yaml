@@ -47,6 +47,8 @@ spec:
                     path:
                       type: string
                   type: object
+                GRPCServerCertificate:
+                  type: string
                 HTTPIngress:
                   properties:
                     certificate:

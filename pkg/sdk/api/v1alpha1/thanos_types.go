@@ -115,6 +115,7 @@ type Query struct {
 	HTTPIngress           *Ingress `json:"HTTPIngress,omitempty"`
 	GRPCIngress           *Ingress `json:"GRPCIngress,omitempty"`
 	GRPCClientCertificate string   `json:"GRPCClientCertificate,omitempty"`
+	GRPCServerCertificate string   `json:"GRPCServerCertificate,omitempty"`
 	LogLevel              string   `json:"logLevel,omitempty" thanos:"--log.level=%s"`
 	LogFormat             string   `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Listen host:port for HTTP endpoints.
