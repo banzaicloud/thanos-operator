@@ -20,7 +20,7 @@ package v1alpha1
 
 import (
 	"github.com/banzaicloud/operator-tools/pkg/volume"
-	v1 "k8s.io/api/core/v1"
+	"k8s.io/api/core/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
