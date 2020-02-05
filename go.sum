@@ -36,6 +36,9 @@ github.com/banzaicloud/k8s-objectmatcher v1.1.0/go.mod h1:gGaElvgkqa0Lk1khRr+jel
 github.com/banzaicloud/operator-tools v0.4.1 h1:+pAQ67l7eGTNR/D2FMKyLEgNv9l6U6H21qFNrp1VhnQ=
 github.com/banzaicloud/operator-tools v0.4.1/go.mod h1:12rKcmPZkK8CaESI6YI3UGFBBBQvYZH9i8Gn5cfCi+U=
 github.com/banzaicloud/operator-tools v0.4.2-0.20200203140207-59cc845c412a/go.mod h1:12rKcmPZkK8CaESI6YI3UGFBBBQvYZH9i8Gn5cfCi+U=
+github.com/banzaicloud/operator-tools v0.4.2-0.20200205091424-3ce415442694/go.mod h1:12rKcmPZkK8CaESI6YI3UGFBBBQvYZH9i8Gn5cfCi+U=
+github.com/banzaicloud/operator-tools v0.4.2-0.20200205094923-90ba89f23669/go.mod h1:12rKcmPZkK8CaESI6YI3UGFBBBQvYZH9i8Gn5cfCi+U=
+github.com/banzaicloud/operator-tools v0.4.2-0.20200205095409-b43b1ab90363/go.mod h1:12rKcmPZkK8CaESI6YI3UGFBBBQvYZH9i8Gn5cfCi+U=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 h1:xJ4a3vCFaGF/jqvzLMYoU8P317H5OQ+Via4RmuPwCS0=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/bitly/go-simplejson v0.5.0/go.mod h1:cXHtHw4XUPsvGaxgjIAn8PhEWG9NfngEKAMDJEczWVA=
