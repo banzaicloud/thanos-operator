@@ -15,11 +15,18 @@
 package resourcebuilder
 
 import (
+	"fmt"
+	"io/ioutil"
+
+	"emperror.dev/errors"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/types"
+	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
+	"github.com/banzaicloud/thanos-operator/pkg/sdk/static/gen/crds"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
+	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -40,31 +47,38 @@ type ComponentConfig struct {
 	ContainerOverrides    *types.ContainerBase `json:"containerOverrides,omitempty"`
 }
 
+func(c *ComponentConfig) build(fn func(bool, *ComponentConfig) (runtime.Object, reconciler.DesiredState, error)) reconciler.ResourceBuilder {
+	return reconciler.ResourceBuilder(func() (runtime.Object, reconciler.DesiredState, error) {
+		return fn(c == nil || c.Disabled, c)
+	})
+}
+
 func ResourceBuilders(object interface{}) []reconciler.ResourceBuilder {
-	var config *ComponentConfig
+	config := &ComponentConfig{
+		Disabled: true,
+	}
 	if object != nil {
 		config = object.(*ComponentConfig)
 	}
-	disabled := config == nil || config.Disabled
 	if config.Name == "" {
 		config.Name = "thanos-operator"
 	}
 	if config.Namespace == "" {
 		config.Namespace = "default"
 	}
-
 	resources := []reconciler.ResourceBuilder{
+		config.build(Operator),
+		config.build(ClusterRole),
+		config.build(ClusterRoleBinding),
+		config.build(ServiceAccount),
 		func() (runtime.Object, reconciler.DesiredState, error) {
-			return Operator(disabled, config)
+			return CRD(config, v1alpha1.GroupVersion.Group, "objectstores")
 		},
 		func() (runtime.Object, reconciler.DesiredState, error) {
-			return ClusterRole(disabled, config)
+			return CRD(config, v1alpha1.GroupVersion.Group, "thanos")
 		},
 		func() (runtime.Object, reconciler.DesiredState, error) {
-			return ClusterRoleBinding(disabled, config)
-		},
-		func() (runtime.Object, reconciler.DesiredState, error) {
-			return ServiceAccount(disabled, config)
+			return CRD(config, v1alpha1.GroupVersion.Group, "storeendpoints")
 		},
 	}
 	return resources
@@ -72,6 +86,48 @@ func ResourceBuilders(object interface{}) []reconciler.ResourceBuilder {
 
 func SetupWithBuilder(builder *builder.Builder) {
 	builder.Owns(&appsv1.Deployment{})
+}
+
+func CRD(config *ComponentConfig, group string, kind string) (runtime.Object, reconciler.DesiredState, error) {
+	crd := &v1beta1.CustomResourceDefinition{
+		ObjectMeta: v1.ObjectMeta{
+			Name: fmt.Sprintf("%s.%s", kind, group),
+		},
+	}
+	if config.Disabled {
+		return crd, reconciler.StateAbsent, nil
+	}
+	crdFile, err := crds.Root.Open(fmt.Sprintf("/%s_%s.yaml", group, kind))
+	if err != nil {
+		return nil, nil, errors.WrapIff(err, "failed to open %s crd", kind)
+	}
+	bytes, err := ioutil.ReadAll(crdFile)
+	if err != nil {
+		return nil, nil, errors.WrapIff(err, "failed to read %s crd", kind)
+	}
+
+	scheme := runtime.NewScheme()
+	_ = v1beta1.AddToScheme(scheme)
+
+	_, _, err = serializer.NewSerializerWithOptions(serializer.DefaultMetaFactory, scheme, scheme, serializer.SerializerOptions{
+		Yaml: true,
+	}).Decode(bytes, &schema.GroupVersionKind{}, crd)
+
+	if err != nil {
+		return nil, nil, errors.WrapIff(err, "failed to unmarshal %s crd", kind)
+	}
+
+	// clear the TypeMeta to avoid objectmatcher diffing on it every time,
+	// because the current object coming from the API Server will not have TypeMeta set
+	crd.TypeMeta.Kind = ""
+	crd.TypeMeta.APIVersion = ""
+
+	return crd, reconciler.DesiredStateHook(func(object runtime.Object) error {
+		current := object.(*v1beta1.CustomResourceDefinition)
+		// simply copy the existing status over, so that we don't diff because of it
+		crd.Status = current.Status
+		return nil
+	}), nil
 }
 
 func Operator(disabled bool, config *ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
@@ -294,7 +350,7 @@ rules:
 
 func (c *ComponentConfig) objectMeta() v1.ObjectMeta {
 	meta := v1.ObjectMeta{
-		Name:      c.NamePrefix,
+		Name:      c.Name,
 		Namespace: c.Namespace,
 		Labels:    c.labelSelector(),
 	}
@@ -303,7 +359,7 @@ func (c *ComponentConfig) objectMeta() v1.ObjectMeta {
 
 func (c *ComponentConfig) clusterObjectMeta() v1.ObjectMeta {
 	meta := v1.ObjectMeta{
-		Name:   c.NamePrefix,
+		Name:   c.Name,
 		Labels: c.labelSelector(),
 	}
 	return meta
@@ -311,6 +367,6 @@ func (c *ComponentConfig) clusterObjectMeta() v1.ObjectMeta {
 
 func (c *ComponentConfig) labelSelector() map[string]string {
 	return map[string]string{
-		"banzaicloud.io/operator": c.NamePrefix,
+		"banzaicloud.io/operator": c.Name,
 	}
 }
