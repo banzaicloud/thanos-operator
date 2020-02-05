@@ -15,8 +15,8 @@
 package compactor
 
 import (
+	"github.com/banzaicloud/operator-tools/pkg/prometheus"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
-	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -24,10 +24,10 @@ import (
 func (c *Compactor) serviceMonitor() (runtime.Object, reconciler.DesiredState, error) {
 	if c.ObjectStore.Spec.Compactor != nil && c.ObjectStore.Spec.Compactor.Metrics.ServiceMonitor {
 		metrics := c.ObjectStore.Spec.Compactor.Metrics
-		serviceMonitor := &v1alpha1.ServiceMonitor{
+		serviceMonitor := &prometheus.ServiceMonitor{
 			ObjectMeta: c.getMeta(),
-			Spec: v1alpha1.ServiceMonitorSpec{
-				Endpoints: []v1alpha1.Endpoint{
+			Spec: prometheus.ServiceMonitorSpec{
+				Endpoints: []prometheus.Endpoint{
 					{
 						Port:          "http",
 						Path:          metrics.Path,
@@ -38,7 +38,7 @@ func (c *Compactor) serviceMonitor() (runtime.Object, reconciler.DesiredState, e
 				Selector: v1.LabelSelector{
 					MatchLabels: c.getLabels(),
 				},
-				NamespaceSelector: v1alpha1.NamespaceSelector{
+				NamespaceSelector: prometheus.NamespaceSelector{
 					MatchNames: []string{
 						c.ObjectStore.Namespace,
 					},
@@ -48,7 +48,7 @@ func (c *Compactor) serviceMonitor() (runtime.Object, reconciler.DesiredState, e
 		}
 		return serviceMonitor, reconciler.StatePresent, nil
 	}
-	delete := &v1alpha1.ServiceMonitor{
+	delete := &prometheus.ServiceMonitor{
 		ObjectMeta: c.getMeta(),
 	}
 	return delete, reconciler.StateAbsent, nil
