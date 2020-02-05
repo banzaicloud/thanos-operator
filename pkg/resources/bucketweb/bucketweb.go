@@ -42,9 +42,9 @@ func (c *BucketWeb) Reconcile() (*reconcile.Result, error) {
 		}
 	}
 	return c.ReconcileResources([]resources.Resource{
-		//c.persistentVolumeClaim,
 		c.deployment,
 		c.service,
+		c.ingress,
 	})
 }
 

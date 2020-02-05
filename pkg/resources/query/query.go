@@ -143,9 +143,8 @@ func (q *Query) setArgs(originArgs []string) []string {
 		}
 	}
 	// Add discovery args
-	for _, s := range q.getStoreEndpoints() {
-		args = append(args, s)
-	}
+	args = append(args, q.getStoreEndpoints()...)
+
 	// Sort generated args to prevent accidental diffs
 	sort.Strings(args)
 	// Concat original and computed args

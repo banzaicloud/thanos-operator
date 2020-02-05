@@ -98,11 +98,6 @@ func (t tagOptions) ValueForPrefix(opt string) (bool, string) {
 	return false, ""
 }
 
-// parseTag returns all the options in the tag
-func parseTag(tag string) tagOptions {
-	return tagOptions(strings.Split(tag, ","))
-}
-
 type StructElement struct {
 	Field reflect.StructField
 	Value reflect.Value

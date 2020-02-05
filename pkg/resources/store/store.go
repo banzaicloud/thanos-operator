@@ -55,6 +55,7 @@ func (s *Store) resourceFactory() []resources.Resource {
 		resourceList = append(resourceList, (&storeInstance{s, endpoint.DeepCopy()}).deployment)
 		resourceList = append(resourceList, (&storeInstance{s, endpoint.DeepCopy()}).service)
 		resourceList = append(resourceList, (&storeInstance{s, endpoint.DeepCopy()}).serviceMonitor)
+		resourceList = append(resourceList, (&storeInstance{s, endpoint.DeepCopy()}).ingressGRPC)
 	}
 
 	return resourceList

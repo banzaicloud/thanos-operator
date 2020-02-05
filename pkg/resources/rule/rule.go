@@ -81,6 +81,7 @@ func (r *Rule) resourceFactory() []resources.Resource {
 	for _, endpoint := range r.StoreEndpoints {
 		resourceList = append(resourceList, (&ruleInstance{r, endpoint.DeepCopy()}).statefulset)
 		resourceList = append(resourceList, (&ruleInstance{r, endpoint.DeepCopy()}).service)
+		resourceList = append(resourceList, (&ruleInstance{r, endpoint.DeepCopy()}).serviceMonitor)
 		resourceList = append(resourceList, (&ruleInstance{r, endpoint.DeepCopy()}).ingressHTTP)
 		resourceList = append(resourceList, (&ruleInstance{r, endpoint.DeepCopy()}).ingressGRPC)
 	}

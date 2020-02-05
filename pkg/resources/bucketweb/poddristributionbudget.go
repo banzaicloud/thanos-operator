@@ -22,6 +22,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
+//nolint:golint,unused
 func (b *BucketWeb) podDistributionBucket() (runtime.Object, reconciler.DesiredState, error) {
 	if b.ObjectStore.Spec.BucketWeb != nil {
 
