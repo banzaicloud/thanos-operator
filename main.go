@@ -18,6 +18,7 @@ import (
 	"flag"
 	"os"
 
+	"github.com/banzaicloud/operator-tools/pkg/prometheus"
 	"github.com/banzaicloud/thanos-operator/controllers"
 	monitoringv1alpha1 "github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -37,7 +38,7 @@ func init() {
 	_ = clientgoscheme.AddToScheme(scheme)
 
 	_ = monitoringv1alpha1.AddToScheme(scheme)
-	_ = monitoringv1alpha1.ServiceMonitorAddToScheme(scheme)
+	_ = prometheus.AddToScheme(scheme)
 	// +kubebuilder:scaffold:scheme
 }
 
