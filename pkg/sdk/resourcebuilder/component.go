@@ -23,6 +23,7 @@ import (
 	"github.com/banzaicloud/operator-tools/pkg/types"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/static/gen/crds"
+	"github.com/banzaicloud/thanos-operator/pkg/sdk/static/gen/rbac"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -226,122 +227,22 @@ func ClusterRole(disabled bool, config *ComponentConfig) (runtime.Object, reconc
 	if config.WorkloadOverrides != nil && config.WorkloadOverrides.ServiceAccountName != "" {
 		return role, reconciler.StateAbsent, nil
 	}
-	roleAsString := `
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-rules:
-- apiGroups:
-  - ""
-  resources:
-  - services
-  - configmaps
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - events
-  verbs:
-  - create
-- apiGroups:
-  - apps
-  - extensions
-  resources:
-  - deployments
-  - statefulsets
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - monitoring.banzaicloud.io
-  resources:
-  - objectstores
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - monitoring.banzaicloud.io
-  resources:
-  - objectstores/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - monitoring.banzaicloud.io
-  resources:
-  - storeendpoints
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - monitoring.banzaicloud.io
-  resources:
-  - storeendpoints/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - monitoring.banzaicloud.io
-  resources:
-  - thanos
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - monitoring.banzaicloud.io
-  resources:
-  - thanos/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - monitoring.coreos.com
-  resources:
-  - servicemonitors
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-`
+	roleFile, err := rbac.Root.Open("/role.yaml")
+	if err != nil {
+		return nil, nil, errors.WrapIf(err, "failed to open role.yaml")
+	}
+	roleAsByte, err := ioutil.ReadAll(roleFile)
+	if err != nil {
+		return nil, nil, err
+	}
 	scheme := runtime.NewScheme()
 	rbacv1.AddToScheme(scheme)
-	_, _, err := serializer.NewSerializerWithOptions(serializer.DefaultMetaFactory, scheme, scheme, serializer.SerializerOptions{
+	_, _, err = serializer.NewSerializerWithOptions(serializer.DefaultMetaFactory, scheme, scheme, serializer.SerializerOptions{
 		Yaml: true,
-	}).Decode([]byte(roleAsString), &schema.GroupVersionKind{}, role)
+	}).Decode(roleAsByte, &schema.GroupVersionKind{}, role)
 
+	// overwrite the objectmeta that has been read from file
+	role.ObjectMeta = config.MetaOverrides.Merge(config.clusterObjectMeta())
 	role.TypeMeta.Kind = ""
 	role.TypeMeta.APIVersion = ""
 

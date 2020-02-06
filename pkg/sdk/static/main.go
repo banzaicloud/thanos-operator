@@ -24,6 +24,18 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("failed to generate crds vfs: %+v", err))
 	}
+
+	rbac := http.Dir(filepath.Join(getRepoRoot(), "config/rbac"))
+
+	err = vfsgen.Generate(rbac, vfsgen.Options{
+		Filename:     filepath.Join(getRepoRoot(), "pkg/sdk/static/gen/rbac/generated.go"),
+		PackageName:  "rbac",
+		VariableName: "Root",
+		FileModTime:  timePointer(time.Unix(0, 0)),
+	})
+	if err != nil {
+		panic(fmt.Sprintf("failed to generate rbac vfs: %+v", err))
+	}
 }
 
 // getRepoRoot returns the full path to the root of the repo
