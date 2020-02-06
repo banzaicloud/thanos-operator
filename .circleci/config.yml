@@ -1,0 +1,264 @@
+version: 2.1
+
+orbs:
+  helm: banzaicloud/helm@dev:0.0.7
+  docker: circleci/docker@0.5.13
+
+jobs:
+  build:
+    resource_class: medium+
+    docker:
+      - image: cimg/go:1.13
+        environment:
+          GOFLAGS: -mod=readonly
+
+    steps:
+      - checkout
+
+      - run:
+          name: Run lint
+          command: make lint
+
+      - run:
+          name: Check generators for unwanted diffs
+          command: |
+            make check-diff
+
+      - run:
+          name: License
+          command: |
+            make license-cache
+            make license-check
+
+      - run:
+          name: Test
+          command: |
+            make test
+
+  e2e-test:
+    machine:
+      image: ubuntu-1604:201903-01
+      docker_layer_caching: true
+    environment:
+      GO_VERSION: '1.13'
+      K8S_VERSION: 'v1.15.7'
+      #VAULT_VERSION: '1.0.0'
+      KUBECONFIG: '/home/circleci/.kube/config'
+      MINIKUBE_VERSION: 'v1.6.0'
+      MINIKUBE_WANTUPDATENOTIFICATION: 'false'
+      MINIKUBE_WANTREPORTERRORPROMPT: 'false'
+      MINIKUBE_HOME: '/home/circleci'
+      CHANGE_MINIKUBE_NONE_USER: 'true'
+      HELM_VERSION: 'v3.0.3'
+#      GOPATH: '/home/circleci/go'
+    steps:
+      - run:
+          name: Setup minikube
+          command: |
+            curl -Lo minikube https://github.com/kubernetes/minikube/releases/download/${MINIKUBE_VERSION}/minikube-linux-amd64 \
+            && chmod +x minikube \
+            && sudo mv minikube /usr/local/bin/
+
+      - run:
+          name: Start minikube
+          background: true
+          command: |
+            sudo -E minikube start --vm-driver=none --cpus 2 --memory 4096 --kubernetes-version=${K8S_VERSION}
+
+      - run:
+          name: Setup kubectl
+          command: |
+            curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/${K8S_VERSION}/bin/linux/amd64/kubectl \
+            && chmod +x kubectl \
+            && sudo mv kubectl /usr/local/bin/
+
+            mkdir -p ${HOME}/.kube
+            touch ${HOME}/.kube/config
+
+      - checkout
+#      - run:
+#          name: Create go directory
+#          command: |
+#            sudo mkdir /go
+#            sudo chmod 777 /go
+#
+#      - run:
+#          name: Setup golang
+#          command: |
+#            sudo rm -rf /usr/local/go
+#            curl \
+#              -Lo go.linux-amd64.tar.gz \
+#              "https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz" \
+#            && sudo tar -C /usr/local -xzf go.linux-amd64.tar.gz
+#            echo 'export PATH="$GOPATH/bin:$PATH"' >> "${BASH_ENV}"
+#            rm go.linux-amd64.tar.gz
+
+      - run:
+          name: Build docker image
+          command: |
+            app_version="$(awk '/appVersion:/{print $2}' charts/thanos-operator/Chart.yaml)"
+            docker build -t banzaicloud/thanos-operator:${app_version} .
+
+      - run:
+          name: Wait for minikube
+          command: |
+            timeout 180s bash \<<EOT
+              set -o pipefail
+              function is_ready()
+              {
+                kubectl get nodes -o json \
+                  | jq '.items[].status.conditions[] | select(.type=="Ready" and .status=="True")'
+              }
+
+              until is_ready
+              do
+                sleep 1
+              done
+            EOT
+
+      - run:
+          name: Setup helm
+          command: |
+            curl -L "https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3" \
+              | bash -s -- -v "${HELM_VERSION}"
+            helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com/
+
+      - run:
+          name: Create monitoring namespace
+          command: |
+            kubectl create namespace monitoring
+
+      - run:
+          name: Start Minio
+          command: |
+            kubectl create -f hack/minio.yaml
+            kubectl wait --namespace monitoring --for=condition=available deployment/minio-deployment --timeout=120s
+            minio="$(kubectl get pod --namespace monitoring -l app=minio -o 'jsonpath={.items[0].metadata.name}')"
+            kubectl wait --namespace monitoring--for=condition=Ready pod "${minio}" --timeout=120s
+
+      - run:
+          name: Install thanos operator
+          command: |
+            helm install --namespace monitoring charts/thanos-operator
+#
+#      - run:
+#          name: Setup minio cli
+#          command: |
+#            kubectl create -f hack/minio-mc.yaml
+#            kubectl wait --namespace logging --for=condition=available deployment/minio-mc-deployment --timeout=120s
+#            mc_pod="$(kubectl get pod --namespace logging -l app=minio-mc -o 'jsonpath={.items[0].metadata.name}')"
+#            kubectl wait --namespace logging --for=condition=Ready pod "${mc_pod}" --timeout=120s
+#            kubectl exec --namespace logging "${mc_pod}" -- \
+#              mc config host add minio \
+#                'http://minio-service.logging.svc.cluster.local:9000' \
+#                'minio_access_key' \
+#                'minio_secret_key'
+#
+#      - run:
+#          name: Test
+#          command: |
+#            hack/test.sh
+#
+#  docker-release:
+#    executor:
+#      name: docker/machine
+#      dlc: true
+#    parameters:
+#      tag:
+#        default: $CIRCLE_SHA1
+#        description: 'Image tag'
+#        type: string
+#      extra_build_args:
+#        default: ''
+#        description: >
+#          Extra flags to pass to docker build. For examples, see https://docs.docker.com/engine/reference/commandline/build
+#        type: string
+#      image:
+#        description: Name of image to build
+#        type: string
+#      registry:
+#        default: docker.io
+#        description:
+#          Name of registry to use, defaults to docker.io
+#        type: string
+#    steps:
+#      - checkout
+#      - docker/check
+#      - docker/build:
+#          extra_build_args: <<parameters.extra_build_args>>
+#          registry: <<parameters.registry>>
+#          image: <<parameters.image>>
+#          tag: $CIRCLE_SHA1
+#      - run:
+#          name: Tag release
+#          command: |
+#            docker tag <<parameters.image>>:$CIRCLE_SHA1 <<parameters.registry>>/<<parameters.image>>:<<parameters.tag>>
+#      - docker/push:
+#          registry: <<parameters.registry>>
+#          image: <<parameters.image>>
+#          tag: <<parameters.tag>>
+#      - run:
+#          name: Check version
+#          command: |
+#            if ! echo "${CIRCLE_TAG}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+#              echo 'Unstable version. Skipping further steps.'
+#              circleci step halt
+#            fi
+#      - run:
+#          name: Tag latest
+#          command: |
+#            docker tag <<parameters.image>>:$CIRCLE_SHA1 <<parameters.registry>>/<<parameters.image>>:latest
+#      - docker/push:
+#          registry: <<parameters.registry>>
+#          image: <<parameters.image>>
+#          tag: latest
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build
+#      - e2e-test:
+#          requires:
+#            - build
+#      - docker/publish:
+#          name: Publish master docker image
+#          executor:
+#            name: docker/machine
+#            dlc: true
+#          context: dockerhub
+#          deploy: true
+#          image: banzaicloud/thanos-operator
+#          tag: master
+#          requires:
+#            - e2e-test
+#          filters:
+#            branches:
+#              only: master
+#      - docker-release:
+#          name: Publish tagged & latest docker image
+#          context: dockerhub
+#          image: banzaicloud/thanos-operator
+#          tag: $CIRCLE_TAG
+#          filters:
+#            tags:
+#              only: /^[0-9]+\.[0-9]+\.[0-9]+(?:-(?:dev|rc)\.[0-9]+)?$/
+#            branches:
+#              ignore: /.*/
+#
+  helm-chart:
+    jobs:
+      - helm/lint-chart:
+          name: 'Helm lint'
+          filters:
+            tags:
+              ignore: /.*/
+
+      - helm/publish-chart:
+          name: 'Publish chart'
+          context: helm
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /chart\/.*\/\d+.\d+.\d+.*/
