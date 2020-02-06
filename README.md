@@ -1,3 +1,28 @@
+<p align="center"><img src="docs/img/logo/thanos_operator_vertical.svg" width="260"></p>
+<p align="center">
+
+  <a href="https://hub.docker.com/r/banzaicloud/thanos-operator/">
+    <img src="https://img.shields.io/docker/automated/banzaicloud/thanos-operator.svg" alt="Docker Automated build">
+  </a>
+
+  <a href="https://hub.docker.com/r/banzaicloud/thanos-operator/">
+    <img src="https://img.shields.io/docker/pulls/banzaicloud/thanos-operator.svg?style=shield" alt="Docker Pulls">
+  </a>
+
+  <a href="https://circleci.com/gh/banzaicloud/thanos-operator">
+    <img src="https://circleci.com/gh/banzaicloud/thanos-operator.svg?style=shield" alt="CircleCI">
+  </a>
+
+  <a href="https://goreportcard.com/badge/github.com/banzaicloud/thanos-operator">
+    <img src="https://goreportcard.com/badge/github.com/banzaicloud/thanos-operator" alt="Go Report Card">
+  </a>
+
+  <a href="https://github.com/banzaicloud/thanos-operator/">
+    <img src="https://img.shields.io/badge/license-Apache%20v2-orange.svg" alt="license">
+  </a>
+
+</p>
+
 # Thanos Operator
 
 Thanos Operator is a Kubernetes operator to manage Thanos stack seployment
@@ -64,6 +89,12 @@ helm install thanos-operator  ./charts/thanos-operator --set manageCrds=false
 ```
 
 
+## Documentation
+
+ You can find the complete documentation of thanos operator [here](./docs/Readme.md) :blue_book: <br>
+
+## Commercial support
+If you are using the thanos operator in a production environment and [require commercial support, contact Banzai Cloud](https://banzaicloud.com/contact/), the company backing the development of the thanos operator.
 
 
 ## Contributing
