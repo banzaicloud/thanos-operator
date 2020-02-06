@@ -32,6 +32,12 @@ on Kubernetes.
 
 Open source, highly available Prometheus setup with long term storage capabilities.
 
+
+## Architecture
+<p align="center"><img src="docs/img/Thanos-single-cluster.png" ></p>
+
+
+
 ## Object Store secret
 
 Example S3 configuration
@@ -91,7 +97,7 @@ helm install thanos-operator  ./charts/thanos-operator --set manageCrds=false
 
 ## Documentation
 
- You can find the complete documentation of thanos operator [here](./docs/Readme.md) :blue_book: <br>
+ You can find the complete documentation of thanos operator [here](./docs/README.md) :blue_book: <br>
 
 ## Commercial support
 If you are using the thanos operator in a production environment and [require commercial support, contact Banzai Cloud](https://banzaicloud.com/contact/), the company backing the development of the thanos operator.
@@ -102,7 +108,7 @@ If you are using the thanos operator in a production environment and [require co
 If you find this project useful, help us:
 
 - Support the development of this project and star this repo! :star:
-- If you use the Logging operator in a production environment, add yourself to the list of production [adopters](https://github.com/banzaicloud/thanos-operator/blob/master/ADOPTERS.md).:metal: <br> 
+- If you use the Thanos operator in a production environment, add yourself to the list of production [adopters](https://github.com/banzaicloud/thanos-operator/blob/master/ADOPTERS.md).:metal: <br> 
 - Help new users with issues they may encounter :muscle:
 - Send a pull request with your new features and bug fixes :rocket: 
 
