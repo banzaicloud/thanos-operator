@@ -40,7 +40,8 @@ prometheus:
       objectStorageConfig:
         name: thanos
         key: object-store.yaml
-    externalLabels: thanos-operator-test
+    externalLabels: 
+      thanos-operator-test: demo1
 ```
 
 Remember to set `externalLabels` as it identifies the Prometheus instance for Thanos.
@@ -54,12 +55,12 @@ helm repo update
 
 ### Install prometheus-operator
 ```
-helm install monitor stable/prometheus-operator -f thanos-sidecar.yaml --skip-crds
+helm install monitor stable/prometheus-operator -f thanos-sidecar.yaml --set manageCrds=false
 ```
 
 ### Install thanos-operator
 ```
-helm install thanos-operator  ./charts/thanos-operator --skip-crds
+helm install thanos-operator  ./charts/thanos-operator --set manageCrds=false
 ```
 
 
