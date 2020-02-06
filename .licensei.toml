@@ -16,6 +16,7 @@ ignored = [
   "github.com/fatih/structtag", # BSD-3
   "github.com/samuel/go-thrift", # BSD-3
   "github.com/uber-go/tally", # MIT
+  "gopkg.in/fsnotify.v1", # BSD
 
   "github.com/davecgh/go-spew", # ISC license
   "github.com/oracle/oci-go-sdk", # UPL-1.0
@@ -27,7 +28,7 @@ ignored = [
 ]
 
 [header]
-ignorePaths = ["vendor", "client", ".gen"]
+ignorePaths = ["vendor", "client", ".gen", "pkg/sdk"]
 ignoreFiles = ["mock_*.go", "*_gen.go", "SecretStore_test.go"]
 template = """// Copyright :YEAR: Banzai Cloud
 //
