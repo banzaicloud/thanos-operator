@@ -51,7 +51,7 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 									"--log.level=info",
 									"--http-address=" + bucketWeb.HTTPAddress,
 									// TODO: get secret file path from secret mount
-									"--objstore.config-file=/etc/config/object-store.yaml",
+									"--objstore.config-file=/etc/config/" + b.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Key,
 									"--refresh=" + strconv.Itoa(int(math.Floor(bucketWeb.Refresh.Duration.Seconds()))) + "s",
 									"--timeout=" + strconv.Itoa(int(math.Floor(bucketWeb.Timeout.Duration.Seconds()))) + "s",
 								},

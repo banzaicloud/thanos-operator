@@ -16,13 +16,13 @@ jobs:
       - checkout
 
       - run:
-          name: Run lint
-          command: make lint
-
-      - run:
           name: Check generators for unwanted diffs
           command: |
             make check-diff
+
+      - run:
+          name: Run lint
+          command: make lint
 
       - run:
           name: License
@@ -217,7 +217,8 @@ workflows:
   version: 2
   build:
     jobs:
-      - build
+      - build:
+          context: Default
 #      - e2e-test:
 #          requires:
 #            - build

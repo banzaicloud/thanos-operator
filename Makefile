@@ -30,10 +30,12 @@ bin/golangci-lint-$(GOLANGCI_VERSION):
 .PHONY: lint
 lint: bin/golangci-lint ## Run linter
 	bin/golangci-lint run
+	cd pkg/sdk && ../../bin/golangci-lint run
 
 # Run tests
-test: generate fmt vet manifests bin/kubebuilder
+test: fmt vet genall lint bin/kubebuilder
 	go test ./... -coverprofile cover.out
+	cd pkg/sdk go test ./... -coverprofile cover-sdk.out
 
 # Build manager binary
 manager: generate fmt vet
@@ -64,14 +66,20 @@ manifests: controller-gen
 # Run go fmt against code
 fmt:
 	go fmt ./...
+	cd pkg/sdk && go fmt ./...
 
 # Run go vet against code
 vet:
 	go vet ./...
+	cd pkg/sdk && go vet ./...
 
 # Generate code
 generate: controller-gen
 	cd pkg/sdk && $(CONTROLLER_GEN) object:headerFile=./../../hack/boilerplate.go.txt paths="./..."
+
+genall: generate manifests docs
+	go generate ./...
+	cd pkg/sdk && go generate ./...
 
 # Build the docker image
 docker-build: test
@@ -112,7 +120,7 @@ bin/kubebuilder: bin/kubebuilder_$(KUBEBUILDER_VERSION)
 
 check-diff:
 	go mod tidy
-	$(MAKE) generate manifests docs
+	$(MAKE) genall
 	git diff --exit-code
 
 bin/licensei: bin/licensei-$(LICENSEI_VERSION)

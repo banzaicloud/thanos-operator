@@ -5,7 +5,7 @@ go 1.13
 require (
 	emperror.dev/errors v0.4.2
 	github.com/MakeNowJust/heredoc v1.0.0
-	github.com/banzaicloud/operator-tools v0.5.0
+	github.com/banzaicloud/operator-tools v0.5.1-0.20200207104819-89c1a012ca53
 	github.com/banzaicloud/thanos-operator/pkg/sdk v0.0.0
 	github.com/go-logr/logr v0.1.0
 	github.com/imdario/mergo v0.3.8
@@ -15,11 +15,8 @@ require (
 	golang.org/x/xerrors v0.0.0-20191011141410-1b5146add898 // indirect
 	k8s.io/api v0.16.4
 	k8s.io/apimachinery v0.16.4
-	k8s.io/client-go v11.0.1-0.20190516230509-ae8359b20417+incompatible
+	k8s.io/client-go v0.16.4
 	sigs.k8s.io/controller-runtime v0.4.0
 )
 
-replace (
-	github.com/banzaicloud/thanos-operator/pkg/sdk => ./pkg/sdk
-	k8s.io/client-go => k8s.io/client-go v0.0.0-20190918160344-1fbdaa4c8d90
-)
+replace github.com/banzaicloud/thanos-operator/pkg/sdk => ./pkg/sdk
