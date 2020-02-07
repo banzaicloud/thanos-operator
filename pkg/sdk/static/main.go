@@ -19,7 +19,7 @@ func main() {
 		Filename:     filepath.Join(getRepoRoot(), "pkg/sdk/static/gen/crds/generated.go"),
 		PackageName:  "crds",
 		VariableName: "Root",
-		FileModTime:  timePointer(time.Unix(0, 0)),
+		FileModTime:  timePointer(time.Time{}),
 	})
 	if err != nil {
 		panic(fmt.Sprintf("failed to generate crds vfs: %+v", err))
@@ -31,7 +31,7 @@ func main() {
 		Filename:     filepath.Join(getRepoRoot(), "pkg/sdk/static/gen/rbac/generated.go"),
 		PackageName:  "rbac",
 		VariableName: "Root",
-		FileModTime:  timePointer(time.Unix(0, 0)),
+		FileModTime:  timePointer(time.Time{}),
 	})
 	if err != nil {
 		panic(fmt.Sprintf("failed to generate rbac vfs: %+v", err))
