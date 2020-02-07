@@ -236,17 +236,17 @@ workflows:
           filters:
             tags:
               ignore: /.*/
-#      - docker-release:
-#          name: Publish tagged & latest docker image
-#          context: dockerhub
-#          image: banzaicloud/thanos-operator
-#          tag: $CIRCLE_TAG
-#          filters:
-#            tags:
-#              only: /^[0-9]+\.[0-9]+\.[0-9]+(?:-(?:dev|rc)\.[0-9]+)?$/
-#            branches:
-#              ignore: /.*/
-#
+      - docker-release:
+          name: Publish tagged & latest docker image
+          context: dockerhub
+          image: banzaicloud/thanos-operator
+          tag: $CIRCLE_TAG
+          filters:
+            tags:
+              only: /^[0-9]+\.[0-9]+\.[0-9]+(?:-(?:dev|rc)\.[0-9]+)?$/
+            branches:
+              ignore: /.*/
+
   helm-chart:
     jobs:
       - helm/lint-chart:
