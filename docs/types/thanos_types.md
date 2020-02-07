@@ -7,6 +7,7 @@
 | storeGateway | *StoreGateway | No | - |  |
 | rule | *Rule | No | - |  |
 | query | *Query | No | - |  |
+| enableRecreateWorkloadOnImmutableFieldChange | bool | No | - |  |
 ### Metrics
 #### Metrics defines the service monitor endpoints
 
@@ -18,11 +19,21 @@
 | path | string | No | - |  |
 | serviceMonitor | bool | No | - |  |
 | prometheusAnnotations | bool | No | - |  |
+### Ingress
+| Variable Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| certificate | string | No | - |  |
+| host | string | No | - |  |
+| path | string | No | - |  |
 ### Query
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
 |  | BaseObject | Yes | - |  |
 | metrics | *Metrics | No | - |  |
+| HTTPIngress | *Ingress | No | - |  |
+| GRPCIngress | *Ingress | No | - |  |
+| GRPCClientCertificate | string | No | - |  |
+| GRPCServerCertificate | string | No | - |  |
 | logLevel | string | No | - |  |
 | logFormat | string | No | - |  |
 | httpAddress | string | No | - | Listen host:port for HTTP endpoints.<br> |
@@ -57,6 +68,7 @@
 |---|---|---|---|---|
 |  | BaseObject | Yes | - |  |
 | metrics | *Metrics | No | - |  |
+| GRPCServerCertificate | string | No | - |  |
 | logLevel | string | No | - |  |
 | logFormat | string | No | - |  |
 | httpAddress | string | No | - | Listen host:port for HTTP endpoints.<br> |
@@ -75,6 +87,8 @@
 |---|---|---|---|---|
 |  | BaseObject | Yes | - |  |
 | metrics | *Metrics | No | - |  |
+| HTTPIngress | *Ingress | No | - |  |
+| GRPCIngress | *Ingress | No | - |  |
 | logLevel | string | No | - |  |
 | logFormat | string | No | - |  |
 | httpAddress | string | No | - | Listen host:port for HTTP endpoints.<br> |

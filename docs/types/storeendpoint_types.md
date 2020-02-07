@@ -7,6 +7,7 @@
 | selector | *KubernetesSelector | No | - |  |
 | config | secret.Secret | No | - |  |
 | thanos | string | Yes | - |  |
+| ingress | *Ingress | No | - |  |
 ### KubernetesSelector
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
