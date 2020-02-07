@@ -150,7 +150,7 @@ func Operator(disabled bool, config *ComponentConfig) (runtime.Object, reconcile
 						Name:    "thanos-operator",
 						Image:   "banzaicloud/thanos-operator",
 						Command: []string{"/manager"},
-						Args:    []string{"--enable-leader-election"},
+						//Args:    []string{"--enable-leader-election"},
 						Resources: corev1.ResourceRequirements{
 							Limits: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),

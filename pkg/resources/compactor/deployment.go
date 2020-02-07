@@ -52,7 +52,7 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 									"--http-grace-period=" + strconv.Itoa(int(math.Floor(compactor.HTTPGracePeriod.Duration.Seconds()))) + "s",
 									"--data-dir=" + compactor.DataDir,
 									// TODO: get secret file path from secret mount
-									"--objstore.config-file=/etc/config/object-store.yaml",
+									"--objstore.config-file=/etc/config/" + c.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Key,
 									"--consistency-delay=" + strconv.Itoa(int(math.Floor(compactor.ConsistencyDelay.Duration.Seconds()))) + "s",
 									"--retention.resolution-raw=" + strconv.Itoa(int(math.Floor(compactor.RetentionResolutionRaw.Duration.Seconds()))) + "s",
 									"--retention.resolution-5m=" + strconv.Itoa(int(math.Floor(compactor.RetentionResolution5m.Duration.Seconds()))) + "s",
