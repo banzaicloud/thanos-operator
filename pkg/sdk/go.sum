@@ -40,6 +40,7 @@ github.com/banzaicloud/operator-tools v0.4.2-0.20200205095409-b43b1ab90363 h1:Nq
 github.com/banzaicloud/operator-tools v0.4.2-0.20200205095409-b43b1ab90363/go.mod h1:12rKcmPZkK8CaESI6YI3UGFBBBQvYZH9i8Gn5cfCi+U=
 github.com/banzaicloud/operator-tools v0.5.1-0.20200207104819-89c1a012ca53 h1:gxq1ZIJSXnSMsEVhPm6ymxykNTrNCtEoOQYMmxqUb48=
 github.com/banzaicloud/operator-tools v0.5.1-0.20200207104819-89c1a012ca53/go.mod h1:tOY7F9fjNThqSLvVQOY9KBxT9ixol+uASMbQs4nhlHQ=
+github.com/banzaicloud/operator-tools v0.6.1-0.20200207104819-89c1a012ca53/go.mod h1:tOY7F9fjNThqSLvVQOY9KBxT9ixol+uASMbQs4nhlHQ=
 github.com/banzaicloud/vfsgen v0.0.0-20200203103248-c48ce8603af1 h1:mU1NWbBhWFQmpc4Vop9XWWHQQ3wINvZT666c3OX52Cw=
 github.com/banzaicloud/vfsgen v0.0.0-20200203103248-c48ce8603af1/go.mod h1:kkOp3NatLFRDKepb9dRDhgu5JWLahgVGIHiCW7wufv0=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 h1:xJ4a3vCFaGF/jqvzLMYoU8P317H5OQ+Via4RmuPwCS0=
@@ -473,12 +474,8 @@ k8s.io/apimachinery v0.16.4/go.mod h1:llRdnznGEAqC3DcNm6yEj472xaFVfLM7hnYofMb12t
 k8s.io/apiserver v0.0.0-20190918160949-bfa5e2e684ad/go.mod h1:XPCXEwhjaFN29a8NldXA901ElnKeKLrLtREO9ZhFyhg=
 k8s.io/apiserver v0.15.7/go.mod h1:d5Dbyt588GbBtUnbx9fSK+pYeqgZa32op+I1BmXiNuE=
 k8s.io/apiserver v0.16.4/go.mod h1:kbLJOak655g6W7C+muqu1F76u9wnEycfKMqbVaXIdAc=
-k8s.io/client-go v0.0.0-20190918160344-1fbdaa4c8d90/go.mod h1:J69/JveO6XESwVgG53q3Uz5OSfgsv4uxpScmmyYOOlk=
-k8s.io/client-go v0.15.7/go.mod h1:QMNB76d3lKPvPQdOOnnxUF693C3hnCzUbC2umg70pWA=
 k8s.io/client-go v0.16.4 h1:sf+FEZXYhJNjpTZapQDLvvN+0kBeUTxCYxlXcVdhv2E=
 k8s.io/client-go v0.16.4/go.mod h1:ZgxhFDxSnoKY0J0U2/Y1C8obKDdlhGPZwA7oHH863Ok=
-k8s.io/client-go v11.0.1-0.20190516230509-ae8359b20417+incompatible h1:bK03DJulJi9j05gwnXUufcs2j7h4M85YFvJ0dIlQ9k4=
-k8s.io/client-go v11.0.1-0.20190516230509-ae8359b20417+incompatible/go.mod h1:7vJpHMYJwNQCWgzmNV+VYUl1zCObLyodBc8nIyt8L5s=
 k8s.io/code-generator v0.0.0-20190912054826-cd179ad6a269/go.mod h1:V5BD6M4CyaN5m+VthcclXWsVcT1Hu+glwa1bi3MIsyE=
 k8s.io/code-generator v0.15.7/go.mod h1:G8bQwmHm2eafm5bgtX67XDZQ8CWKSGu9DekI+yN4Y5I=
 k8s.io/code-generator v0.16.4/go.mod h1:mJUgkl06XV4kstAnLHAIzJPVCOzVR+ZcfPIv4fUsFCY=
