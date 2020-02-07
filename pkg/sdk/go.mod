@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	emperror.dev/errors v0.4.2
-	github.com/banzaicloud/operator-tools v0.4.2-0.20200205095409-b43b1ab90363
+	github.com/banzaicloud/operator-tools v0.5.1-0.20200207104819-89c1a012ca53
 	github.com/cavaliercoder/grab v2.0.0+incompatible // indirect
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
 	k8s.io/api v0.16.4

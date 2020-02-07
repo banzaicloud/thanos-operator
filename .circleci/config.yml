@@ -217,7 +217,8 @@ workflows:
   version: 2
   build:
     jobs:
-      - build
+      - build:
+          context: Default
 #      - e2e-test:
 #          requires:
 #            - build
