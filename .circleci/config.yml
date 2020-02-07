@@ -16,13 +16,13 @@ jobs:
       - checkout
 
       - run:
-          name: Run lint
-          command: make lint
-
-      - run:
           name: Check generators for unwanted diffs
           command: |
             make check-diff
+
+      - run:
+          name: Run lint
+          command: make lint
 
       - run:
           name: License

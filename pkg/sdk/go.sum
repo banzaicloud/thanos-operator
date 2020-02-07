@@ -38,6 +38,7 @@ github.com/banzaicloud/operator-tools v0.4.2-0.20200205091424-3ce415442694/go.mo
 github.com/banzaicloud/operator-tools v0.4.2-0.20200205094923-90ba89f23669/go.mod h1:12rKcmPZkK8CaESI6YI3UGFBBBQvYZH9i8Gn5cfCi+U=
 github.com/banzaicloud/operator-tools v0.4.2-0.20200205095409-b43b1ab90363 h1:NqCgK4seqKnK59Z4NPG48DQBSlxFq3eEiq8LSoncens=
 github.com/banzaicloud/operator-tools v0.4.2-0.20200205095409-b43b1ab90363/go.mod h1:12rKcmPZkK8CaESI6YI3UGFBBBQvYZH9i8Gn5cfCi+U=
+github.com/banzaicloud/operator-tools v0.5.1-0.20200207104819-89c1a012ca53 h1:gxq1ZIJSXnSMsEVhPm6ymxykNTrNCtEoOQYMmxqUb48=
 github.com/banzaicloud/operator-tools v0.5.1-0.20200207104819-89c1a012ca53/go.mod h1:tOY7F9fjNThqSLvVQOY9KBxT9ixol+uASMbQs4nhlHQ=
 github.com/banzaicloud/vfsgen v0.0.0-20200203103248-c48ce8603af1 h1:mU1NWbBhWFQmpc4Vop9XWWHQQ3wINvZT666c3OX52Cw=
 github.com/banzaicloud/vfsgen v0.0.0-20200203103248-c48ce8603af1/go.mod h1:kkOp3NatLFRDKepb9dRDhgu5JWLahgVGIHiCW7wufv0=
