@@ -236,11 +236,17 @@ workflows:
           filters:
             tags:
               ignore: /.*/
-      - docker-release:
-          name: Publish tagged & latest docker image
+      - docker/release:
+          name: Publish tagged docker image
+          executor:
+            name: docker/machine
+            dlc: true
           context: dockerhub
+          deploy: true
           image: banzaicloud/thanos-operator
           tag: $CIRCLE_TAG
+          requires:
+            - build
           filters:
             tags:
               only: /^[0-9]+\.[0-9]+\.[0-9]+(?:-(?:dev|rc)\.[0-9]+)?$/
