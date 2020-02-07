@@ -236,7 +236,7 @@ workflows:
           filters:
             tags:
               ignore: /.*/
-      - docker/release:
+      - docker/publish:
           name: Publish tagged docker image
           executor:
             name: docker/machine
