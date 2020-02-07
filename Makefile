@@ -73,6 +73,10 @@ vet:
 generate: controller-gen
 	cd pkg/sdk && $(CONTROLLER_GEN) object:headerFile=./../../hack/boilerplate.go.txt paths="./..."
 
+genall: generate manifests docs
+	go generate ./...
+	cd pkg/sdk && go generate ./...
+
 # Build the docker image
 docker-build: test
 	docker build . -t $(IMG)
@@ -112,7 +116,7 @@ bin/kubebuilder: bin/kubebuilder_$(KUBEBUILDER_VERSION)
 
 check-diff:
 	go mod tidy
-	$(MAKE) generate manifests docs
+	$(MAKE) genall
 	git diff --exit-code
 
 bin/licensei: bin/licensei-$(LICENSEI_VERSION)
