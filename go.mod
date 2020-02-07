@@ -5,7 +5,7 @@ go 1.13
 require (
 	emperror.dev/errors v0.4.2
 	github.com/MakeNowJust/heredoc v1.0.0
-	github.com/banzaicloud/operator-tools v0.5.0
+	github.com/banzaicloud/operator-tools v0.5.1-0.20200207092155-7c7fdf82e8d5
 	github.com/banzaicloud/thanos-operator/pkg/sdk v0.0.0
 	github.com/go-logr/logr v0.1.0
 	github.com/imdario/mergo v0.3.8
