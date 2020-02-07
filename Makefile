@@ -67,6 +67,8 @@ deploy: manifests
 manifests: controller-gen
 	cd pkg/sdk && $(CONTROLLER_GEN) $(CRD_OPTIONS) webhook paths="./..." output:crd:artifacts:config=../../config/crd/bases output:webhook:artifacts:config=../../config/webhook
 	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role paths="./controllers/..." output:rbac:artifacts:config=./config/rbac
+	cp config/crd/bases/* charts/thanos-operator/crds/
+	cat config/rbac/role.yaml |sed 's|^  name: manager-role|  name: {{ include "thanos-operator.fullname" . }}|g' |sed '/creationTimestamp: null/d' | cat > charts/thanos-operator/templates/role.yaml
 
 # Run go fmt against code
 fmt:
