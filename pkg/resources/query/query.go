@@ -37,7 +37,6 @@ func New(reconciler *resources.ThanosComponentReconciler) *Query {
 }
 
 type Query struct {
-	StoreEndpoints []v1alpha1.StoreEndpoint
 	*resources.ThanosComponentReconciler
 }
 
@@ -102,7 +101,7 @@ func (q *Query) getStoreEndpoints() []string {
 		for _, t := range q.ThanosList {
 			if t.Spec.Query != nil {
 				reconciler := resources.NewThanosComponentReconciler(t.DeepCopy(), nil, nil, nil)
-				svc := (&Query{nil, reconciler}).getSvc()
+				svc := (&Query{reconciler}).getSvc()
 				endpoints = append(endpoints, fmt.Sprintf("--store=dnssrvnoa+%s", svc))
 			}
 		}

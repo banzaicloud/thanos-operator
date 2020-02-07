@@ -16,7 +16,6 @@ package sidecar
 
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -61,7 +60,7 @@ func (e *endpointService) ingressGRPC() (runtime.Object, reconciler.DesiredState
 		}
 		return ingress, reconciler.StatePresent, nil
 	}
-	delete := &corev1.Service{
+	delete := &v1beta1.Ingress{
 		ObjectMeta: e.getMeta(),
 	}
 	return delete, reconciler.StateAbsent, nil
