@@ -8,7 +8,6 @@ Welcome to the Thanos operator documentation!
 
 ## Contents
 - **[Installation](./deploy/README.md)**
-  - [Deploy with Helm](./deploy/README.md#deploy-logging-operator-with-helm)
-  - [Deploy with Kubernetes Manifests](./deploy/README.md#deploy-logging-operator-from-kubernetes-manifests)
+  - [Deploy with Helm](./deployment.md#deploy-thanos-operator-with-helm)
 - **[License](./license.md)**
 ---

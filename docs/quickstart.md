@@ -1,8 +1,13 @@
+<p align="center"><img src="./img/logo/thanos_operator_vertical.svg" width="260"></p>
+<p align="center">
+
+
 # Single Cluster Thanos Install
 
 ## Prerequisites for Thanos
 
-### Install secret
+
+## Object Store secret
 
 Example S3 configuration
 ```
@@ -20,29 +25,40 @@ Deploy the secret on Kubernetes
 kubectl create secret generic thanos --from-file=object-store.yaml=object-store.yaml
 ```
 
-### Install Prometheus Operator
+## Use Thanos with Prometheus Operator
+Extra configuration for prometheus operator.
 
 > Note: Prometheus-operator and Thanos MUST be in the same namespace.
 
 *thanos-sidecar.yaml*
 ```
-cat << EOF > thanos-sidecar.yaml
 prometheus:
   prometheusSpec:
     thanos:
-      image: quay.io/thanos/thanos:v0.10.1
-      version: v0.10.1
+      image: quay.io/thanos/thanos:v0.9.0
+      version: v0.9.0
       objectStorageConfig:
         name: thanos
         key: object-store.yaml
-    externalLabels:
-      cluster: thanos-operator-test-1
-EOF
+    externalLabels: 
+      cluster: thanos-operator-test
 ```
 
 Remember to set `externalLabels` as it identifies the Prometheus instance for Thanos.
 
+
+### Add kubernetes stable helm repository
+```
+helm repo add stable https://kubernetes-charts.storage.googleapis.com
+helm repo update
+```
+
 ### Install prometheus-operator
 ```
-helm3 install monitor stable/prometheus-operator -f thanos-sidecar.yaml
+helm install monitor stable/prometheus-operator -f thanos-sidecar.yaml --set manageCrds=false
+```
+
+### Install thanos-operator
+```
+helm install thanos-operator  ./charts/thanos-operator --set manageCrds=false
 ```
