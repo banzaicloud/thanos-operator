@@ -48,7 +48,7 @@ type ComponentConfig struct {
 	ContainerOverrides    *types.ContainerBase `json:"containerOverrides,omitempty"`
 }
 
-func(c *ComponentConfig) build(fn func(bool, *ComponentConfig) (runtime.Object, reconciler.DesiredState, error)) reconciler.ResourceBuilder {
+func (c *ComponentConfig) build(fn func(bool, *ComponentConfig) (runtime.Object, reconciler.DesiredState, error)) reconciler.ResourceBuilder {
 	return reconciler.ResourceBuilder(func() (runtime.Object, reconciler.DesiredState, error) {
 		return fn(c == nil || c.Disabled, c)
 	})
@@ -150,7 +150,7 @@ func Operator(disabled bool, config *ComponentConfig) (runtime.Object, reconcile
 						Name:    "thanos-operator",
 						Image:   "banzaicloud/thanos-operator",
 						Command: []string{"/manager"},
-						//Args:    []string{"--enable-leader-election"},
+						Args:    []string{"--enable-leader-election"},
 						Resources: corev1.ResourceRequirements{
 							Limits: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -236,7 +236,10 @@ func ClusterRole(disabled bool, config *ComponentConfig) (runtime.Object, reconc
 		return nil, nil, err
 	}
 	scheme := runtime.NewScheme()
-	rbacv1.AddToScheme(scheme)
+	err = rbacv1.AddToScheme(scheme)
+	if err != nil {
+		return nil, nil, errors.WrapIf(err, "failed to extend scheme with rbacv1 types")
+	}
 	_, _, err = serializer.NewSerializerWithOptions(serializer.DefaultMetaFactory, scheme, scheme, serializer.SerializerOptions{
 		Yaml: true,
 	}).Decode(roleAsByte, &schema.GroupVersionKind{}, role)
