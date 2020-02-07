@@ -8,9 +8,11 @@ spec:
     metrics:
       serviceMonitor: true
     HTTPIngress: {}
-    GRPCIngress: {}
-    GRPCClientCertificate: example-com-tls
+#    GRPCIngress: {}
+#    GRPCClientCertificate: example-com-tls
   rule:
+    metrics:
+      serviceMonitor: true
     dataVolume:
       pvc:
         spec:
@@ -21,18 +23,18 @@ spec:
               storage: 1Gi
           volumeMode: "Filesystem"
   storeGateway:
-    GRPCServerCertificate: example-com-tls
+#    GRPCServerCertificate: example-com-tls
     metrics:
       serviceMonitor: true
 
 
 ---
 
-apiVersion: monitoring.banzaicloud.io/v1alpha1
-kind: Thanos
-metadata:
-  name: query
-spec:
-  # Add fields here
-  query: {}
-  queryDiscovery: true
+#apiVersion: monitoring.banzaicloud.io/v1alpha1
+#kind: Thanos
+#metadata:
+#  name: query
+#spec:
+#  # Add fields here
+#  query: {}
+#  queryDiscovery: true
