@@ -230,6 +230,24 @@ workflows:
           requires:
             - build
           filters:
+            branches:
+              ignore: master
+            tags:
+              ignore: /.*/
+      - docker/publish:
+          name: Publish latest docker image from master
+          executor:
+            name: docker/machine
+            dlc: true
+          context: dockerhub
+          deploy: true
+          image: banzaicloud/thanos-operator
+          tag: master
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
             tags:
               ignore: /.*/
       - docker/publish:
