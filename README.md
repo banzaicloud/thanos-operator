@@ -38,6 +38,17 @@ Open source, highly available Prometheus setup with long term storage capabiliti
 
 ## Feature highlights
 
+- Auto discover endpoints
+- Manage persistent volumes
+- Metrics configuration
+- Simple TLS configuration
+
+Available soon
+
+- Tracing configuration
+- Endpoint validation
+- Certificate management
+- Advanced secret configuration
 
 ## Documentation
 
