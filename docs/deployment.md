@@ -4,7 +4,7 @@
 # Requirements
 
 - Thanos operator requires Kubernetes v1.14.x or later.
-- For the [Helm basde installation](#deploy-thanos-operator-with-helm) you need Helm v2.16.0 or later.
+- For the [Helm basde installation](#deploy-thanos-operator-with-helm) you need Helm v3.0.2 or later.
 
 
 # Deploy Thanos operator with Helm
