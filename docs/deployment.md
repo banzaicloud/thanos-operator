@@ -4,7 +4,7 @@
 # Requirements
 
 - Thanos operator requires Kubernetes v1.14.x or later.
-- For the [Helm base installation](#deploy-thanos-operator-with-helm) you need Helm v2.16.0 or later.
+- For the [Helm basde installation](#deploy-thanos-operator-with-helm) you need Helm v2.16.0 or later.
 
 
 # Deploy Thanos operator with Helm
@@ -16,11 +16,11 @@ Complete the following steps to deploy the Logging operator using Helm. Alternat
 > Note: For the [Helm base installation](#deploy-thanos-operator-with-helm) you need Helm v3 or later.
 
 
-1. Create `mointor` namespace
+1. Create `monitor` namespace
     ```bash
     kubectl create namespace monitor
     ```
-1. Add operator chart repository.
+1. Add the operator chart repository.
     ```bash
     helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
     helm repo update
@@ -43,7 +43,7 @@ To verify that the installation was successful, complete the following steps.
     NAME                                        READY   STATUS    RESTARTS   AGE
     thanos-operator-7df8485bf6-gf5gk   1/1     Running   0          13s
     ```
-1. Check the CRDs. You should see the following five new CRDs.
+1. Check the CRDs. You should see the following three new CRDs.
     ```bash
     $  kubectl get crd
     NAME                                    CREATED AT
