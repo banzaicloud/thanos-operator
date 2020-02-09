@@ -43,7 +43,7 @@ Open source, highly available Prometheus setup with long term storage capabiliti
 - Metrics configuration
 - Simple TLS configuration
 
-Available soon
+Work in progress
 
 - Tracing configuration
 - Endpoint validation
@@ -55,7 +55,7 @@ Available soon
  You can find the complete documentation of thanos operator [here](./docs/README.md) :blue_book: <br>
 
 ## Commercial support
-If you are using the thanos operator in a production environment and [require commercial support, contact Banzai Cloud](https://banzaicloud.com/contact/), the company backing the development of the thanos operator.
+If you are using the Thanos operator in a production environment and [require commercial support, contact Banzai Cloud](https://banzaicloud.com/contact/), the company backing the development of the Thanos operator. If you are looking for the ultimate observability tool for multi-cluster Kubernetes infrastructures to automate the collection, correlation, and storage of logs and metrics, check out [One Eye](https://banzaicloud.com/products/one-eye/).
 
 
 ## Contributing
