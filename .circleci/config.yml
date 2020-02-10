@@ -117,97 +117,37 @@ jobs:
           command: |
             curl -L "https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3" \
               | bash -s -- -v "${HELM_VERSION}"
+            helm repo add stable https://kubernetes-charts.storage.googleapis.com
             helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com/
+            helm rpeo update
 
       - run:
-          name: Create monitoring namespace
+          name: Create monitor namespace
           command: |
-            kubectl create namespace monitoring
+            kubectl create namespace monitor
 
       - run:
           name: Start Minio
           command: |
             kubectl create -f hack/minio.yaml
-            kubectl wait --namespace monitoring --for=condition=available deployment/minio-deployment --timeout=120s
-            minio="$(kubectl get pod --namespace monitoring -l app=minio -o 'jsonpath={.items[0].metadata.name}')"
-            kubectl wait --namespace monitoring--for=condition=Ready pod "${minio}" --timeout=120s
+            kubectl wait --namespace monitor --for=condition=available deployment/minio-deployment --timeout=120s
+            minio="$(kubectl get pod --namespace monitor -l app=minio -o 'jsonpath={.items[0].metadata.name}')"
+            kubectl wait --namespace monitor --for=condition=Ready pod "${minio}" --timeout=120s
 
       - run:
           name: Install thanos operator
           command: |
-            helm install --namespace monitoring charts/thanos-operator
-#
-#      - run:
-#          name: Setup minio cli
-#          command: |
-#            kubectl create -f hack/minio-mc.yaml
-#            kubectl wait --namespace logging --for=condition=available deployment/minio-mc-deployment --timeout=120s
-#            mc_pod="$(kubectl get pod --namespace logging -l app=minio-mc -o 'jsonpath={.items[0].metadata.name}')"
-#            kubectl wait --namespace logging --for=condition=Ready pod "${mc_pod}" --timeout=120s
-#            kubectl exec --namespace logging "${mc_pod}" -- \
-#              mc config host add minio \
-#                'http://minio-service.logging.svc.cluster.local:9000' \
-#                'minio_access_key' \
-#                'minio_secret_key'
-#
-#      - run:
-#          name: Test
-#          command: |
-#            hack/test.sh
-#
-#  docker-release:
-#    executor:
-#      name: docker/machine
-#      dlc: true
-#    parameters:
-#      tag:
-#        default: $CIRCLE_SHA1
-#        description: 'Image tag'
-#        type: string
-#      extra_build_args:
-#        default: ''
-#        description: >
-#          Extra flags to pass to docker build. For examples, see https://docs.docker.com/engine/reference/commandline/build
-#        type: string
-#      image:
-#        description: Name of image to build
-#        type: string
-#      registry:
-#        default: docker.io
-#        description:
-#          Name of registry to use, defaults to docker.io
-#        type: string
-#    steps:
-#      - checkout
-#      - docker/check
-#      - docker/build:
-#          extra_build_args: <<parameters.extra_build_args>>
-#          registry: <<parameters.registry>>
-#          image: <<parameters.image>>
-#          tag: $CIRCLE_SHA1
-#      - run:
-#          name: Tag release
-#          command: |
-#            docker tag <<parameters.image>>:$CIRCLE_SHA1 <<parameters.registry>>/<<parameters.image>>:<<parameters.tag>>
-#      - docker/push:
-#          registry: <<parameters.registry>>
-#          image: <<parameters.image>>
-#          tag: <<parameters.tag>>
-#      - run:
-#          name: Check version
-#          command: |
-#            if ! echo "${CIRCLE_TAG}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-#              echo 'Unstable version. Skipping further steps.'
-#              circleci step halt
-#            fi
-#      - run:
-#          name: Tag latest
-#          command: |
-#            docker tag <<parameters.image>>:$CIRCLE_SHA1 <<parameters.registry>>/<<parameters.image>>:latest
-#      - docker/push:
-#          registry: <<parameters.registry>>
-#          image: <<parameters.image>>
-#          tag: latest
+            kubectl create secret generic thanos \
+              --from-file=object-store.yaml=hack/test-object-store.yaml \
+              --namespace monitor
+
+            helm install --namespace monitor monitor stable/prometheus-operator -f hack/test-thanos-sidecar.yaml
+            helm install --namespace monitor thanos-operator ./charts/thanos-operator --set manageCrds=false
+
+            kubectl wait --for=condition=Ready pods --all --namespace monitor
+            sleep 3
+            kubectl wait --for=condition=Ready pods --all --namespace monitor
+            kubectl get all --namespace monitor
 
 workflows:
   version: 2
@@ -215,69 +155,69 @@ workflows:
     jobs:
       - build:
           context: Default
-#      - e2e-test:
+      - e2e-test:
+          requires:
+            - build
+#      - docker/publish:
+#          name: Publish docker image from branches
+#          executor:
+#            name: docker/machine
+#            dlc: true
+#          context: dockerhub
+#          deploy: true
+#          image: banzaicloud/thanos-operator
+#          tag: $CIRCLE_BRANCH
 #          requires:
 #            - build
-      - docker/publish:
-          name: Publish docker image from branches
-          executor:
-            name: docker/machine
-            dlc: true
-          context: dockerhub
-          deploy: true
-          image: banzaicloud/thanos-operator
-          tag: $CIRCLE_BRANCH
-          requires:
-            - build
-          filters:
-            branches:
-              ignore: master
-            tags:
-              ignore: /.*/
-      - docker/publish:
-          name: Publish latest docker image from master
-          executor:
-            name: docker/machine
-            dlc: true
-          context: dockerhub
-          deploy: true
-          image: banzaicloud/thanos-operator
-          tag: master
-          requires:
-            - build
-          filters:
-            branches:
-              only: master
-            tags:
-              ignore: /.*/
-      - docker/publish:
-          name: Publish tagged docker image
-          executor:
-            name: docker/machine
-            dlc: true
-          context: dockerhub
-          deploy: true
-          image: banzaicloud/thanos-operator
-          tag: $CIRCLE_TAG
-          filters:
-            tags:
-              only: /^[0-9]+\.[0-9]+\.[0-9]+(?:-(?:dev|rc)\.[0-9]+)?$/
-            branches:
-              ignore: /.*/
-
-  helm-chart:
-    jobs:
-      - helm/lint-chart:
-          name: 'Helm lint'
-          filters:
-            tags:
-              ignore: /.*/
-
-      - helm/publish-chart:
-          name: 'Publish chart'
-          context: helm
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /chart\/.*\/\d+.\d+.\d+.*/
+#          filters:
+#            branches:
+#              ignore: master
+#            tags:
+#              ignore: /.*/
+#      - docker/publish:
+#          name: Publish latest docker image from master
+#          executor:
+#            name: docker/machine
+#            dlc: true
+#          context: dockerhub
+#          deploy: true
+#          image: banzaicloud/thanos-operator
+#          tag: master
+#          requires:
+#            - build
+#          filters:
+#            branches:
+#              only: master
+#            tags:
+#              ignore: /.*/
+#      - docker/publish:
+#          name: Publish tagged docker image
+#          executor:
+#            name: docker/machine
+#            dlc: true
+#          context: dockerhub
+#          deploy: true
+#          image: banzaicloud/thanos-operator
+#          tag: $CIRCLE_TAG
+#          filters:
+#            tags:
+#              only: /^[0-9]+\.[0-9]+\.[0-9]+(?:-(?:dev|rc)\.[0-9]+)?$/
+#            branches:
+#              ignore: /.*/
+#
+#  helm-chart:
+#    jobs:
+#      - helm/lint-chart:
+#          name: 'Helm lint'
+#          filters:
+#            tags:
+#              ignore: /.*/
+#
+#      - helm/publish-chart:
+#          name: 'Publish chart'
+#          context: helm
+#          filters:
+#            branches:
+#              ignore: /.*/
+#            tags:
+#              only: /chart\/.*\/\d+.\d+.\d+.*/

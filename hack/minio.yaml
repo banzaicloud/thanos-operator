@@ -2,7 +2,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: minio-deployment
-  namespace: monitoring
+  namespace: monitor
 spec:
   strategy:
     type: Recreate
@@ -37,7 +37,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: minio-service
-  namespace: logging
+  namespace: monitor
 spec:
   selector:
     app: minio

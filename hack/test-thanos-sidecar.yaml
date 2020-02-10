@@ -1,0 +1,20 @@
+prometheus:
+  prometheusSpec:
+    thanos:
+      image: quay.io/thanos/thanos:v0.9.0
+      version: v0.9.0
+      objectStorageConfig:
+        name: thanos
+        key: object-store.yaml
+    externalLabels:
+      thanos-operator-test: 'e'
+prometheus:
+  prometheusSpec:
+    thanos:
+      image: quay.io/thanos/thanos:v0.9.0
+      version: v0.9.0
+      objectStorageConfig:
+        name: thanos
+        key: object-store.yaml
+    externalLabels:
+      cluster: thanos-operator-test

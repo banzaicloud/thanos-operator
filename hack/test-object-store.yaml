@@ -1,0 +1,9 @@
+type: S3
+config:
+  endpoint: "minio-service:9000"
+  bucket: "tes-bucket"
+  region: "test_region"
+  insecure: true
+  signature_version2: true
+  access_key: "minio_access_key"
+  secret_key: "minio_secret_key"
