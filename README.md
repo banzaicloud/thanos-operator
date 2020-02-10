@@ -25,7 +25,7 @@
 
 # Thanos Operator
 
-Thanos Operator is a Kubernetes operator to manage Thanos stack seployment
+Thanos Operator is a Kubernetes operator to manage Thanos stack deployment
 on Kubernetes.
 
 ## What is [Thanos](http://thanos.io)
