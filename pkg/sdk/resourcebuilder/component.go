@@ -46,13 +46,13 @@ type ComponentConfig struct {
 	ContainerOverrides    *types.ContainerBase `json:"containerOverrides,omitempty"`
 }
 
-func (c *ComponentConfig) build(parent v1.Object, fn func(v1.Object, ComponentConfig) (runtime.Object, reconciler.DesiredState, error)) reconciler.ResourceBuilder {
+func (c *ComponentConfig) build(parent reconciler.ResourceOwner, fn func(reconciler.ResourceOwner, ComponentConfig) (runtime.Object, reconciler.DesiredState, error)) reconciler.ResourceBuilder {
 	return reconciler.ResourceBuilder(func() (runtime.Object, reconciler.DesiredState, error) {
 		return fn(parent, *c)
 	})
 }
 
-func ResourceBuilders(parent v1.Object, object interface{}) []reconciler.ResourceBuilder {
+func ResourceBuilders(parent reconciler.ResourceOwner, object interface{}) []reconciler.ResourceBuilder {
 	config := &ComponentConfig{
 		Disabled: true,
 	}
@@ -123,7 +123,7 @@ func CRD(config *ComponentConfig, group string, kind string) (runtime.Object, re
 	}), nil
 }
 
-func Operator(parent v1.Object, config ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
+func Operator(parent reconciler.ResourceOwner, config ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
 	deployment := &appsv1.Deployment{
 		ObjectMeta: config.MetaOverrides.Merge(config.objectMeta(parent)),
 	}
@@ -164,7 +164,7 @@ func Operator(parent v1.Object, config ComponentConfig) (runtime.Object, reconci
 	return deployment, reconciler.StatePresent, nil
 }
 
-func ServiceAccount(parent v1.Object, config ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
+func ServiceAccount(parent reconciler.ResourceOwner, config ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
 	sa := &corev1.ServiceAccount{
 		ObjectMeta: config.MetaOverrides.Merge(config.objectMeta(parent)),
 	}
@@ -178,7 +178,7 @@ func ServiceAccount(parent v1.Object, config ComponentConfig) (runtime.Object, r
 	return sa, reconciler.StatePresent, nil
 }
 
-func ClusterRoleBinding(parent v1.Object, config ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
+func ClusterRoleBinding(parent reconciler.ResourceOwner, config ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
 	rb := &rbacv1.ClusterRoleBinding{
 		ObjectMeta: config.MetaOverrides.Merge(config.clusterObjectMeta(parent)),
 	}
@@ -208,7 +208,7 @@ func ClusterRoleBinding(parent v1.Object, config ComponentConfig) (runtime.Objec
 	return rb, reconciler.StatePresent, nil
 }
 
-func ClusterRole(parent v1.Object, config ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
+func ClusterRole(parent reconciler.ResourceOwner, config ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
 	role := &rbacv1.ClusterRole{
 		ObjectMeta: config.MetaOverrides.Merge(config.clusterObjectMeta(parent)),
 	}
@@ -244,16 +244,16 @@ func ClusterRole(parent v1.Object, config ComponentConfig) (runtime.Object, reco
 	return role, reconciler.StatePresent, err
 }
 
-func (c *ComponentConfig) objectMeta(parent v1.Object) v1.ObjectMeta {
+func (c *ComponentConfig) objectMeta(parent reconciler.ResourceOwner) v1.ObjectMeta {
 	meta := v1.ObjectMeta{
 		Name:      parent.GetName() + "-operator",
-		Namespace: parent.GetNamespace(),
+		Namespace: parent.GetControlNamespace(),
 		Labels:    c.labelSelector(parent),
 	}
 	return meta
 }
 
-func (c *ComponentConfig) clusterObjectMeta(parent v1.Object) v1.ObjectMeta {
+func (c *ComponentConfig) clusterObjectMeta(parent reconciler.ResourceOwner) v1.ObjectMeta {
 	meta := v1.ObjectMeta{
 		Name:   parent.GetName() + "-operator",
 		Labels: c.labelSelector(parent),
@@ -261,7 +261,7 @@ func (c *ComponentConfig) clusterObjectMeta(parent v1.Object) v1.ObjectMeta {
 	return meta
 }
 
-func (c *ComponentConfig) labelSelector(parent v1.Object) map[string]string {
+func (c *ComponentConfig) labelSelector(parent reconciler.ResourceOwner) map[string]string {
 	return map[string]string{
 		"banzaicloud.io/operator": parent.GetName() + "-operator",
 	}

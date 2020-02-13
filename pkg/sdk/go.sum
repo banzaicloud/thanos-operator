@@ -31,6 +31,7 @@ github.com/banzaicloud/k8s-objectmatcher v1.1.0 h1:KHWn9Oxh21xsaGKBHWElkaRrr4ypC
 github.com/banzaicloud/k8s-objectmatcher v1.1.0/go.mod h1:gGaElvgkqa0Lk1khRr+jel/nsCLfzhLnD3CEWozpk9k=
 github.com/banzaicloud/operator-tools v0.6.1-0.20200212154950-aee843c7f332 h1:fPBFJHKyJQ5hWEH/yTAtSIPjJJ7HN0x7EtlEjTrxf/8=
 github.com/banzaicloud/operator-tools v0.6.1-0.20200212154950-aee843c7f332/go.mod h1:Rcxsrnn1X2cxTajbo+mHUyl979PnUj3SDiGRibjI4X0=
+github.com/banzaicloud/operator-tools v0.6.1-0.20200213112020-554868b83e3b/go.mod h1:Rcxsrnn1X2cxTajbo+mHUyl979PnUj3SDiGRibjI4X0=
 github.com/banzaicloud/vfsgen v0.0.0-20200203103248-c48ce8603af1 h1:mU1NWbBhWFQmpc4Vop9XWWHQQ3wINvZT666c3OX52Cw=
 github.com/banzaicloud/vfsgen v0.0.0-20200203103248-c48ce8603af1/go.mod h1:kkOp3NatLFRDKepb9dRDhgu5JWLahgVGIHiCW7wufv0=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 h1:xJ4a3vCFaGF/jqvzLMYoU8P317H5OQ+Via4RmuPwCS0=
