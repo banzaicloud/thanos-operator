@@ -196,7 +196,7 @@ func ClusterRoleBinding(parent reconciler.ResourceOwner, config ComponentConfig)
 		{
 			Kind:      rbacv1.ServiceAccountKind,
 			Name:      sa,
-			Namespace: parent.GetNamespace(),
+			Namespace: parent.GetControlNamespace(),
 		},
 	}
 	rb.RoleRef = rbacv1.RoleRef{
