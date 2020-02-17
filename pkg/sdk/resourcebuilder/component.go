@@ -87,9 +87,6 @@ func CRD(config *ComponentConfig, group string, kind string) (runtime.Object, re
 			Name: fmt.Sprintf("%s.%s", kind, group),
 		},
 	}
-	if config.Disabled {
-		return crd, reconciler.StateAbsent, nil
-	}
 	crdFile, err := crds.Root.Open(fmt.Sprintf("/%s_%s.yaml", group, kind))
 	if err != nil {
 		return nil, nil, errors.WrapIff(err, "failed to open %s crd", kind)
