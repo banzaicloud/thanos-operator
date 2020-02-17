@@ -246,7 +246,7 @@ func ClusterRole(parent reconciler.ResourceOwner, config ComponentConfig) (runti
 
 func (c *ComponentConfig) objectMeta(parent reconciler.ResourceOwner) v1.ObjectMeta {
 	meta := v1.ObjectMeta{
-		Name:      parent.GetName() + "-operator",
+		Name:      parent.GetName() + "-thanos-operator",
 		Namespace: parent.GetControlNamespace(),
 		Labels:    c.labelSelector(parent),
 	}
@@ -255,7 +255,7 @@ func (c *ComponentConfig) objectMeta(parent reconciler.ResourceOwner) v1.ObjectM
 
 func (c *ComponentConfig) clusterObjectMeta(parent reconciler.ResourceOwner) v1.ObjectMeta {
 	meta := v1.ObjectMeta{
-		Name:   parent.GetName() + "-operator",
+		Name:   parent.GetName() + "-thanos-operator",
 		Labels: c.labelSelector(parent),
 	}
 	return meta
@@ -263,6 +263,6 @@ func (c *ComponentConfig) clusterObjectMeta(parent reconciler.ResourceOwner) v1.
 
 func (c *ComponentConfig) labelSelector(parent reconciler.ResourceOwner) map[string]string {
 	return map[string]string{
-		"banzaicloud.io/operator": parent.GetName() + "-operator",
+		"banzaicloud.io/operator": parent.GetName() + "-thanos-operator",
 	}
 }
