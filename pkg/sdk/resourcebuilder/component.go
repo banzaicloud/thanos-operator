@@ -40,47 +40,44 @@ import (
 
 type ComponentConfig struct {
 	Disabled              bool                 `json:"disabled,omitempty"`
-	Name                  string               `json:"name,omitempty"`
-	Namespace             string               `json:"namespace,omitempty"`
 	MetaOverrides         *types.MetaBase      `json:"metaOverrides,omitempty"`
 	WorkloadMetaOverrides *types.MetaBase      `json:"workloadMetaOverrides,omitempty"`
 	WorkloadOverrides     *types.PodSpecBase   `json:"workloadOverrides,omitempty"`
 	ContainerOverrides    *types.ContainerBase `json:"containerOverrides,omitempty"`
 }
 
-func (c *ComponentConfig) build(fn func(bool, *ComponentConfig) (runtime.Object, reconciler.DesiredState, error)) reconciler.ResourceBuilder {
+func (c *ComponentConfig) build(parent reconciler.ResourceOwner, fn func(reconciler.ResourceOwner, ComponentConfig) (runtime.Object, reconciler.DesiredState, error)) reconciler.ResourceBuilder {
 	return reconciler.ResourceBuilder(func() (runtime.Object, reconciler.DesiredState, error) {
-		return fn(c == nil || c.Disabled, c)
+		return fn(parent, *c)
 	})
 }
 
-func ResourceBuilders(object interface{}) []reconciler.ResourceBuilder {
+func ResourceBuilders(parent reconciler.ResourceOwner, object interface{}) []reconciler.ResourceBuilder {
 	config := &ComponentConfig{
 		Disabled: true,
 	}
 	if object != nil {
 		config = object.(*ComponentConfig)
 	}
-	if config.Name == "" {
-		config.Name = "thanos-operator"
-	}
-	if config.Namespace == "" {
-		config.Namespace = "default"
-	}
 	resources := []reconciler.ResourceBuilder{
-		config.build(Operator),
-		config.build(ClusterRole),
-		config.build(ClusterRoleBinding),
-		config.build(ServiceAccount),
-		func() (runtime.Object, reconciler.DesiredState, error) {
-			return CRD(config, v1alpha1.GroupVersion.Group, "objectstores")
-		},
-		func() (runtime.Object, reconciler.DesiredState, error) {
-			return CRD(config, v1alpha1.GroupVersion.Group, "thanos")
-		},
-		func() (runtime.Object, reconciler.DesiredState, error) {
-			return CRD(config, v1alpha1.GroupVersion.Group, "storeendpoints")
-		},
+		config.build(parent, Operator),
+		config.build(parent, ClusterRole),
+		config.build(parent, ClusterRoleBinding),
+		config.build(parent, ServiceAccount),
+	}
+	// We don't return with an absent state since we don't want them to be removed
+	if !config.Disabled {
+		resources = append(resources,
+			func() (runtime.Object, reconciler.DesiredState, error) {
+				return CRD(config, v1alpha1.GroupVersion.Group, "objectstores")
+			},
+			func() (runtime.Object, reconciler.DesiredState, error) {
+				return CRD(config, v1alpha1.GroupVersion.Group, "thanos")
+			},
+			func() (runtime.Object, reconciler.DesiredState, error) {
+				return CRD(config, v1alpha1.GroupVersion.Group, "storeendpoints")
+			},
+		)
 	}
 	return resources
 }
@@ -94,9 +91,6 @@ func CRD(config *ComponentConfig, group string, kind string) (runtime.Object, re
 		ObjectMeta: v1.ObjectMeta{
 			Name: fmt.Sprintf("%s.%s", kind, group),
 		},
-	}
-	if config.Disabled {
-		return crd, reconciler.StateAbsent, nil
 	}
 	crdFile, err := crds.Root.Open(fmt.Sprintf("/%s_%s.yaml", group, kind))
 	if err != nil {
@@ -131,20 +125,20 @@ func CRD(config *ComponentConfig, group string, kind string) (runtime.Object, re
 	}), nil
 }
 
-func Operator(disabled bool, config *ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
+func Operator(parent reconciler.ResourceOwner, config ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
 	deployment := &appsv1.Deployment{
-		ObjectMeta: config.MetaOverrides.Merge(config.objectMeta()),
+		ObjectMeta: config.MetaOverrides.Merge(config.objectMeta(parent)),
 	}
-	if disabled {
+	if config.Disabled {
 		return deployment, reconciler.StateAbsent, nil
 	}
 	deployment.Spec = appsv1.DeploymentSpec{
 		Template: corev1.PodTemplateSpec{
 			ObjectMeta: config.WorkloadMetaOverrides.Merge(v1.ObjectMeta{
-				Labels: config.labelSelector(),
+				Labels: config.labelSelector(parent),
 			}),
 			Spec: config.WorkloadOverrides.Override(corev1.PodSpec{
-				ServiceAccountName: config.objectMeta().Name,
+				ServiceAccountName: config.objectMeta(parent).Name,
 				Containers: []corev1.Container{
 					config.ContainerOverrides.Override(corev1.Container{
 						Name:    "thanos-operator",
@@ -166,17 +160,17 @@ func Operator(disabled bool, config *ComponentConfig) (runtime.Object, reconcile
 			}),
 		},
 		Selector: &v1.LabelSelector{
-			MatchLabels: config.labelSelector(),
+			MatchLabels: config.labelSelector(parent),
 		},
 	}
 	return deployment, reconciler.StatePresent, nil
 }
 
-func ServiceAccount(disabled bool, config *ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
+func ServiceAccount(parent reconciler.ResourceOwner, config ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
 	sa := &corev1.ServiceAccount{
-		ObjectMeta: config.MetaOverrides.Merge(config.objectMeta()),
+		ObjectMeta: config.MetaOverrides.Merge(config.objectMeta(parent)),
 	}
-	if disabled {
+	if config.Disabled {
 		return sa, reconciler.StateAbsent, nil
 	}
 	// remove internal sa in case an externally provided service account is used
@@ -186,16 +180,16 @@ func ServiceAccount(disabled bool, config *ComponentConfig) (runtime.Object, rec
 	return sa, reconciler.StatePresent, nil
 }
 
-func ClusterRoleBinding(disabled bool, config *ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
+func ClusterRoleBinding(parent reconciler.ResourceOwner, config ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
 	rb := &rbacv1.ClusterRoleBinding{
-		ObjectMeta: config.MetaOverrides.Merge(config.clusterObjectMeta()),
+		ObjectMeta: config.MetaOverrides.Merge(config.clusterObjectMeta(parent)),
 	}
 
-	if disabled {
+	if config.Disabled {
 		return rb, reconciler.StateAbsent, nil
 	}
 
-	sa := config.objectMeta().Name
+	sa := config.objectMeta(parent).Name
 	if config.WorkloadOverrides != nil && config.WorkloadOverrides.ServiceAccountName != "" {
 		sa = config.WorkloadOverrides.ServiceAccountName
 	}
@@ -204,23 +198,23 @@ func ClusterRoleBinding(disabled bool, config *ComponentConfig) (runtime.Object,
 		{
 			Kind:      rbacv1.ServiceAccountKind,
 			Name:      sa,
-			Namespace: config.Namespace,
+			Namespace: parent.GetControlNamespace(),
 		},
 	}
 	rb.RoleRef = rbacv1.RoleRef{
 		APIGroup: rbacv1.GroupName,
 		Kind:     "ClusterRole",
-		Name:     config.objectMeta().Name,
+		Name:     config.objectMeta(parent).Name,
 	}
 
 	return rb, reconciler.StatePresent, nil
 }
 
-func ClusterRole(disabled bool, config *ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
+func ClusterRole(parent reconciler.ResourceOwner, config ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
 	role := &rbacv1.ClusterRole{
-		ObjectMeta: config.MetaOverrides.Merge(config.clusterObjectMeta()),
+		ObjectMeta: config.MetaOverrides.Merge(config.clusterObjectMeta(parent)),
 	}
-	if disabled {
+	if config.Disabled {
 		return role, reconciler.StateAbsent, nil
 	}
 	// remove internal sa in case an externally provided service account is used
@@ -245,32 +239,32 @@ func ClusterRole(disabled bool, config *ComponentConfig) (runtime.Object, reconc
 	}).Decode(roleAsByte, &schema.GroupVersionKind{}, role)
 
 	// overwrite the objectmeta that has been read from file
-	role.ObjectMeta = config.MetaOverrides.Merge(config.clusterObjectMeta())
+	role.ObjectMeta = config.MetaOverrides.Merge(config.clusterObjectMeta(parent))
 	role.TypeMeta.Kind = ""
 	role.TypeMeta.APIVersion = ""
 
 	return role, reconciler.StatePresent, err
 }
 
-func (c *ComponentConfig) objectMeta() v1.ObjectMeta {
+func (c *ComponentConfig) objectMeta(parent reconciler.ResourceOwner) v1.ObjectMeta {
 	meta := v1.ObjectMeta{
-		Name:      c.Name,
-		Namespace: c.Namespace,
-		Labels:    c.labelSelector(),
+		Name:      parent.GetName() + "-thanos-operator",
+		Namespace: parent.GetControlNamespace(),
+		Labels:    c.labelSelector(parent),
 	}
 	return meta
 }
 
-func (c *ComponentConfig) clusterObjectMeta() v1.ObjectMeta {
+func (c *ComponentConfig) clusterObjectMeta(parent reconciler.ResourceOwner) v1.ObjectMeta {
 	meta := v1.ObjectMeta{
-		Name:   c.Name,
-		Labels: c.labelSelector(),
+		Name:   parent.GetName() + "-thanos-operator",
+		Labels: c.labelSelector(parent),
 	}
 	return meta
 }
 
-func (c *ComponentConfig) labelSelector() map[string]string {
+func (c *ComponentConfig) labelSelector(parent reconciler.ResourceOwner) map[string]string {
 	return map[string]string{
-		"banzaicloud.io/operator": c.Name,
+		"banzaicloud.io/operator": parent.GetName() + "-thanos-operator",
 	}
 }

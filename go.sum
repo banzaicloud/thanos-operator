@@ -33,8 +33,8 @@ github.com/asaskevich/govalidator v0.0.0-20180720115003-f9ffefc3facf/go.mod h1:l
 github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a/go.mod h1:lB+ZfQJz7igIIfQNfa7Ml4HSf2uFQQRzpGGRXenZAgY=
 github.com/banzaicloud/k8s-objectmatcher v1.1.0 h1:KHWn9Oxh21xsaGKBHWElkaRrr4ypCDyrh15OB1zHtAw=
 github.com/banzaicloud/k8s-objectmatcher v1.1.0/go.mod h1:gGaElvgkqa0Lk1khRr+jel/nsCLfzhLnD3CEWozpk9k=
-github.com/banzaicloud/operator-tools v0.6.1-0.20200207104819-89c1a012ca53 h1:lcgSPC2BQMmxJ28QZIVeYdmPzTYf1Lu0J9biuo9ie00=
-github.com/banzaicloud/operator-tools v0.6.1-0.20200207104819-89c1a012ca53/go.mod h1:tOY7F9fjNThqSLvVQOY9KBxT9ixol+uASMbQs4nhlHQ=
+github.com/banzaicloud/operator-tools v0.7.0 h1:sEkSnDgHvCqUQiFRJIyxIY/tyc1orArgnVqQBwQ892I=
+github.com/banzaicloud/operator-tools v0.7.0/go.mod h1:64+rDAroHZuOYQ3gcT28SORwG/Sg0PL5T9NGq8rRme8=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 h1:xJ4a3vCFaGF/jqvzLMYoU8P317H5OQ+Via4RmuPwCS0=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/bitly/go-simplejson v0.5.0/go.mod h1:cXHtHw4XUPsvGaxgjIAn8PhEWG9NfngEKAMDJEczWVA=
@@ -242,6 +242,7 @@ github.com/onsi/gomega v0.0.0-20190113212917-5533ce8a0da3/go.mod h1:ex+gbHU/CVuB
 github.com/onsi/gomega v1.3.0/go.mod h1:C1qb7wdrVGGVU+Z6iS04AVkA3Q65CEZX59MT0QO5uiA=
 github.com/onsi/gomega v1.5.0 h1:izbySO9zDPmjJ8rDjLvkA2zJHIo+HkYXHnf7eN7SSyo=
 github.com/onsi/gomega v1.5.0/go.mod h1:ex+gbHU/CVuBBDIJjb2X0qEXbFg53c61hWP/1CpauHY=
+github.com/pborman/uuid v1.2.0 h1:J7Q5mO4ysT1dv8hyrUGHb9+ooztCXu1D8MY8DZYsu3g=
 github.com/pborman/uuid v1.2.0/go.mod h1:X/NO0urCmaxf9VXbdlT7C2Yzkj2IKimNn4k+gtPdI/k=
 github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/94hg7ilaic=
 github.com/peterbourgon/diskv v2.0.1+incompatible/go.mod h1:uqqh8zWWbv1HBMNONnaR/tNboyR3/BZd58JJSHlUSCU=

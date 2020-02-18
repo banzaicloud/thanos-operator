@@ -29,8 +29,13 @@ github.com/asaskevich/govalidator v0.0.0-20180720115003-f9ffefc3facf/go.mod h1:l
 github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a/go.mod h1:lB+ZfQJz7igIIfQNfa7Ml4HSf2uFQQRzpGGRXenZAgY=
 github.com/banzaicloud/k8s-objectmatcher v1.1.0 h1:KHWn9Oxh21xsaGKBHWElkaRrr4ypCDyrh15OB1zHtAw=
 github.com/banzaicloud/k8s-objectmatcher v1.1.0/go.mod h1:gGaElvgkqa0Lk1khRr+jel/nsCLfzhLnD3CEWozpk9k=
-github.com/banzaicloud/operator-tools v0.6.1-0.20200207104819-89c1a012ca53 h1:lcgSPC2BQMmxJ28QZIVeYdmPzTYf1Lu0J9biuo9ie00=
-github.com/banzaicloud/operator-tools v0.6.1-0.20200207104819-89c1a012ca53/go.mod h1:tOY7F9fjNThqSLvVQOY9KBxT9ixol+uASMbQs4nhlHQ=
+github.com/banzaicloud/operator-tools v0.6.1-0.20200212154950-aee843c7f332 h1:fPBFJHKyJQ5hWEH/yTAtSIPjJJ7HN0x7EtlEjTrxf/8=
+github.com/banzaicloud/operator-tools v0.6.1-0.20200212154950-aee843c7f332/go.mod h1:Rcxsrnn1X2cxTajbo+mHUyl979PnUj3SDiGRibjI4X0=
+github.com/banzaicloud/operator-tools v0.6.1-0.20200213112020-554868b83e3b/go.mod h1:Rcxsrnn1X2cxTajbo+mHUyl979PnUj3SDiGRibjI4X0=
+github.com/banzaicloud/operator-tools v0.6.1-0.20200217204318-13d8a21c6ed8 h1:fAr3yjiEFHG2f5Wh4ahM9T3npi3xUeHibnkuxbLLnFg=
+github.com/banzaicloud/operator-tools v0.6.1-0.20200217204318-13d8a21c6ed8/go.mod h1:64+rDAroHZuOYQ3gcT28SORwG/Sg0PL5T9NGq8rRme8=
+github.com/banzaicloud/operator-tools v0.7.0 h1:sEkSnDgHvCqUQiFRJIyxIY/tyc1orArgnVqQBwQ892I=
+github.com/banzaicloud/operator-tools v0.7.0/go.mod h1:64+rDAroHZuOYQ3gcT28SORwG/Sg0PL5T9NGq8rRme8=
 github.com/banzaicloud/vfsgen v0.0.0-20200203103248-c48ce8603af1 h1:mU1NWbBhWFQmpc4Vop9XWWHQQ3wINvZT666c3OX52Cw=
 github.com/banzaicloud/vfsgen v0.0.0-20200203103248-c48ce8603af1/go.mod h1:kkOp3NatLFRDKepb9dRDhgu5JWLahgVGIHiCW7wufv0=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 h1:xJ4a3vCFaGF/jqvzLMYoU8P317H5OQ+Via4RmuPwCS0=
@@ -266,6 +271,7 @@ github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6Mwd
 github.com/soheilhy/cmux v0.1.3/go.mod h1:IM3LyeVVIOuxMH7sFAkER9+bJ4dT7Ms6E4xg4kGIyLM=
 github.com/spf13/afero v1.1.2/go.mod h1:j4pytiNVoe2o6bmDsKpLACNPDBIoEAkihy7loJ1B0CQ=
 github.com/spf13/afero v1.2.2/go.mod h1:9ZxEEn6pIJ8Rxe320qSDBk6AsU0r9pR7Q4OcevTdifk=
+github.com/spf13/cast v1.3.0 h1:oget//CVOEoFewqQxwr0Ej5yjygnqGkvggSE/gB35Q8=
 github.com/spf13/cast v1.3.0/go.mod h1:Qx5cxh0v+4UWYiBimWS+eyWzqEqokIECu5etghLkUJE=
 github.com/spf13/cobra v0.0.0-20180319062004-c439c4fa0937/go.mod h1:1l0Ry5zgKvJasoi3XT1TypsSe7PqH0Sj9dhYf7v3XqQ=
 github.com/spf13/cobra v0.0.5/go.mod h1:3K3wKZymM7VvHMDS9+Akkh4K60UwM26emMESw8tLCHU=
