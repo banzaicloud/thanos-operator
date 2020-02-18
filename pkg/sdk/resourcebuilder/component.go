@@ -64,15 +64,20 @@ func ResourceBuilders(parent reconciler.ResourceOwner, object interface{}) []rec
 		config.build(parent, ClusterRole),
 		config.build(parent, ClusterRoleBinding),
 		config.build(parent, ServiceAccount),
-		func() (runtime.Object, reconciler.DesiredState, error) {
-			return CRD(config, v1alpha1.GroupVersion.Group, "objectstores")
-		},
-		func() (runtime.Object, reconciler.DesiredState, error) {
-			return CRD(config, v1alpha1.GroupVersion.Group, "thanos")
-		},
-		func() (runtime.Object, reconciler.DesiredState, error) {
-			return CRD(config, v1alpha1.GroupVersion.Group, "storeendpoints")
-		},
+	}
+	// We don't return with an absent state since we don't want them to be removed
+	if !config.Disabled {
+		resources = append(resources,
+			func() (runtime.Object, reconciler.DesiredState, error) {
+				return CRD(config, v1alpha1.GroupVersion.Group, "objectstores")
+			},
+			func() (runtime.Object, reconciler.DesiredState, error) {
+				return CRD(config, v1alpha1.GroupVersion.Group, "thanos")
+			},
+			func() (runtime.Object, reconciler.DesiredState, error) {
+				return CRD(config, v1alpha1.GroupVersion.Group, "storeendpoints")
+			},
+		)
 	}
 	return resources
 }
