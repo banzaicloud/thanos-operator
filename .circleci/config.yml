@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  helm: banzaicloud/helm@dev:0.0.7
+  helm: banzaicloud/helm@0.0.7
   docker: circleci/docker@0.5.13
 
 jobs:
@@ -45,7 +45,7 @@ jobs:
       MINIKUBE_WANTREPORTERRORPROMPT: 'false'
       MINIKUBE_HOME: '/home/circleci'
       CHANGE_MINIKUBE_NONE_USER: 'true'
-      HELM_VERSION: 'v3.0.3'
+      HELM_VERSION: 'v3.1.1'
 #      GOPATH: '/home/circleci/go'
     steps:
       - run:
