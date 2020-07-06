@@ -111,7 +111,13 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 					dataVolume.PersistentVolumeClaim.PersistentVolumeSource.ClaimName = c.getName()
 				}
 			}
-			deployment.Spec.Template.Spec.Volumes = append(deployment.Spec.Template.Spec.Volumes, dataVolume.GetVolume("data-volume"))
+
+			volume, err := dataVolume.GetVolume("data-volume")
+			if err != nil {
+				return deployment, nil, err
+			}
+
+			deployment.Spec.Template.Spec.Volumes = append(deployment.Spec.Template.Spec.Volumes, volume)
 		}
 
 		return deployment, reconciler.StatePresent, nil
