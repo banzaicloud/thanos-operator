@@ -45,9 +45,14 @@ func init() {
 func main() {
 	var metricsAddr string
 	var enableLeaderElection bool
+	var leaderElectionId string
+	var leaderElectionNamespace string
+
 	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
 		"Enable leader election for controller manager. Enabling this will ensure there is only one active controller manager.")
+	flag.StringVar(&leaderElectionId, "leader-election-id", "thanos-operator", "The ID of the leader election")
+	flag.StringVar(&leaderElectionNamespace, "leader-election-ns", "thanos-operator-system", "The NS  of the leader election")
 	flag.Parse()
 
 	ctrl.SetLogger(zap.New(func(o *zap.Options) {
@@ -55,10 +60,12 @@ func main() {
 	}))
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		Scheme:             scheme,
-		MetricsBindAddress: metricsAddr,
-		LeaderElection:     enableLeaderElection,
-		Port:               9443,
+		Scheme:                  scheme,
+		MetricsBindAddress:      metricsAddr,
+		LeaderElection:          enableLeaderElection,
+		LeaderElectionID:        leaderElectionId,
+		LeaderElectionNamespace: leaderElectionNamespace,
+		Port:                    9443,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")

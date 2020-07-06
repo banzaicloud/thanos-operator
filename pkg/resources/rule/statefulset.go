@@ -109,13 +109,20 @@ func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, e
 					Name:      "data-volume",
 					MountPath: r.Thanos.Spec.Rule.DataDir,
 				})
-				statefulset.Spec.Template.Spec.Volumes = append(statefulset.Spec.Template.Spec.Volumes, r.Thanos.Spec.Rule.DataVolume.GetVolume("data-volume"))
+
+				volume, err := r.Thanos.Spec.Rule.DataVolume.GetVolume("data-volume")
+				if err != nil {
+					return statefulset, reconciler.StateAbsent, err
+				}
+
+				statefulset.Spec.Template.Spec.Volumes = append(statefulset.Spec.Template.Spec.Volumes, volume)
 			}
 
 		}
 
 		return statefulset, reconciler.StatePresent, nil
 	}
+
 	delete := &appsv1.StatefulSet{
 		ObjectMeta: r.getMeta(),
 	}
