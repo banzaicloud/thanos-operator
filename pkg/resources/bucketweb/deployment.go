@@ -19,6 +19,7 @@ import (
 	"math"
 	"strconv"
 
+	"github.com/Masterminds/semver"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
@@ -31,6 +32,24 @@ import (
 func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error) {
 	if b.ObjectStore.Spec.BucketWeb != nil {
 		bucketWeb := b.ObjectStore.Spec.BucketWeb.DeepCopy()
+
+		var containerArgs = []string{
+			"bucket",
+			"web",
+			"--log.level=info",
+			"--http-address=" + bucketWeb.HTTPAddress,
+			// TODO: get secret file path from secret mount
+			"--objstore.config-file=/etc/config/" + b.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Key,
+			"--refresh=" + strconv.Itoa(int(math.Floor(bucketWeb.Refresh.Duration.Seconds()))) + "s",
+			"--timeout=" + strconv.Itoa(int(math.Floor(bucketWeb.Timeout.Duration.Seconds()))) + "s",
+		}
+
+		imgSem, _ := semver.NewVersion(bucketWeb.Image.Tag)
+		breakingSem, _ := semver.NewConstraint("0.13.0")
+		if breakingSem.Check(imgSem) {
+			containerArgs = append([]string{"tools"}, containerArgs...)
+		}
+
 		var deployment = &appsv1.Deployment{
 			ObjectMeta: b.getMeta(),
 			Spec: appsv1.DeploymentSpec{
@@ -45,16 +64,7 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 							{
 								Name:  Name,
 								Image: fmt.Sprintf("%s:%s", bucketWeb.Image.Repository, bucketWeb.Image.Tag),
-								Args: []string{
-									"bucket",
-									"web",
-									"--log.level=info",
-									"--http-address=" + bucketWeb.HTTPAddress,
-									// TODO: get secret file path from secret mount
-									"--objstore.config-file=/etc/config/" + b.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Key,
-									"--refresh=" + strconv.Itoa(int(math.Floor(bucketWeb.Refresh.Duration.Seconds()))) + "s",
-									"--timeout=" + strconv.Itoa(int(math.Floor(bucketWeb.Timeout.Duration.Seconds()))) + "s",
-								},
+								Args:  containerArgs,
 								Ports: []corev1.ContainerPort{
 									{
 										Name:          "http",
