@@ -23,9 +23,10 @@ import (
 
 func (q *Query) serviceMonitor() (runtime.Object, reconciler.DesiredState, error) {
 	if q.Thanos.Spec.Query != nil && q.Thanos.Spec.Query.Metrics.ServiceMonitor {
+		query := q.Thanos.Spec.Query.DeepCopy()
 		metrics := q.Thanos.Spec.Query.Metrics
 		serviceMonitor := &prometheus.ServiceMonitor{
-			ObjectMeta: q.getMeta(q.getName()),
+			ObjectMeta: query.WorkloadMetaOverrides.Merge(q.getMeta(q.getName())),
 			Spec: prometheus.ServiceMonitorSpec{
 				Endpoints: []prometheus.Endpoint{
 					{

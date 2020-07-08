@@ -63,9 +63,6 @@ func (q *Query) getLabels() resources.Labels {
 	}.Merge(
 		q.GetCommonLabels(),
 	)
-	if q.Thanos.Spec.Query != nil {
-		labels.Merge(q.Thanos.Spec.Query.Labels)
-	}
 	return labels
 }
 
@@ -88,9 +85,6 @@ func (q *Query) getMeta(name string, params ...string) metav1.ObjectMeta {
 	}
 	meta := q.GetObjectMeta(name, namespace)
 	meta.Labels = q.getLabels()
-	if q.Thanos.Spec.Query != nil {
-		meta.Annotations = q.Thanos.Spec.Query.Annotations
-	}
 	return meta
 }
 

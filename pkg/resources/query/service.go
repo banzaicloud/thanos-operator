@@ -26,7 +26,7 @@ func (q *Query) service() (runtime.Object, reconciler.DesiredState, error) {
 	if q.Thanos.Spec.Query != nil {
 		query := q.Thanos.Spec.Query.DeepCopy()
 		queryService := &corev1.Service{
-			ObjectMeta: q.getMeta(q.getName()),
+			ObjectMeta: query.WorkloadMetaOverrides.Merge(q.getMeta(q.getName())),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
