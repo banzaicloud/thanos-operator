@@ -20,7 +20,7 @@ import (
 
 	"github.com/banzaicloud/operator-tools/pkg/prometheus"
 	"github.com/banzaicloud/thanos-operator/controllers"
-	monitoringv1alpha1 "github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
+	thanosv1alpha1 "github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -37,7 +37,7 @@ var (
 func init() {
 	_ = clientgoscheme.AddToScheme(scheme)
 
-	_ = monitoringv1alpha1.AddToScheme(scheme)
+	_ = thanosv1alpha1.AddToScheme(scheme)
 	_ = prometheus.AddToScheme(scheme)
 	// +kubebuilder:scaffold:scheme
 }
@@ -51,13 +51,17 @@ func main() {
 	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
 		"Enable leader election for controller manager. Enabling this will ensure there is only one active controller manager.")
-	flag.StringVar(&leaderElectionId, "leader-election-id", "thanos-operator", "The ID of the leader election")
-	flag.StringVar(&leaderElectionNamespace, "leader-election-ns", "thanos-operator-system", "The NS  of the leader election")
+	flag.StringVar(&leaderElectionId, "leader-election-id", "", "The ID of the leader election")
+	flag.StringVar(&leaderElectionNamespace, "leader-election-ns", "", "The NS  of the leader election")
 	flag.Parse()
 
 	ctrl.SetLogger(zap.New(func(o *zap.Options) {
 		o.Development = true
 	}))
+
+	if leaderElectionId == "" {
+		leaderElectionId = "thanos-operator." + thanosv1alpha1.GroupVersion.String()
+	}
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                  scheme,
