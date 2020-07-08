@@ -55,7 +55,6 @@ func (r *ruleInstance) getVolumeMeta(name string) metav1.ObjectMeta {
 		},
 	}
 	meta.Labels = r.getLabels()
-	meta.Annotations = r.Thanos.Spec.Rule.Annotations
 	return meta
 }
 
@@ -75,7 +74,6 @@ func (r *ruleInstance) getMeta(suffix ...string) metav1.ObjectMeta {
 		},
 	}
 	meta.Labels = r.getLabels()
-	meta.Annotations = r.Thanos.Spec.Rule.Annotations
 	return meta
 }
 
