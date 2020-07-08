@@ -20,10 +20,12 @@ import (
 	"strconv"
 
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
+	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -36,6 +38,10 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 		}
 
 		deployment.Spec = appsv1.DeploymentSpec{
+			Replicas: utils.IntPointer(1),
+			Selector: &metav1.LabelSelector{
+				MatchLabels: c.getLabels(),
+			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: compactor.WorkloadMetaOverrides.Merge(c.getMeta()),
 				Spec: compactor.WorkloadOverrides.Override(corev1.PodSpec{
