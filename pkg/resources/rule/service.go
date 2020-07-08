@@ -26,7 +26,7 @@ func (r *ruleInstance) service() (runtime.Object, reconciler.DesiredState, error
 	if r.Thanos.Spec.Rule != nil {
 		rule := r.Thanos.Spec.Rule.DeepCopy()
 		storeService := &corev1.Service{
-			ObjectMeta: r.getMeta(),
+			ObjectMeta: rule.MetaOverrides.Merge(r.getMeta()),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{

@@ -24,8 +24,9 @@ import (
 func (r *ruleInstance) serviceMonitor() (runtime.Object, reconciler.DesiredState, error) {
 	if r.Thanos.Spec.Rule != nil && r.Thanos.Spec.Rule.Metrics.ServiceMonitor {
 		metrics := r.Thanos.Spec.Rule.Metrics
+		rule := r.Thanos.Spec.Rule.DeepCopy()
 		serviceMonitor := &prometheus.ServiceMonitor{
-			ObjectMeta: r.getMeta(),
+			ObjectMeta: rule.MetaOverrides.Merge(r.getMeta()),
 			Spec: prometheus.ServiceMonitorSpec{
 				Endpoints: []prometheus.Endpoint{
 					{

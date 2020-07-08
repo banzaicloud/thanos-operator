@@ -25,9 +25,10 @@ import (
 func (r *ruleInstance) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
 	if r.Thanos.Spec.Rule != nil &&
 		r.Thanos.Spec.Rule.HTTPIngress != nil {
-		ruleIngress := r.Thanos.Spec.Rule.HTTPIngress
+		rule := r.Thanos.Spec.Rule.DeepCopy()
+		ruleIngress := rule.HTTPIngress
 		ingress := &v1beta1.Ingress{
-			ObjectMeta: r.getMeta("http"),
+			ObjectMeta: rule.MetaOverrides.Merge(r.getMeta("http")),
 			Spec: v1beta1.IngressSpec{
 				Rules: []v1beta1.IngressRule{
 					{
