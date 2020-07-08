@@ -58,17 +58,11 @@ func (c *Compactor) getLabels() resources.Labels {
 	labels := resources.Labels{
 		resources.NameLabel: c.getName(),
 	}.Merge(c.GetCommonLabels())
-	if c.ObjectStore.Spec.Compactor != nil {
-		labels.Merge(c.ObjectStore.Spec.Compactor.Labels)
-	}
 	return labels
 }
 
 func (c *Compactor) getMeta() metav1.ObjectMeta {
 	meta := c.GetObjectMeta(c.getName())
 	meta.Labels = c.getLabels()
-	if c.ObjectStore.Spec.Compactor != nil {
-		meta.Annotations = c.ObjectStore.Spec.Compactor.Annotations
-	}
 	return meta
 }

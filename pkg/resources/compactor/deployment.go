@@ -20,75 +20,61 @@ import (
 	"strconv"
 
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
-	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
+	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
 func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error) {
 	if c.ObjectStore.Spec.Compactor != nil {
 		compactor := c.ObjectStore.Spec.Compactor.DeepCopy()
-		var deployment = &appsv1.Deployment{
-			ObjectMeta: c.getMeta(),
-			Spec: appsv1.DeploymentSpec{
-				Replicas: utils.IntPointer(1),
-				Selector: &metav1.LabelSelector{
-					MatchLabels: c.getLabels(),
-				},
-				Template: corev1.PodTemplateSpec{
-					ObjectMeta: c.getMeta(),
-					Spec: corev1.PodSpec{
-						Containers: []corev1.Container{
-							{
-								Name:  Name,
-								Image: fmt.Sprintf("%s:%s", compactor.Image.Repository, compactor.Image.Tag),
-								Args: []string{
-									"compact",
-									"--log.level=info",
-									"--http-address=" + compactor.HTTPAddress,
-									"--http-grace-period=" + strconv.Itoa(int(math.Floor(compactor.HTTPGracePeriod.Duration.Seconds()))) + "s",
-									"--data-dir=" + compactor.DataDir,
-									// TODO: get secret file path from secret mount
-									"--objstore.config-file=/etc/config/" + c.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Key,
-									"--consistency-delay=" + strconv.Itoa(int(math.Floor(compactor.ConsistencyDelay.Duration.Seconds()))) + "s",
-									"--retention.resolution-raw=" + strconv.Itoa(int(math.Floor(compactor.RetentionResolutionRaw.Duration.Seconds()))) + "s",
-									"--retention.resolution-5m=" + strconv.Itoa(int(math.Floor(compactor.RetentionResolution5m.Duration.Seconds()))) + "s",
-									"--retention.resolution-1h=" + strconv.Itoa(int(math.Floor(compactor.RetentionResolution1h.Duration.Seconds()))) + "s",
-									"--compact.concurrency=" + strconv.Itoa(compactor.CompactConcurrency),
-								},
-								Ports: []corev1.ContainerPort{
-									{
-										Name:          "http",
-										ContainerPort: resources.GetPort(compactor.HTTPAddress),
-										Protocol:      corev1.ProtocolTCP,
-									},
-								},
-								VolumeMounts: []corev1.VolumeMount{
-									{
-										Name:      "objectstore-secret",
-										ReadOnly:  true,
-										MountPath: "/etc/config/",
-									},
-								},
-								Resources:       compactor.Resources,
-								ImagePullPolicy: corev1.PullPolicy(compactor.Image.PullPolicy),
+
+		deployment := &appsv1.Deployment{
+			ObjectMeta: compactor.MetaOverrides.Merge(c.getMeta()),
+		}
+
+		deployment.Spec = appsv1.DeploymentSpec{
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: compactor.WorkloadMetaOverrides.Merge(c.getMeta()),
+				Spec: compactor.WorkloadOverrides.Override(corev1.PodSpec{
+					Containers: []corev1.Container{
+						compactor.ContainerOverrides.Override(corev1.Container{
+							Name:  Name,
+							Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
+							Args: []string{
+								"compact",
+								"--log.level=info",
+								"--http-address=" + compactor.HTTPAddress,
+								"--http-grace-period=" + strconv.Itoa(int(math.Floor(compactor.HTTPGracePeriod.Duration.Seconds()))) + "s",
+								"--data-dir=" + compactor.DataDir,
+								// TODO: get secret file path from secret mount
+								"--objstore.config-file=/etc/config/" + c.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Key,
+								"--consistency-delay=" + strconv.Itoa(int(math.Floor(compactor.ConsistencyDelay.Duration.Seconds()))) + "s",
+								"--retention.resolution-raw=" + strconv.Itoa(int(math.Floor(compactor.RetentionResolutionRaw.Duration.Seconds()))) + "s",
+								"--retention.resolution-5m=" + strconv.Itoa(int(math.Floor(compactor.RetentionResolution5m.Duration.Seconds()))) + "s",
+								"--retention.resolution-1h=" + strconv.Itoa(int(math.Floor(compactor.RetentionResolution1h.Duration.Seconds()))) + "s",
+								"--compact.concurrency=" + strconv.Itoa(compactor.CompactConcurrency),
 							},
-						},
-						Volumes: []corev1.Volume{
-							{
-								Name: "objectstore-secret",
-								VolumeSource: corev1.VolumeSource{
-									Secret: &corev1.SecretVolumeSource{
-										SecretName: c.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Name,
-									},
+							Ports: []corev1.ContainerPort{
+								{
+									Name:          "http",
+									ContainerPort: resources.GetPort(compactor.HTTPAddress),
+									Protocol:      corev1.ProtocolTCP,
 								},
 							},
-						},
+							VolumeMounts: []corev1.VolumeMount{
+								{
+									Name:      "objectstore-secret",
+									ReadOnly:  true,
+									MountPath: "/etc/config/",
+								},
+							},
+							ImagePullPolicy: corev1.PullIfNotPresent,
+						}),
 					},
-				},
+				}),
 			},
 		}
 
