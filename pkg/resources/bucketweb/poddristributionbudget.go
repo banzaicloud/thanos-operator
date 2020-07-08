@@ -25,9 +25,9 @@ import (
 //nolint:golint,unused
 func (b *BucketWeb) podDistributionBucket() (runtime.Object, reconciler.DesiredState, error) {
 	if b.ObjectStore.Spec.BucketWeb != nil {
-
+		bucketWeb := b.ObjectStore.Spec.BucketWeb.DeepCopy()
 		return &policyv1beta1.PodDisruptionBudget{
-			ObjectMeta: b.getMeta(),
+			ObjectMeta: bucketWeb.MetaOverrides.Merge(b.getMeta()),
 			Spec: policyv1beta1.PodDisruptionBudgetSpec{
 				MinAvailable: &intstr.IntOrString{IntVal: 1},
 				Selector:     &metav1.LabelSelector{},

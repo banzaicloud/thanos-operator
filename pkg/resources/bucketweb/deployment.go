@@ -42,7 +42,7 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 				ObjectMeta: bucketWeb.WorkloadMetaOverrides.Merge(b.getMeta()),
 				Spec: bucketWeb.WorkloadOverrides.Override(corev1.PodSpec{
 					Containers: []corev1.Container{
-						{
+						bucketWeb.ContainerOverrides.Override(corev1.Container{
 							Name:  Name,
 							Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
 							Ports: []corev1.ContainerPort{
@@ -60,7 +60,7 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 								},
 							},
 							ImagePullPolicy: corev1.PullIfNotPresent,
-						},
+						}),
 					},
 					Volumes: []corev1.Volume{
 						{
@@ -72,8 +72,8 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 							},
 						},
 					},
-				}),
-			},
+				},
+				)},
 		}
 
 		var containerArgs = []string{

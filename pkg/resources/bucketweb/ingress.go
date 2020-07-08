@@ -26,7 +26,7 @@ func (b *BucketWeb) ingress() (runtime.Object, reconciler.DesiredState, error) {
 	if b.ObjectStore.Spec.BucketWeb != nil {
 		bucketWeb := b.ObjectStore.Spec.BucketWeb.DeepCopy()
 		var ingress = &extensionsv1beta1.Ingress{
-			ObjectMeta: b.getMeta(),
+			ObjectMeta: bucketWeb.MetaOverrides.Merge(b.getMeta()),
 			Spec: extensionsv1beta1.IngressSpec{
 				//Certificate: []extensionsv1beta1.IngressTLS{
 				//	{
