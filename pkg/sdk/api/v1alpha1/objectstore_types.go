@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/banzaicloud/operator-tools/pkg/secret"
+	"github.com/banzaicloud/operator-tools/pkg/types"
 	"github.com/banzaicloud/operator-tools/pkg/volume"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -36,9 +37,9 @@ type ObjectStoreSpec struct {
 var DefaultCompactor = &Compactor{
 	BaseObject: BaseObject{
 		Image: ImageSpec{
-			Repository: thanosImageRepository,
-			Tag:        thanosImageTag,
-			PullPolicy: defaultPullPolicy,
+			Repository: ThanosImageRepository,
+			Tag:        ThanosImageTag,
+			PullPolicy: DefaultPullPolicy,
 		},
 	},
 	Metrics: &Metrics{
@@ -93,13 +94,6 @@ type Compactor struct {
 }
 
 var DefaultBucketWeb = &BucketWeb{
-	BaseObject: BaseObject{
-		Image: ImageSpec{
-			Repository: thanosImageRepository,
-			Tag:        thanosImageTag,
-			PullPolicy: defaultPullPolicy,
-		},
-	},
 	Metrics: &Metrics{
 		Interval:       "15s",
 		Timeout:        "5s",
@@ -113,8 +107,11 @@ var DefaultBucketWeb = &BucketWeb{
 }
 
 type BucketWeb struct {
-	BaseObject `json:",inline"`
-	Metrics    *Metrics `json:"metrics,omitempty"`
+	MetaOverrides         *types.MetaBase      `json:"metaOverrides,omitempty"`
+	WorkloadMetaOverrides *types.MetaBase      `json:"workloadMetaOverrides,omitempty"`
+	WorkloadOverrides     *types.PodSpecBase   `json:"workloadOverrides,omitempty"`
+	ContainerOverrides    *types.ContainerBase `json:"containerOverrides,omitempty"`
+	Metrics               *Metrics             `json:"metrics,omitempty"`
 	// Listen host:port for HTTP endpoints.
 	HTTPAddress string `json:"httpAddress,omitempty"`
 	// Time to wait after an interrupt received for HTTP Server.

@@ -55,17 +55,11 @@ func (b *BucketWeb) getLabels() resources.Labels {
 	labels := resources.Labels{
 		resources.NameLabel: b.getName(),
 	}.Merge(b.GetCommonLabels())
-	if b.ObjectStore.Spec.BucketWeb != nil {
-		labels.Merge(b.ObjectStore.Spec.BucketWeb.Labels)
-	}
 	return labels
 }
 
 func (b *BucketWeb) getMeta() metav1.ObjectMeta {
 	meta := b.GetObjectMeta(b.getName())
 	meta.Labels = b.getLabels()
-	if b.ObjectStore.Spec.BucketWeb != nil {
-		meta.Annotations = b.ObjectStore.Spec.BucketWeb.Annotations
-	}
 	return meta
 }
