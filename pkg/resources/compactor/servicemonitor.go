@@ -24,8 +24,9 @@ import (
 func (c *Compactor) serviceMonitor() (runtime.Object, reconciler.DesiredState, error) {
 	if c.ObjectStore.Spec.Compactor != nil && c.ObjectStore.Spec.Compactor.Metrics.ServiceMonitor {
 		metrics := c.ObjectStore.Spec.Compactor.Metrics
+		compactor := c.ObjectStore.Spec.Compactor.DeepCopy()
 		serviceMonitor := &prometheus.ServiceMonitor{
-			ObjectMeta: c.getMeta(),
+			ObjectMeta: compactor.MetaOverrides.Merge(c.getMeta()),
 			Spec: prometheus.ServiceMonitorSpec{
 				Endpoints: []prometheus.Endpoint{
 					{

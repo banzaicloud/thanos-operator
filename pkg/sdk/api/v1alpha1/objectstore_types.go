@@ -35,13 +35,6 @@ type ObjectStoreSpec struct {
 }
 
 var DefaultCompactor = &Compactor{
-	BaseObject: BaseObject{
-		Image: ImageSpec{
-			Repository: ThanosImageRepository,
-			Tag:        ThanosImageTag,
-			PullPolicy: DefaultPullPolicy,
-		},
-	},
 	Metrics: &Metrics{
 		Interval:       "15s",
 		Timeout:        "5s",
@@ -61,8 +54,11 @@ var DefaultCompactor = &Compactor{
 }
 
 type Compactor struct {
-	BaseObject `json:",inline"`
-	Metrics    *Metrics `json:"metrics,omitempty"`
+	MetaOverrides         *types.MetaBase      `json:"metaOverrides,omitempty"`
+	WorkloadMetaOverrides *types.MetaBase      `json:"workloadMetaOverrides,omitempty"`
+	WorkloadOverrides     *types.PodSpecBase   `json:"workloadOverrides,omitempty"`
+	ContainerOverrides    *types.ContainerBase `json:"containerOverrides,omitempty"`
+	Metrics               *Metrics             `json:"metrics,omitempty"`
 	// Listen host:port for HTTP endpoints.
 	HTTPAddress string `json:"httpAddress,omitempty"`
 	// Time to wait after an interrupt received for HTTP Server.

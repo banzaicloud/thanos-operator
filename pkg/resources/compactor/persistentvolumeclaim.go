@@ -25,8 +25,9 @@ func (c *Compactor) persistentVolumeClaim() (runtime.Object, reconciler.DesiredS
 		c.ObjectStore.Spec.Compactor.DataVolume != nil &&
 		c.ObjectStore.Spec.Compactor.DataVolume.PersistentVolumeClaim != nil &&
 		c.ObjectStore.Spec.Compactor.DataVolume.PersistentVolumeClaim.PersistentVolumeSource.ClaimName == "" {
+		compactor := c.ObjectStore.Spec.Compactor.DeepCopy()
 		pvc := &corev1.PersistentVolumeClaim{
-			ObjectMeta: c.getMeta(),
+			ObjectMeta: compactor.MetaOverrides.Merge(c.getMeta()),
 			Spec:       c.ObjectStore.Spec.Compactor.DataVolume.PersistentVolumeClaim.PersistentVolumeClaimSpec,
 		}
 		return pvc, reconciler.StatePresent, nil
