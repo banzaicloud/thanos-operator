@@ -15,22 +15,20 @@ package v1alpha1
 
 import (
 	"github.com/banzaicloud/operator-tools/pkg/volume"
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
-	thanosImageRepository = "quay.io/thanos/thanos"
-	thanosImageTag        = "v0.10.1"
-	defaultPullPolicy     = corev1.PullIfNotPresent
+	ThanosImageRepository = "quay.io/thanos/thanos"
+	ThanosImageTag        = "v0.10.1"
 )
 
 var DefaultQuery = Query{
 	BaseObject: BaseObject{
 		Image: ImageSpec{
-			Repository: thanosImageRepository,
-			Tag:        thanosImageTag,
-			PullPolicy: defaultPullPolicy,
+			Repository: ThanosImageRepository,
+			Tag:        ThanosImageTag,
+			PullPolicy: DefaultPullPolicy,
 		},
 	},
 	Metrics: &Metrics{
@@ -47,9 +45,9 @@ var DefaultQuery = Query{
 var DefaultStoreGateway = StoreGateway{
 	BaseObject: BaseObject{
 		Image: ImageSpec{
-			Repository: thanosImageRepository,
-			Tag:        thanosImageTag,
-			PullPolicy: defaultPullPolicy,
+			Repository: ThanosImageRepository,
+			Tag:        ThanosImageTag,
+			PullPolicy: DefaultPullPolicy,
 		},
 	},
 	Metrics: &Metrics{
@@ -66,9 +64,9 @@ var DefaultStoreGateway = StoreGateway{
 var DefaultRule = Rule{
 	BaseObject: BaseObject{
 		Image: ImageSpec{
-			Repository: thanosImageRepository,
-			Tag:        thanosImageTag,
-			PullPolicy: defaultPullPolicy,
+			Repository: ThanosImageRepository,
+			Tag:        ThanosImageTag,
+			PullPolicy: DefaultPullPolicy,
 		},
 	},
 	DataDir: "/data",

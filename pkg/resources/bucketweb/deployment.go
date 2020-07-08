@@ -18,20 +18,63 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 
 	"github.com/Masterminds/semver"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
-	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
+	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
 func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error) {
 	if b.ObjectStore.Spec.BucketWeb != nil {
 		bucketWeb := b.ObjectStore.Spec.BucketWeb.DeepCopy()
+
+		deployment := &appsv1.Deployment{
+			ObjectMeta: bucketWeb.MetaOverrides.Merge(b.getMeta()),
+		}
+
+		deployment.Spec = appsv1.DeploymentSpec{
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: bucketWeb.WorkloadMetaOverrides.Merge(b.getMeta()),
+				Spec: bucketWeb.WorkloadOverrides.Override(corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  Name,
+							Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
+							Ports: []corev1.ContainerPort{
+								{
+									Name:          "http",
+									ContainerPort: resources.GetPort(bucketWeb.HTTPAddress),
+									Protocol:      corev1.ProtocolTCP,
+								},
+							},
+							VolumeMounts: []corev1.VolumeMount{
+								{
+									Name:      "objectstore-secret",
+									ReadOnly:  true,
+									MountPath: "/etc/config/",
+								},
+							},
+							ImagePullPolicy: corev1.PullIfNotPresent,
+						},
+					},
+					Volumes: []corev1.Volume{
+						{
+							Name: "objectstore-secret",
+							VolumeSource: corev1.VolumeSource{
+								Secret: &corev1.SecretVolumeSource{
+									SecretName: b.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Name,
+								},
+							},
+						},
+					},
+				}),
+			},
+		}
 
 		var containerArgs = []string{
 			"bucket",
@@ -43,59 +86,11 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 			"--refresh=" + strconv.Itoa(int(math.Floor(bucketWeb.Refresh.Duration.Seconds()))) + "s",
 			"--timeout=" + strconv.Itoa(int(math.Floor(bucketWeb.Timeout.Duration.Seconds()))) + "s",
 		}
-
-		imgSem, _ := semver.NewVersion(bucketWeb.Image.Tag)
+		imageVersion := strings.Split(deployment.Spec.Template.Spec.Containers[0].Image, ":")[1]
+		imgSem, _ := semver.NewVersion(imageVersion)
 		breakingSem, _ := semver.NewConstraint("0.13.0")
 		if breakingSem.Check(imgSem) {
 			containerArgs = append([]string{"tools"}, containerArgs...)
-		}
-
-		var deployment = &appsv1.Deployment{
-			ObjectMeta: b.getMeta(),
-			Spec: appsv1.DeploymentSpec{
-				Replicas: utils.IntPointer(1),
-				Selector: &metav1.LabelSelector{
-					MatchLabels: b.getLabels(),
-				},
-				Template: corev1.PodTemplateSpec{
-					ObjectMeta: b.getMeta(),
-					Spec: corev1.PodSpec{
-						Containers: []corev1.Container{
-							{
-								Name:  Name,
-								Image: fmt.Sprintf("%s:%s", bucketWeb.Image.Repository, bucketWeb.Image.Tag),
-								Args:  containerArgs,
-								Ports: []corev1.ContainerPort{
-									{
-										Name:          "http",
-										ContainerPort: resources.GetPort(bucketWeb.HTTPAddress),
-										Protocol:      corev1.ProtocolTCP,
-									},
-								},
-								VolumeMounts: []corev1.VolumeMount{
-									{
-										Name:      "objectstore-secret",
-										ReadOnly:  true,
-										MountPath: "/etc/config/",
-									},
-								},
-								Resources:       bucketWeb.Resources,
-								ImagePullPolicy: corev1.PullPolicy(bucketWeb.Image.PullPolicy),
-							},
-						},
-						Volumes: []corev1.Volume{
-							{
-								Name: "objectstore-secret",
-								VolumeSource: corev1.VolumeSource{
-									Secret: &corev1.SecretVolumeSource{
-										SecretName: b.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Name,
-									},
-								},
-							},
-						},
-					},
-				},
-			},
 		}
 
 		if bucketWeb.Label != "" {
