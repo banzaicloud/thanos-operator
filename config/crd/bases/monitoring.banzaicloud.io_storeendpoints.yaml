@@ -94,6 +94,19 @@ spec:
                 path:
                   type: string
               type: object
+            metaOverrides:
+              description: Foo is an example field of StoreEndpoint. Edit StoreEndpoint_types.go
+                to remove/update
+              properties:
+                annotations:
+                  additionalProperties:
+                    type: string
+                  type: object
+                labels:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
             selector:
               properties:
                 annotations:
@@ -116,8 +129,6 @@ spec:
             thanos:
               type: string
             url:
-              description: Foo is an example field of StoreEndpoint. Edit StoreEndpoint_types.go
-                to remove/update
               type: string
           required:
           - thanos

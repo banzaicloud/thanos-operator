@@ -18,6 +18,7 @@ import (
 	"fmt"
 
 	"github.com/banzaicloud/operator-tools/pkg/secret"
+	"github.com/banzaicloud/operator-tools/pkg/types"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -31,11 +32,12 @@ const (
 // StoreEndpointSpec defines the desired state of StoreEndpoint
 type StoreEndpointSpec struct {
 	// Foo is an example field of StoreEndpoint. Edit StoreEndpoint_types.go to remove/update
-	URL      string              `json:"url,omitempty"`
-	Selector *KubernetesSelector `json:"selector,omitempty"`
-	Config   secret.Secret       `json:"config,omitempty"`
-	Thanos   string              `json:"thanos"`
-	Ingress  *Ingress            `json:"ingress,omitempty"`
+	MetaOverrides *types.MetaBase     `json:"metaOverrides,omitempty"`
+	URL           string              `json:"url,omitempty"`
+	Selector      *KubernetesSelector `json:"selector,omitempty"`
+	Config        secret.Secret       `json:"config,omitempty"`
+	Thanos        string              `json:"thanos"`
+	Ingress       *Ingress            `json:"ingress,omitempty"`
 }
 
 type KubernetesSelector struct {
