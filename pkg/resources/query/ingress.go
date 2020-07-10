@@ -73,8 +73,9 @@ func (q *Query) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
 	if q.Thanos.Spec.Query != nil &&
 		q.Thanos.Spec.Query.GRPCIngress != nil {
 		queryIngress := q.Thanos.Spec.Query.GRPCIngress
+		query := q.Thanos.Spec.Query.DeepCopy()
 		ingress := &v1beta1.Ingress{
-			ObjectMeta: q.getMeta(q.getName("grpc")),
+			ObjectMeta: query.WorkloadMetaOverrides.Merge(q.getMeta(q.getName("grpc"))),
 			Spec: v1beta1.IngressSpec{
 				Rules: []v1beta1.IngressRule{
 					{
