@@ -22,10 +22,10 @@ import (
 )
 
 func (e *storeInstance) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
-	if e.Spec.Ingress != nil {
-		endpointIngress := e.Spec.Ingress
+	if e.StoreEndpoint != nil {
+		endpointIngress := e.StoreEndpoint.Spec.Ingress
 		ingress := &v1beta1.Ingress{
-			ObjectMeta: e.getMeta(),
+			ObjectMeta: e.StoreEndpoint.Spec.MetaOverrides.Merge(e.getMeta()),
 			Spec: v1beta1.IngressSpec{
 				Rules: []v1beta1.IngressRule{
 					{

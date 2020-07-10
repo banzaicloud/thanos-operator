@@ -26,7 +26,7 @@ func (s *storeInstance) service() (runtime.Object, reconciler.DesiredState, erro
 	if s.Thanos.Spec.StoreGateway != nil {
 		store := s.Thanos.Spec.StoreGateway.DeepCopy()
 		storeService := &corev1.Service{
-			ObjectMeta: s.getMeta(),
+			ObjectMeta: s.StoreEndpoint.Spec.MetaOverrides.Merge(s.getMeta()),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
