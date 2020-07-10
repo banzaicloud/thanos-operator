@@ -9,7 +9,10 @@
 ### Compactor
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
-|  | BaseObject | Yes | - |  |
+| metaOverrides | *types.MetaBase | No | - |  |
+| workloadMetaOverrides | *types.MetaBase | No | - |  |
+| workloadOverrides | *types.PodSpecBase | No | - |  |
+| containerOverrides | *types.ContainerBase | No | - |  |
 | metrics | *Metrics | No | - |  |
 | httpAddress | string | No | - | Listen host:port for HTTP endpoints.<br> |
 | httpGracePeriod | metav1.Duration | No | - | Time to wait after an interrupt received for HTTP Server.<br> |
@@ -26,7 +29,10 @@
 ### BucketWeb
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
-|  | BaseObject | Yes | - |  |
+| metaOverrides | *types.MetaBase | No | - |  |
+| workloadMetaOverrides | *types.MetaBase | No | - |  |
+| workloadOverrides | *types.PodSpecBase | No | - |  |
+| containerOverrides | *types.ContainerBase | No | - |  |
 | metrics | *Metrics | No | - |  |
 | httpAddress | string | No | - | Listen host:port for HTTP endpoints.<br> |
 | httpGracePeriod | metav1.Duration | No | - | Time to wait after an interrupt received for HTTP Server.<br> |
