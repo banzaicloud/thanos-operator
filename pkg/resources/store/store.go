@@ -54,7 +54,6 @@ func (s *storeInstance) getMeta() metav1.ObjectMeta {
 		},
 	}
 	meta.Labels = s.getLabels()
-	meta.Annotations = s.Thanos.Spec.StoreGateway.Annotations
 	return meta
 }
 
@@ -104,9 +103,6 @@ func (s *storeInstance) getLabels() resources.Labels {
 	}.Merge(
 		s.GetCommonLabels(),
 	)
-	if s.Thanos.Spec.StoreGateway != nil {
-		labels.Merge(s.Thanos.Spec.StoreGateway.Labels)
-	}
 	return labels
 }
 

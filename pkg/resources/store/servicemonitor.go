@@ -25,7 +25,7 @@ func (s *storeInstance) serviceMonitor() (runtime.Object, reconciler.DesiredStat
 	if s.Thanos.Spec.StoreGateway != nil && s.Thanos.Spec.StoreGateway.Metrics.ServiceMonitor {
 		metrics := s.Thanos.Spec.StoreGateway.Metrics
 		serviceMonitor := &prometheus.ServiceMonitor{
-			ObjectMeta: s.getMeta(),
+			ObjectMeta: s.StoreEndpoint.Spec.MetaOverrides.Merge(s.getMeta()),
 			Spec: prometheus.ServiceMonitorSpec{
 				Endpoints: []prometheus.Endpoint{
 					{
