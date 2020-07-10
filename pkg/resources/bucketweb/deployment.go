@@ -98,10 +98,10 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 		if breakingSem.Check(imgSem) {
 			containerArgs = append([]string{"tools"}, containerArgs...)
 		}
-
 		if bucketWeb.Label != "" {
-			deployment.Spec.Template.Spec.Containers[0].Args = append(deployment.Spec.Template.Spec.Containers[0].Args, "--label="+bucketWeb.Label)
+			containerArgs = append(containerArgs, "--label="+bucketWeb.Label)
 		}
+		deployment.Spec.Template.Spec.Containers[0].Args = containerArgs
 
 		return deployment, reconciler.StatePresent, nil
 	}
