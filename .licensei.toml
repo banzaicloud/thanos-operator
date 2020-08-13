@@ -28,6 +28,8 @@ ignored = [
   "cloud.google.com/go",
   "cloud.google.com/go/storage",
   "google.golang.org/api",
+
+  "gomodules.xyz/jsonpatch/v2", # ALv2
 ]
 
 [header]

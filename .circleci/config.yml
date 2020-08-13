@@ -15,21 +15,9 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Check generators for unwanted diffs
+          name: Check
           command: |
-            make check-diff
-      - run:
-          name: Run lint
-          command: make lint
-      - run:
-          name: License
-          command: |
-            make license-cache
-            make license-check
-      - run:
-          name: Test
-          command: |
-            make test
+            make check
 
   e2e-test:
     machine:
