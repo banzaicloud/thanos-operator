@@ -118,6 +118,10 @@ func (q *Query) getStoreEndpoints() []string {
 			endpoints = append(endpoints, fmt.Sprintf("--store=%s", url))
 		}
 	}
+	// Discover static StoreAPI endpoints provided as stores parameter
+	for _, endpoint := range q.Thanos.Spec.Query.Stores {
+		endpoints = append(endpoints, fmt.Sprintf("--store=%s", endpoint))
+	}
 	return endpoints
 }
 
