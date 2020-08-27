@@ -45,12 +45,15 @@ func crds() {
 	}
 
 	lister.Index = docgen.NewDoc(docgen.DocItem{
-		Name:     "Readme",
+		Name:     "_index",
 		DestPath: "docs/types",
 	}, logger.WithName("typedoc"))
 
 	lister.Header = heredoc.Doc(`
-		# Available Types
+		---
+		title: Available Types
+		generated_file: true
+		---
 		
 		For more information please click on the name
 		<center>
@@ -68,9 +71,9 @@ func crds() {
 		if err != nil {
 			return errors.WrapIff(err, "failed to determine relpath for %s", document.Item.DestPath)
 		}
-		lister.Index.Append(fmt.Sprintf("| **[%s](%s)** | %s |",
+		lister.Index.Append(fmt.Sprintf("| **[%s](%s/)** | %s |",
 			document.DisplayName,
-			filepath.Join(relPath, document.Item.Name+".md"),
+			filepath.Join(relPath, document.Item.Name),
 			document.Desc))
 		return nil
 	}

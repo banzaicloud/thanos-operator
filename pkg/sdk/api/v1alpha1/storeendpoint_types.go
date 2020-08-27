@@ -21,6 +21,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// +name:"StoreEndpointSpec"
+// +weight:"200"
+type _hugoStoreEndpoint interface{}
+
+// +name:"StoreEndpointSpec"
+type _metaStoreEndpoint interface{}
+
 const (
 	QueryName   = "query"
 	StoreName   = "store"

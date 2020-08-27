@@ -1,3 +1,9 @@
+---
+title: StoreEndpointSpec
+weight: 200
+generated_file: true
+---
+
 ### StoreEndpointSpec
 #### StoreEndpointSpec defines the desired state of StoreEndpoint
 

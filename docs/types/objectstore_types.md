@@ -1,3 +1,9 @@
+---
+title: ObjectStoreSpec
+weight: 200
+generated_file: true
+---
+
 ### ObjectStoreSpec
 #### ObjectStoreSpec defines the desired state of ObjectStore
 

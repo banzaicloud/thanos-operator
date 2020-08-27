@@ -22,6 +22,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// +name:"ObjectStoreSpec"
+// +weight:"200"
+type _hugoObjectStore interface{}
+
+// +name:"ObjectStoreSpec"
+type _metaObjectStore interface{}
+
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 

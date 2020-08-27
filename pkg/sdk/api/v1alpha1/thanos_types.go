@@ -19,6 +19,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// +name:"ThanosSpec"
+// +weight:"200"
+type _hugoThanos interface{}
+
+// +name:"ThanosSpec"
+type _metaThanos interface{}
+
 const (
 	thanosImageRepository = "quay.io/thanos/thanos"
 	thanosImageTag        = "v0.10.1"

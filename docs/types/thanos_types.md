@@ -1,3 +1,9 @@
+---
+title: ThanosSpec
+weight: 200
+generated_file: true
+---
+
 ### ThanosSpec
 #### ThanosSpec defines the desired state of Thanos
 
