@@ -50,7 +50,7 @@ func (r *StoreEndpointReconciler) Reconcile(req ctrl.Request) (ctrl.Result, erro
 		}
 		return result, err
 	}
-	storeEndpointReconciler := resources.NewStoreEndpointComponentReconciler(endpoints, reconciler.NewReconciler(r.Client, log, reconciler.ReconcilerOpts{}))
+	storeEndpointReconciler := resources.NewStoreEndpointComponentReconciler(endpoints, reconciler.NewGenericReconciler(r.Client, log, reconciler.ReconcilerOpts{}))
 
 	reconcilers := make([]resources.ComponentReconciler, 0)
 
