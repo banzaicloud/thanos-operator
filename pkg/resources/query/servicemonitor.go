@@ -26,7 +26,7 @@ func (q *Query) serviceMonitor() (runtime.Object, reconciler.DesiredState, error
 		query := q.Thanos.Spec.Query.DeepCopy()
 		metrics := q.Thanos.Spec.Query.Metrics
 		serviceMonitor := &prometheus.ServiceMonitor{
-			ObjectMeta: query.WorkloadMetaOverrides.Merge(q.getMeta(q.getName())),
+			ObjectMeta: query.MetaOverrides.Merge(q.getMeta(q.getName())),
 			Spec: prometheus.ServiceMonitorSpec{
 				Endpoints: []prometheus.Endpoint{
 					{

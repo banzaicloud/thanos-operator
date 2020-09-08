@@ -23,10 +23,11 @@ import (
 )
 
 const (
-	QueryName   = "query"
-	StoreName   = "store"
-	RuleName    = "rule"
-	SidecarName = "sidecar"
+	QueryName         = "query"
+	StoreName         = "store"
+	RuleName          = "rule"
+	SidecarName       = "sidecar"
+	QueryFrontendName = "query-frontend"
 )
 
 // StoreEndpointSpec defines the desired state of StoreEndpoint
