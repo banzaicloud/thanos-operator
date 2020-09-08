@@ -104,7 +104,7 @@ func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		thanos,
 		thanosInstances,
 		storeEndpointList,
-		reconciler.NewReconciler(r.Client, log, reconcilerOpts))
+		reconciler.NewGenericReconciler(r.Client, log, reconcilerOpts))
 	reconcilers := make([]resources.ComponentReconciler, 0)
 
 	// Query

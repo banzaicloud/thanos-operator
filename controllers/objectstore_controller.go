@@ -53,7 +53,7 @@ func (r *ObjectStoreReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 		}
 		return result, err
 	}
-	objectStoreReconciler := resources.NewObjectStoreReconciler(store, reconciler.NewReconciler(r.Client, log, reconciler.ReconcilerOpts{}))
+	objectStoreReconciler := resources.NewObjectStoreReconciler(store, reconciler.NewGenericReconciler(r.Client, log, reconciler.ReconcilerOpts{}))
 
 	reconcilers := make([]resources.ComponentReconciler, 0)
 
