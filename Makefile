@@ -145,3 +145,6 @@ license-check: bin/licensei ## Run license check
 .PHONY: license-cache
 license-cache: bin/licensei ## Generate license cache
 	bin/licensei cache
+
+.PHONY: check
+check: lint license-check check-diff test

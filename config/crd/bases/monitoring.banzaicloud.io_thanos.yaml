@@ -499,11 +499,15 @@ spec:
                       additionalProperties:
                         type: string
                       type: object
+                    priorityClassName:
+                      type: string
                     securityContext:
                       properties:
                         fsGroup:
                           format: int64
                           type: integer
+                        fsGroupChangePolicy:
+                          type: string
                         runAsGroup:
                           format: int64
                           type: integer
@@ -1594,11 +1598,15 @@ spec:
                       additionalProperties:
                         type: string
                       type: object
+                    priorityClassName:
+                      type: string
                     securityContext:
                       properties:
                         fsGroup:
                           format: int64
                           type: integer
+                        fsGroupChangePolicy:
+                          type: string
                         runAsGroup:
                           format: int64
                           type: integer
@@ -2383,6 +2391,15 @@ spec:
                         sizeLimit:
                           type: string
                       type: object
+                    host_path:
+                      properties:
+                        path:
+                          type: string
+                        type:
+                          type: string
+                      required:
+                      - path
+                      type: object
                     hostPath:
                       properties:
                         path:
@@ -2808,11 +2825,15 @@ spec:
                       additionalProperties:
                         type: string
                       type: object
+                    priorityClassName:
+                      type: string
                     securityContext:
                       properties:
                         fsGroup:
                           format: int64
                           type: integer
+                        fsGroupChangePolicy:
+                          type: string
                         runAsGroup:
                           format: int64
                           type: integer
@@ -3895,11 +3916,15 @@ spec:
                       additionalProperties:
                         type: string
                       type: object
+                    priorityClassName:
+                      type: string
                     securityContext:
                       properties:
                         fsGroup:
                           format: int64
                           type: integer
+                        fsGroupChangePolicy:
+                          type: string
                         runAsGroup:
                           format: int64
                           type: integer

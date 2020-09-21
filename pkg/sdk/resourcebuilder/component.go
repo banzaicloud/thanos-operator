@@ -21,6 +21,7 @@ import (
 	"emperror.dev/errors"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/types"
+	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/static/gen/crds"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/static/gen/rbac"
@@ -36,14 +37,25 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 )
 
+const defaultNamespace = "thanos-system"
+
 // +kubebuilder:object:generate=true
 
 type ComponentConfig struct {
-	Disabled              bool                 `json:"disabled,omitempty"`
+	Namespace             string               `json:"namespace,omitempty"`
+	Enabled               *bool                `json:"enabled,omitempty"`
 	MetaOverrides         *types.MetaBase      `json:"metaOverrides,omitempty"`
 	WorkloadMetaOverrides *types.MetaBase      `json:"workloadMetaOverrides,omitempty"`
 	WorkloadOverrides     *types.PodSpecBase   `json:"workloadOverrides,omitempty"`
 	ContainerOverrides    *types.ContainerBase `json:"containerOverrides,omitempty"`
+}
+
+func (c *ComponentConfig) IsEnabled() bool {
+	return utils.PointerToBool(c.Enabled)
+}
+
+func (c *ComponentConfig) IsSkipped() bool {
+	return c.Enabled == nil
 }
 
 func (c *ComponentConfig) build(parent reconciler.ResourceOwner, fn func(reconciler.ResourceOwner, ComponentConfig) (runtime.Object, reconciler.DesiredState, error)) reconciler.ResourceBuilder {
@@ -53,20 +65,22 @@ func (c *ComponentConfig) build(parent reconciler.ResourceOwner, fn func(reconci
 }
 
 func ResourceBuilders(parent reconciler.ResourceOwner, object interface{}) []reconciler.ResourceBuilder {
-	config := &ComponentConfig{
-		Disabled: true,
-	}
+	config := &ComponentConfig{}
 	if object != nil {
 		config = object.(*ComponentConfig)
 	}
+	if config.Namespace == "" {
+		config.Namespace = defaultNamespace
+	}
 	resources := []reconciler.ResourceBuilder{
+		config.build(parent, Namespace),
 		config.build(parent, Operator),
 		config.build(parent, ClusterRole),
 		config.build(parent, ClusterRoleBinding),
 		config.build(parent, ServiceAccount),
 	}
 	// We don't return with an absent state since we don't want them to be removed
-	if !config.Disabled {
+	if config.IsEnabled() {
 		resources = append(resources,
 			func() (runtime.Object, reconciler.DesiredState, error) {
 				return CRD(config, v1alpha1.GroupVersion.Group, "objectstores")
@@ -84,6 +98,14 @@ func ResourceBuilders(parent reconciler.ResourceOwner, object interface{}) []rec
 
 func SetupWithBuilder(builder *builder.Builder) {
 	builder.Owns(&appsv1.Deployment{})
+}
+
+func Namespace(_ reconciler.ResourceOwner, config ComponentConfig) (runtime.Object, reconciler.DesiredState, error) {
+	return &corev1.Namespace{
+		ObjectMeta: v1.ObjectMeta{
+			Name: config.Namespace,
+		},
+	}, reconciler.StateCreated, nil
 }
 
 func CRD(config *ComponentConfig, group string, kind string) (runtime.Object, reconciler.DesiredState, error) {
@@ -129,7 +151,7 @@ func Operator(parent reconciler.ResourceOwner, config ComponentConfig) (runtime.
 	deployment := &appsv1.Deployment{
 		ObjectMeta: config.MetaOverrides.Merge(config.objectMeta(parent)),
 	}
-	if config.Disabled {
+	if !config.IsEnabled() {
 		return deployment, reconciler.StateAbsent, nil
 	}
 	deployment.Spec = appsv1.DeploymentSpec{
@@ -170,7 +192,7 @@ func ServiceAccount(parent reconciler.ResourceOwner, config ComponentConfig) (ru
 	sa := &corev1.ServiceAccount{
 		ObjectMeta: config.MetaOverrides.Merge(config.objectMeta(parent)),
 	}
-	if config.Disabled {
+	if !config.IsEnabled() {
 		return sa, reconciler.StateAbsent, nil
 	}
 	// remove internal sa in case an externally provided service account is used
@@ -185,7 +207,7 @@ func ClusterRoleBinding(parent reconciler.ResourceOwner, config ComponentConfig)
 		ObjectMeta: config.MetaOverrides.Merge(config.clusterObjectMeta(parent)),
 	}
 
-	if config.Disabled {
+	if !config.IsEnabled() {
 		return rb, reconciler.StateAbsent, nil
 	}
 
@@ -198,7 +220,7 @@ func ClusterRoleBinding(parent reconciler.ResourceOwner, config ComponentConfig)
 		{
 			Kind:      rbacv1.ServiceAccountKind,
 			Name:      sa,
-			Namespace: parent.GetControlNamespace(),
+			Namespace: config.Namespace,
 		},
 	}
 	rb.RoleRef = rbacv1.RoleRef{
@@ -214,7 +236,7 @@ func ClusterRole(parent reconciler.ResourceOwner, config ComponentConfig) (runti
 	role := &rbacv1.ClusterRole{
 		ObjectMeta: config.MetaOverrides.Merge(config.clusterObjectMeta(parent)),
 	}
-	if config.Disabled {
+	if !config.IsEnabled() {
 		return role, reconciler.StateAbsent, nil
 	}
 	// remove internal sa in case an externally provided service account is used
@@ -249,7 +271,7 @@ func ClusterRole(parent reconciler.ResourceOwner, config ComponentConfig) (runti
 func (c *ComponentConfig) objectMeta(parent reconciler.ResourceOwner) v1.ObjectMeta {
 	meta := v1.ObjectMeta{
 		Name:      parent.GetName() + "-thanos-operator",
-		Namespace: parent.GetControlNamespace(),
+		Namespace: c.Namespace,
 		Labels:    c.labelSelector(parent),
 	}
 	return meta
