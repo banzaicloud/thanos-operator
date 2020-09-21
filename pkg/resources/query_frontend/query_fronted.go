@@ -55,8 +55,12 @@ func (q *QueryFrontend) getName(suffix ...string) string {
 	return q.QualifiedName(name)
 }
 
-func (q *QueryFrontend) getSvc() string {
+func (q *QueryFrontend) GetHTTPService() string {
 	return fmt.Sprintf("%s.%s.svc.%s", q.getName(), q.Thanos.Namespace, q.Thanos.GetClusterDomain())
+}
+
+func (q *QueryFrontend) GetHTTPServiceURL() string {
+	return fmt.Sprintf("http://%s:%d", q.GetHTTPService(), resources.GetPort(q.Thanos.Spec.QueryFrontend.HttpAddress))
 }
 
 func (q *QueryFrontend) getMeta(name string, params ...string) metav1.ObjectMeta {
