@@ -21,16 +21,18 @@ import (
 
 const (
 	ThanosImageRepository = "quay.io/thanos/thanos"
-	ThanosImageTag        = "v0.14.0"
+	ThanosImageTag        = "v0.15.0"
 )
 
-var DefaultQueryFrontents = QueryFrontend{
+var DefaultQueryFrontend = QueryFrontend{
 	Metrics: &Metrics{
 		Interval:       "15s",
 		Timeout:        "5s",
 		Path:           "/metrics",
 		ServiceMonitor: false,
 	},
+	LogLevel:    "info",
+	HttpAddress: "0.0.0.0:9090",
 }
 
 var DefaultQuery = Query{
@@ -77,6 +79,7 @@ type ThanosSpec struct {
 	Rule                                         *Rule          `json:"rule,omitempty"`
 	Query                                        *Query         `json:"query,omitempty"`
 	QueryFrontend                                *QueryFrontend `json:"queryFrontend,omitempty"`
+	ClusterDomain                                string         `json:"clusterDomain,omitempty"`
 	EnableRecreateWorkloadOnImmutableFieldChange bool           `json:"enableRecreateWorkloadOnImmutableFieldChange,omitempty"`
 }
 
@@ -103,13 +106,10 @@ type QueryFrontend struct {
 	ContainerOverrides    *types.ContainerBase `json:"containerOverrides,omitempty"`
 	Metrics               *Metrics             `json:"metrics,omitempty"`
 	HTTPIngress           *Ingress             `json:"HTTPIngress,omitempty"`
-	GRPCIngress           *Ingress             `json:"GRPCIngress,omitempty"`
-	GRPCClientCertificate string               `json:"GRPCClientCertificate,omitempty"`
-	GRPCServerCertificate string               `json:"GRPCServerCertificate,omitempty"`
 	LogLevel              string               `json:"logLevel,omitempty" thanos:"--log.level=%s"`
 	LogFormat             string               `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Split queries by an interval and execute in parallel, 0 disables it.
-	QueryRangeSplit string `json:"queryRangeSplit,omitempty" thanos:"--query-range.split-interval=24h"`
+	QueryRangeSplit string `json:"queryRangeSplit,omitempty" thanos:"--query-range.split-interval=%s"`
 	// Maximum number of retries for a single request; beyond this, the downstream error is returned.
 	QueryRangeMaxRetriesPerRequest int `json:"queryRangeMaxRetriesPerRequest,omitempty" thanos:"--query-range.max-retries-per-request=%d"`
 	// Limit the query time range (end - start time) in the query-frontend, 0 disables it.
@@ -129,7 +129,7 @@ type QueryFrontend struct {
 	// Time to wait after an interrupt received for HTTP Server.
 	HttpGracePeriod string `json:"http_grace_period,omitempty" thanos:"--http-grace-period=%s"`
 	// URL of downstream Prometheus Query compatible API.
-	QueryFrontendDownstreamURL string `json:"queryFrontendDownstreamUrl,omitempty" thanos:"--query-frontend.downstream-url=%s"`
+	QueryFrontendDownstreamURL string `json:"queryFrontendDownstreamURL,omitempty"`
 	// Compress HTTP responses.
 	QueryFrontendCompressResponses *bool `json:"queryFrontendCompressResponses,omitempty" thanos:"--query-frontend.compress-responses"`
 	// 	Log queries that are slower than the specified duration. Set to 0 to disable. Set to < 0 to enable on all queries.
@@ -347,6 +347,13 @@ type Thanos struct {
 
 	Spec   ThanosSpec   `json:"spec,omitempty"`
 	Status ThanosStatus `json:"status,omitempty"`
+}
+
+func (t *Thanos) GetClusterDomain() string {
+	if t.Spec.ClusterDomain != "" {
+		return t.Spec.ClusterDomain
+	}
+	return "cluster.local"
 }
 
 // +kubebuilder:object:root=true

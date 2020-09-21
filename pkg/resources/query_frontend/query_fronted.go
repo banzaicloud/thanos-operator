@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
+	"github.com/banzaicloud/thanos-operator/pkg/resources/query"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/imdario/mergo"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -32,9 +33,8 @@ func (q *QueryFrontend) Reconcile() (*reconcile.Result, error) {
 		[]resources.Resource{
 			q.deployment,
 			q.service,
-			q.serviceMonitor,
+			//q.serviceMonitor,
 			q.ingressHTTP,
-			q.ingressGRPC,
 		})
 }
 
@@ -56,7 +56,7 @@ func (q *QueryFrontend) getName(suffix ...string) string {
 }
 
 func (q *QueryFrontend) getSvc() string {
-	return fmt.Sprintf("_grpc._tcp.%s.%s.svc.cluster.local", q.getName(), q.Thanos.Namespace)
+	return fmt.Sprintf("%s.%s.svc.%s", q.getName(), q.Thanos.Namespace, q.Thanos.GetClusterDomain())
 }
 
 func (q *QueryFrontend) getMeta(name string, params ...string) metav1.ObjectMeta {
@@ -69,36 +69,22 @@ func (q *QueryFrontend) getMeta(name string, params ...string) metav1.ObjectMeta
 	return meta
 }
 
-func (q *QueryFrontend) setArgs(originArgs []string) []string {
-	query := q.Thanos.Spec.QueryFrontend.DeepCopy()
-	// Get args from the tags
-	args := resources.GetArgs(query)
+func (q *QueryFrontend) getQueryEndpoint() string {
+	queryURL := ""
+	if q.Thanos.Spec.QueryFrontend.QueryFrontendDownstreamURL != "" {
+		queryURL = q.Thanos.Spec.QueryFrontend.QueryFrontendDownstreamURL
+	} else if q.Thanos.Spec.Query != nil {
+		queryURL = query.New(q.ThanosComponentReconciler).GetHTTPServiceURL()
+	}
+	return fmt.Sprintf("--query-frontend.downstream-url=%s", queryURL)
+}
 
-	if query.GRPCClientCertificate != "" {
-		args = append(args, "--grpc-client-tls-secure")
-		args = append(args, fmt.Sprintf("--grpc-client-tls-cert=%s/%s", clientCertMountPath, "tls.crt"))
-		args = append(args, fmt.Sprintf("--grpc-client-tls-key=%s/%s", clientCertMountPath, "tls.key"))
-		args = append(args, fmt.Sprintf("--grpc-client-tls-ca=%s/%s", clientCertMountPath, "ca.crt"))
-		args = append(args, "--grpc-client-server-name=example.com") //TODO this is dummy now
-	}
-	if query.GRPCServerCertificate != "" {
-		args = append(args, fmt.Sprintf("--grpc-server-tls-cert=%s/%s", serverCertMountPath, "tls.crt"))
-		args = append(args, fmt.Sprintf("--grpc-server-tls-key=%s/%s", serverCertMountPath, "tls.key"))
-		args = append(args, fmt.Sprintf("--grpc-server-tls-client-ca=%s/%s", serverCertMountPath, "ca.crt"))
-	}
-	// Handle special args
-	if query.QueryReplicaLabels != nil {
-		for _, l := range query.QueryReplicaLabels {
-			args = append(args, fmt.Sprintf("--query.replica-label=%s", l))
-		}
-	}
-	if query.SelectorLabels != nil {
-		for k, v := range query.SelectorLabels {
-			args = append(args, fmt.Sprintf("--selector-label=%s=%s", k, v))
-		}
-	}
+func (q *QueryFrontend) setArgs(originArgs []string) []string {
+	queryFrontend := q.Thanos.Spec.QueryFrontend.DeepCopy()
+	// Get args from the tags
+	args := resources.GetArgs(queryFrontend)
 	// Add discovery args
-	args = append(args, q.getStoreEndpoints()...)
+	args = append(args, q.getQueryEndpoint())
 
 	// Sort generated args to prevent accidental diffs
 	sort.Strings(args)

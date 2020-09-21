@@ -45,10 +45,10 @@ func (q *QueryFrontend) deployment() (runtime.Object, reconciler.DesiredState, e
 				Spec: queryFrontend.WorkloadOverrides.Override(corev1.PodSpec{
 					Containers: []corev1.Container{
 						queryFrontend.ContainerOverrides.Override(corev1.Container{
-							Name:  "queryFrontend",
+							Name:  "query-frontend",
 							Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
 							Args: []string{
-								"queryFrontend",
+								"query-frontend",
 							},
 							Ports: []corev1.ContainerPort{
 								{
@@ -56,18 +56,11 @@ func (q *QueryFrontend) deployment() (runtime.Object, reconciler.DesiredState, e
 									ContainerPort: resources.GetPort(queryFrontend.HttpAddress),
 									Protocol:      corev1.ProtocolTCP,
 								},
-								{
-									Name:          "grpc",
-									ContainerPort: resources.GetPort(queryFrontend.GRPCAddress),
-									Protocol:      corev1.ProtocolTCP,
-								},
 							},
 							ImagePullPolicy: corev1.PullIfNotPresent,
 							LivenessProbe:   q.GetCheck(resources.GetPort(queryFrontend.HttpAddress), resources.HealthCheckPath),
 							ReadinessProbe:  q.GetCheck(resources.GetPort(queryFrontend.HttpAddress), resources.ReadyCheckPath),
-							VolumeMounts:    q.getVolumeMounts(),
 						})},
-					Volumes: q.getVolumes(),
 				}),
 			},
 		}
@@ -80,48 +73,4 @@ func (q *QueryFrontend) deployment() (runtime.Object, reconciler.DesiredState, e
 		ObjectMeta: q.getMeta(q.getName()),
 	}
 	return delete, reconciler.StateAbsent, nil
-}
-
-func (q *QueryFrontend) getVolumeMounts() []corev1.VolumeMount {
-	volumeMounts := make([]corev1.VolumeMount, 0)
-	if q.Thanos.Spec.Query.GRPCClientCertificate != "" {
-		volumeMounts = append(volumeMounts, corev1.VolumeMount{
-			Name:      "client-certificate",
-			ReadOnly:  true,
-			MountPath: clientCertMountPath,
-		})
-	}
-	if q.Thanos.Spec.Query.GRPCServerCertificate != "" {
-		volumeMounts = append(volumeMounts, corev1.VolumeMount{
-			Name:      "server-certificate",
-			ReadOnly:  true,
-			MountPath: serverCertMountPath,
-		})
-	}
-	return volumeMounts
-}
-
-func (q *QueryFrontend) getVolumes() []corev1.Volume {
-	volumes := make([]corev1.Volume, 0)
-	if q.Thanos.Spec.Query.GRPCClientCertificate != "" {
-		volumes = append(volumes, corev1.Volume{
-			Name: "client-certificate",
-			VolumeSource: corev1.VolumeSource{
-				Secret: &corev1.SecretVolumeSource{
-					SecretName: q.Thanos.Spec.Query.GRPCClientCertificate,
-				},
-			},
-		})
-	}
-	if q.Thanos.Spec.Query.GRPCServerCertificate != "" {
-		volumes = append(volumes, corev1.Volume{
-			Name: "server-certificate",
-			VolumeSource: corev1.VolumeSource{
-				Secret: &corev1.SecretVolumeSource{
-					SecretName: q.Thanos.Spec.Query.GRPCServerCertificate,
-				},
-			},
-		})
-	}
-	return volumes
 }

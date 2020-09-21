@@ -83,6 +83,7 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 		}
 
 		var containerArgs = []string{
+			"tools",
 			"bucket",
 			"web",
 			"--log.level=info",

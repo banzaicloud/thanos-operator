@@ -12,34 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package store
+package query_frontend
 
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func (e *storeInstance) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
-	if e.StoreEndpoint != nil && e.StoreEndpoint.Spec.Ingress != nil {
-		endpointIngress := e.StoreEndpoint.Spec.Ingress
+func (q *QueryFrontend) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
+	if q.Thanos.Spec.QueryFrontend != nil &&
+		q.Thanos.Spec.QueryFrontend.HTTPIngress != nil {
+		queryFrontendIngress := q.Thanos.Spec.QueryFrontend.HTTPIngress
+		queryFrontend := q.Thanos.Spec.QueryFrontend.DeepCopy()
 		ingress := &v1beta1.Ingress{
-			ObjectMeta: e.StoreEndpoint.Spec.MetaOverrides.Merge(e.getMeta()),
+			ObjectMeta: queryFrontend.MetaOverrides.Merge(q.getMeta(q.getName("http"))),
 			Spec: v1beta1.IngressSpec{
 				Rules: []v1beta1.IngressRule{
 					{
-						Host: endpointIngress.Host,
+						Host: queryFrontendIngress.Host,
 						IngressRuleValue: v1beta1.IngressRuleValue{
 							HTTP: &v1beta1.HTTPIngressRuleValue{
 								Paths: []v1beta1.HTTPIngressPath{
 									{
-										Path: endpointIngress.Path,
+										Path: queryFrontendIngress.Path,
 										Backend: v1beta1.IngressBackend{
-											ServiceName: e.GetName(),
+											ServiceName: q.getName(),
 											ServicePort: intstr.IntOrString{
 												Type:   intstr.String,
-												StrVal: "grpc",
+												StrVal: "http",
 											},
 										},
 									},
@@ -50,18 +53,18 @@ func (e *storeInstance) ingressGRPC() (runtime.Object, reconciler.DesiredState, 
 				},
 			},
 		}
-		if endpointIngress.Certificate != "" {
+		if queryFrontendIngress.Certificate != "" {
 			ingress.Spec.TLS = []v1beta1.IngressTLS{
 				{
-					Hosts:      []string{endpointIngress.Host},
-					SecretName: endpointIngress.Certificate,
+					Hosts:      []string{queryFrontendIngress.Host},
+					SecretName: queryFrontendIngress.Certificate,
 				},
 			}
 		}
 		return ingress, reconciler.StatePresent, nil
 	}
-	delete := &v1beta1.Ingress{
-		ObjectMeta: e.getMeta(),
+	delete := &corev1.Service{
+		ObjectMeta: q.getMeta(q.getName("http")),
 	}
 	return delete, reconciler.StateAbsent, nil
 }
