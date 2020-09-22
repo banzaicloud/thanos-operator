@@ -74,8 +74,16 @@ func (q *Query) getName(suffix ...string) string {
 	return q.QualifiedName(name)
 }
 
-func (q *Query) getSvc() string {
-	return fmt.Sprintf("_grpc._tcp.%s.%s.svc.cluster.local", q.getName(), q.Thanos.Namespace)
+func (q *Query) GetGRPCService() string {
+	return fmt.Sprintf("_grpc._tcp.%s.%s.%s", q.getName(), q.Thanos.Namespace, q.Thanos.GetClusterDomain())
+}
+
+func (q *Query) GetHTTPService() string {
+	return fmt.Sprintf("%s.%s.svc.%s", q.getName(), q.Thanos.Namespace, q.Thanos.GetClusterDomain())
+}
+
+func (q *Query) GetHTTPServiceURL() string {
+	return fmt.Sprintf("http://%s:%d", q.GetHTTPService(), resources.GetPort(q.Thanos.Spec.Query.HttpAddress))
 }
 
 func (q *Query) getMeta(name string, params ...string) metav1.ObjectMeta {
@@ -95,7 +103,7 @@ func (q *Query) getStoreEndpoints() []string {
 		for _, t := range q.ThanosList {
 			if t.Spec.Query != nil {
 				reconciler := resources.NewThanosComponentReconciler(t.DeepCopy(), nil, nil, nil)
-				svc := (&Query{reconciler}).getSvc()
+				svc := (&Query{reconciler}).GetGRPCService()
 				endpoints = append(endpoints, fmt.Sprintf("--store=dnssrvnoa+%s", svc))
 			}
 		}

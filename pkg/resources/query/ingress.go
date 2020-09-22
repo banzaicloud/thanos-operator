@@ -28,7 +28,7 @@ func (q *Query) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
 		queryIngress := q.Thanos.Spec.Query.HTTPIngress
 		query := q.Thanos.Spec.Query.DeepCopy()
 		ingress := &v1beta1.Ingress{
-			ObjectMeta: query.WorkloadMetaOverrides.Merge(q.getMeta(q.getName("http"))),
+			ObjectMeta: query.MetaOverrides.Merge(q.getMeta(q.getName("http"))),
 			Spec: v1beta1.IngressSpec{
 				Rules: []v1beta1.IngressRule{
 					{

@@ -21,6 +21,7 @@ import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/resources/query"
+	"github.com/banzaicloud/thanos-operator/pkg/resources/query_frontend"
 	"github.com/banzaicloud/thanos-operator/pkg/resources/rule"
 	"github.com/banzaicloud/thanos-operator/pkg/resources/store"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
@@ -113,6 +114,8 @@ func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	reconcilers = append(reconcilers, store.New(thanosComponentReconciler).Reconcile)
 	// Rule
 	reconcilers = append(reconcilers, rule.New(thanosComponentReconciler).Reconcile)
+	// QueryFrontend
+	reconcilers = append(reconcilers, query_frontend.New(thanosComponentReconciler).Reconcile)
 
 	return resources.RunReconcilers(reconcilers)
 }

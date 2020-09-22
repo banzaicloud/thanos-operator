@@ -21,8 +21,19 @@ import (
 
 const (
 	ThanosImageRepository = "quay.io/thanos/thanos"
-	ThanosImageTag        = "v0.10.1"
+	ThanosImageTag        = "v0.15.0"
 )
+
+var DefaultQueryFrontend = QueryFrontend{
+	Metrics: &Metrics{
+		Interval:       "15s",
+		Timeout:        "5s",
+		Path:           "/metrics",
+		ServiceMonitor: false,
+	},
+	LogLevel:    "info",
+	HttpAddress: "0.0.0.0:9090",
+}
 
 var DefaultQuery = Query{
 	Metrics: &Metrics{
@@ -63,11 +74,13 @@ var DefaultRule = Rule{
 
 // ThanosSpec defines the desired state of Thanos
 type ThanosSpec struct {
-	QueryDiscovery                               bool          `json:"queryDiscovery,omitempty"`
-	StoreGateway                                 *StoreGateway `json:"storeGateway,omitempty"`
-	Rule                                         *Rule         `json:"rule,omitempty"`
-	Query                                        *Query        `json:"query,omitempty"`
-	EnableRecreateWorkloadOnImmutableFieldChange bool          `json:"enableRecreateWorkloadOnImmutableFieldChange,omitempty"`
+	QueryDiscovery                               bool           `json:"queryDiscovery,omitempty"`
+	StoreGateway                                 *StoreGateway  `json:"storeGateway,omitempty"`
+	Rule                                         *Rule          `json:"rule,omitempty"`
+	Query                                        *Query         `json:"query,omitempty"`
+	QueryFrontend                                *QueryFrontend `json:"queryFrontend,omitempty"`
+	ClusterDomain                                string         `json:"clusterDomain,omitempty"`
+	EnableRecreateWorkloadOnImmutableFieldChange bool           `json:"enableRecreateWorkloadOnImmutableFieldChange,omitempty"`
 }
 
 // Metrics defines the service monitor endpoints
@@ -84,6 +97,48 @@ type Ingress struct {
 	Certificate string `json:"certificate,omitempty"`
 	Host        string `json:"host,omitempty"`
 	Path        string `json:"path,omitempty"`
+}
+
+type QueryFrontend struct {
+	MetaOverrides         *types.MetaBase      `json:"metaOverrides,omitempty"`
+	WorkloadMetaOverrides *types.MetaBase      `json:"workloadMetaOverrides,omitempty"`
+	WorkloadOverrides     *types.PodSpecBase   `json:"workloadOverrides,omitempty"`
+	ContainerOverrides    *types.ContainerBase `json:"containerOverrides,omitempty"`
+	Metrics               *Metrics             `json:"metrics,omitempty"`
+	HTTPIngress           *Ingress             `json:"HTTPIngress,omitempty"`
+	LogLevel              string               `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat             string               `json:"logFormat,omitempty" thanos:"--log.format=%s"`
+	// Split queries by an interval and execute in parallel, 0 disables it.
+	QueryRangeSplit string `json:"queryRangeSplit,omitempty" thanos:"--query-range.split-interval=%s"`
+	// Maximum number of retries for a single request; beyond this, the downstream error is returned.
+	QueryRangeMaxRetriesPerRequest int `json:"queryRangeMaxRetriesPerRequest,omitempty" thanos:"--query-range.max-retries-per-request=%d"`
+	// Limit the query time range (end - start time) in the query-frontend, 0 disables it.
+	QueryRangeMaxQueryLength int `json:"queryRangeMaxQueryLength,omitempty" thanos:"--query-range.max-query-length=%d"`
+	// Maximum number of queries will be scheduled in parallel by the frontend.
+	QueryRangeMaxQueryParallelism int `json:"queryRangeMaxQueryParallelism,omitempty" thanos:"--query-range.max-query-parallelism=%d"`
+	// Most recent allowed cacheable result, to prevent	caching very recent results that might still be in flux.
+	QueryRangeResponseCacheMaxFreshness string `json:"queryRangeResponseCacheMaxFreshness,omitempty" thanos:"--query-range.response-cache-max-freshness=%s"`
+	// Enable partial response for queries if no partial_response param is specified.
+	QueryRangePartialResponse *bool `json:"queryRangePartialResponse,omitempty" thanos:"--query-range.partial-response"`
+	// Path to YAML file that contains response cache configuration.
+	QueryRangeResponseCacheConfigFile string `json:"queryRangeResponseCacheConfigFile,omitempty" thanos:"--query-range.response-cache-config-file=%s"`
+	// Alternative to 'query-range.response-cache-config-file' flag (lower priority). Content of YAML file that contains response cache configuration.
+	QueryRangeResponseCache string `json:"queryRangeResponseCache,omitempty" thanos:"--query-range.response-cache-config=%s"`
+	// Listen host:port for HTTP endpoints.
+	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
+	// Time to wait after an interrupt received for HTTP Server.
+	HttpGracePeriod string `json:"http_grace_period,omitempty" thanos:"--http-grace-period=%s"`
+	// URL of downstream Prometheus Query compatible API.
+	QueryFrontendDownstreamURL string `json:"queryFrontendDownstreamURL,omitempty"`
+	// Compress HTTP responses.
+	QueryFrontendCompressResponses *bool `json:"queryFrontendCompressResponses,omitempty" thanos:"--query-frontend.compress-responses"`
+	// 	Log queries that are slower than the specified duration. Set to 0 to disable. Set to < 0 to enable on all queries.
+	QueryFrontendLogQueriesLongerThan int `json:"queryFrontendLogQueriesLongerThan,omitempty" thanos:"--query-frontend.log_queries_longer_than=%d"`
+	// 	Request Logging for logging the start and end of requests. LogFinishCall is enabled by default.
+	//	LogFinishCall : Logs the finish call of the requests.
+	//	LogStartAndFinishCall : Logs the start and finish call of the requests.
+	//	NoLogCall : Disable request logging.
+	LogRequestDecision string `json:"logRequestDecision,omitempty" thanos:"--log.request.decision=%s"`
 }
 
 type Query struct {
@@ -292,6 +347,13 @@ type Thanos struct {
 
 	Spec   ThanosSpec   `json:"spec,omitempty"`
 	Status ThanosStatus `json:"status,omitempty"`
+}
+
+func (t *Thanos) GetClusterDomain() string {
+	if t.Spec.ClusterDomain != "" {
+		return t.Spec.ClusterDomain
+	}
+	return "cluster.local"
 }
 
 // +kubebuilder:object:root=true

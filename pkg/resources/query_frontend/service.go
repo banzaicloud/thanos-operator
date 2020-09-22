@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package query
+package query_frontend
 
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
@@ -22,26 +22,17 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func (q *Query) service() (runtime.Object, reconciler.DesiredState, error) {
-	if q.Thanos.Spec.Query != nil {
-		query := q.Thanos.Spec.Query.DeepCopy()
+func (q *QueryFrontend) service() (runtime.Object, reconciler.DesiredState, error) {
+	if q.Thanos.Spec.QueryFrontend != nil {
+		queryFrontend := q.Thanos.Spec.QueryFrontend.DeepCopy()
 		queryService := &corev1.Service{
-			ObjectMeta: query.MetaOverrides.Merge(q.getMeta(q.getName())),
+			ObjectMeta: queryFrontend.MetaOverrides.Merge(q.getMeta(q.getName())),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
-						Name:     "grpc",
-						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(query.GRPCAddress),
-						TargetPort: intstr.IntOrString{
-							Type:   intstr.String,
-							StrVal: "grpc",
-						},
-					},
-					{
 						Name:     "http",
 						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(query.HttpAddress),
+						Port:     resources.GetPort(queryFrontend.HttpAddress),
 						TargetPort: intstr.IntOrString{
 							Type:   intstr.String,
 							StrVal: "http",

@@ -7,6 +7,8 @@
 | storeGateway | *StoreGateway | No | - |  |
 | rule | *Rule | No | - |  |
 | query | *Query | No | - |  |
+| queryFrontend | *QueryFrontend | No | - |  |
+| clusterDomain | string | No | - |  |
 | enableRecreateWorkloadOnImmutableFieldChange | bool | No | - |  |
 ### Metrics
 #### Metrics defines the service monitor endpoints
@@ -25,6 +27,31 @@
 | certificate | string | No | - |  |
 | host | string | No | - |  |
 | path | string | No | - |  |
+### QueryFrontend
+| Variable Name | Type | Required | Default | Description |
+|---|---|---|---|---|
+| metaOverrides | *types.MetaBase | No | - |  |
+| workloadMetaOverrides | *types.MetaBase | No | - |  |
+| workloadOverrides | *types.PodSpecBase | No | - |  |
+| containerOverrides | *types.ContainerBase | No | - |  |
+| metrics | *Metrics | No | - |  |
+| HTTPIngress | *Ingress | No | - |  |
+| logLevel | string | No | - |  |
+| logFormat | string | No | - |  |
+| queryRangeSplit | string | No | - | Split queries by an interval and execute in parallel, 0 disables it.<br> |
+| queryRangeMaxRetriesPerRequest | int | No | - | Maximum number of retries for a single request; beyond this, the downstream error is returned.<br> |
+| queryRangeMaxQueryLength | int | No | - | Limit the query time range (end - start time) in the query-frontend, 0 disables it.<br> |
+| queryRangeMaxQueryParallelism | int | No | - | Maximum number of queries will be scheduled in parallel by the frontend.<br> |
+| queryRangeResponseCacheMaxFreshness | string | No | - | Most recent allowed cacheable result, to prevent	caching very recent results that might still be in flux.<br> |
+| queryRangePartialResponse | *bool | No | - | Enable partial response for queries if no partial_response param is specified.<br> |
+| queryRangeResponseCacheConfigFile | string | No | - | Path to YAML file that contains response cache configuration.<br> |
+| queryRangeResponseCache | string | No | - | Alternative to 'query-range.response-cache-config-file' flag (lower priority). Content of YAML file that contains response cache configuration.<br> |
+| httpAddress | string | No | - | Listen host:port for HTTP endpoints.<br> |
+| http_grace_period | string | No | - | Time to wait after an interrupt received for HTTP Server.<br> |
+| queryFrontendDownstreamURL | string | No | - | URL of downstream Prometheus Query compatible API.<br> |
+| queryFrontendCompressResponses | *bool | No | - | Compress HTTP responses.<br> |
+| queryFrontendLogQueriesLongerThan | int | No | - | Log queries that are slower than the specified duration. Set to 0 to disable. Set to < 0 to enable on all queries.<br> |
+| logRequestDecision | string | No | - | Request Logging for logging the start and end of requests. LogFinishCall is enabled by default.<br>LogFinishCall : Logs the finish call of the requests.<br>LogStartAndFinishCall : Logs the start and finish call of the requests.<br>NoLogCall : Disable request logging.<br> |
 ### Query
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|

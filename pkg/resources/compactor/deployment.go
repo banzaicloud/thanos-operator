@@ -80,6 +80,16 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 							ImagePullPolicy: corev1.PullIfNotPresent,
 						}),
 					},
+					Volumes: []corev1.Volume{
+						{
+							Name: "objectstore-secret",
+							VolumeSource: corev1.VolumeSource{
+								Secret: &corev1.SecretVolumeSource{
+									SecretName: c.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Name,
+								},
+							},
+						},
+					},
 				}),
 			},
 		}
