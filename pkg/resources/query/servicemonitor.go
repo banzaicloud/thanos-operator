@@ -24,6 +24,8 @@ import (
 func (q *Query) serviceMonitor() (runtime.Object, reconciler.DesiredState, error) {
 	if q.Thanos.Spec.Query != nil && q.Thanos.Spec.Query.Metrics.ServiceMonitor {
 		metrics := q.Thanos.Spec.Query.Metrics
+		meta := q.getMeta(q.getName())
+		meta.Name = "thanos-query-" + meta.Name
 		serviceMonitor := &prometheus.ServiceMonitor{
 			ObjectMeta: q.Thanos.Spec.Query.MetaOverrides.Merge(q.getMeta(q.getName())),
 			Spec: prometheus.ServiceMonitorSpec{

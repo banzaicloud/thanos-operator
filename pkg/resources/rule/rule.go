@@ -125,9 +125,6 @@ func (r *ruleInstance) getLabels() resources.Labels {
 	}.Merge(
 		r.GetCommonLabels(),
 	)
-	if r.Thanos.Spec.Rule != nil {
-		labels.Merge(r.Thanos.Spec.Rule.Labels)
-	}
 	return labels
 }
 
@@ -146,6 +143,10 @@ func (r *Rule) setArgs(args []string) []string {
 	for _, s := range r.getQueryEndpoints() {
 		url := fmt.Sprintf("--query=%s.%s.svc:%s", s, r.Thanos.Namespace, strconv.Itoa(int(resources.GetPort(rule.HttpAddress))))
 		args = append(args, url)
+	}
+
+	for key, value := range r.Thanos.Spec.Rule.Labels {
+		args = append(args, fmt.Sprintf("--label %s=%s", key, value))
 	}
 
 	return args
