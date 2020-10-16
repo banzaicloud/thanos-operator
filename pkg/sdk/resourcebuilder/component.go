@@ -37,7 +37,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 )
 
-const defaultNamespace = "thanos-system"
+const (
+	Image            = "banzaicloud/thanos-operator:0.1.1"
+	defaultNamespace = "thanos-system"
+)
+
 
 // +kubebuilder:object:generate=true
 
@@ -164,7 +168,7 @@ func Operator(parent reconciler.ResourceOwner, config ComponentConfig) (runtime.
 				Containers: []corev1.Container{
 					config.ContainerOverrides.Override(corev1.Container{
 						Name:    "thanos-operator",
-						Image:   "banzaicloud/thanos-operator",
+						Image:   Image,
 						Command: []string{"/manager"},
 						Args:    []string{"--enable-leader-election"},
 						Resources: corev1.ResourceRequirements{

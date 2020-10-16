@@ -29,6 +29,8 @@ import (
 	// +kubebuilder:scaffold:imports
 )
 
+const DefaultLeaderElectionID = "banzaicloud-thanos-operator"
+
 var (
 	scheme   = runtime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")
@@ -60,7 +62,7 @@ func main() {
 	}))
 
 	if leaderElectionId == "" {
-		leaderElectionId = "thanos-operator." + thanosv1alpha1.GroupVersion.String()
+		leaderElectionId = DefaultLeaderElectionID
 	}
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
