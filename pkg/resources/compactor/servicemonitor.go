@@ -25,7 +25,6 @@ func (c *Compactor) serviceMonitor() (runtime.Object, reconciler.DesiredState, e
 	if c.ObjectStore.Spec.Compactor != nil && c.ObjectStore.Spec.Compactor.Metrics.ServiceMonitor {
 		metrics := c.ObjectStore.Spec.Compactor.Metrics
 		meta := c.getMeta()
-		meta.Name = "thanos-store-" + meta.Name
 		compactor := c.ObjectStore.Spec.Compactor.DeepCopy()
 		serviceMonitor := &prometheus.ServiceMonitor{
 			ObjectMeta: compactor.MetaOverrides.Merge(meta),
