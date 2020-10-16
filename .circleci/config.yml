@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   helm: banzaicloud/helm@0.0.7
-  docker: circleci/docker@0.5.13
+  docker: circleci/docker@1.5.0
 
 jobs:
   build:
