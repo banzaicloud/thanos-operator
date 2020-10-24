@@ -104,26 +104,26 @@ func (q *Query) getStoreEndpoints() []string {
 			if t.Spec.Query != nil {
 				reconciler := resources.NewThanosComponentReconciler(t.DeepCopy(), nil, nil, nil)
 				svc := (&Query{reconciler}).GetGRPCService()
-				endpoints = append(endpoints, fmt.Sprintf("--store=dnssrvnoa+%s", svc))
+				endpoints = append(endpoints, fmt.Sprintf("--store=dnssrvnoa+%s.%s", svc, q.Thanos.GetClusterDomain()))
 			}
 		}
 	}
 	// Discover local StoreGateway
 	if q.Thanos.Spec.StoreGateway != nil {
 		for _, u := range store.New(q.ThanosComponentReconciler).GetServiceURLS() {
-			endpoints = append(endpoints, fmt.Sprintf("--store=dnssrvnoa+%s", u))
+			endpoints = append(endpoints, fmt.Sprintf("--store=dnssrvnoa+%s.%s", u, q.Thanos.GetClusterDomain()))
 		}
 	}
 	// Discover local Rule
 	if q.Thanos.Spec.Rule != nil {
 		for _, u := range rule.New(q.ThanosComponentReconciler).GetServiceURLS() {
-			endpoints = append(endpoints, fmt.Sprintf("--store=dnssrvnoa+%s", u))
+			endpoints = append(endpoints, fmt.Sprintf("--store=dnssrvnoa+%s.%s", u, q.Thanos.GetClusterDomain()))
 		}
 	}
 	// Discover StoreEndpoint aka Sidecars
 	for _, endpoint := range q.StoreEndpoints {
 		if url := endpoint.GetServiceURL(); url != "" {
-			endpoints = append(endpoints, fmt.Sprintf("--store=%s", url))
+			endpoints = append(endpoints, fmt.Sprintf("--store=%s.%s", url, q.Thanos.GetClusterDomain()))
 		}
 	}
 	// Discover static StoreAPI endpoints provided as stores parameter
