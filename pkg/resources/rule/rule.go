@@ -78,7 +78,7 @@ func (r *ruleInstance) getMeta(suffix ...string) metav1.ObjectMeta {
 }
 
 func (r *ruleInstance) getSvc() string {
-	return fmt.Sprintf("_grpc._tcp.%s.%s.svc.cluster.local", r.getName(), r.StoreEndpoint.Namespace)
+	return fmt.Sprintf("_grpc._tcp.%s.%s.svc", r.getName(), r.StoreEndpoint.Namespace)
 }
 
 func New(reconciler *resources.ThanosComponentReconciler) *Rule {
@@ -144,7 +144,7 @@ func (r *Rule) setArgs(args []string) []string {
 	args = append(args, resources.GetArgs(rule)...)
 
 	for _, s := range r.getQueryEndpoints() {
-		url := fmt.Sprintf("--query=%s.%s.svc.cluster.local:%s", s, r.Thanos.Namespace, strconv.Itoa(int(resources.GetPort(rule.HttpAddress))))
+		url := fmt.Sprintf("--query=%s.%s.svc:%s", s, r.Thanos.Namespace, strconv.Itoa(int(resources.GetPort(rule.HttpAddress))))
 		args = append(args, url)
 	}
 

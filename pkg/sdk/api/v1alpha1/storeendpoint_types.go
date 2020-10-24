@@ -71,7 +71,7 @@ func (s *StoreEndpoint) GetServiceURL() string {
 		return s.Spec.URL
 	}
 	if s.Spec.Selector != nil {
-		return fmt.Sprintf("dnssrvnoa+_grpc._tcp.%s.%s.svc.cluster.local", fmt.Sprintf("%s-%s", s.Name, SidecarName), s.Namespace)
+		return fmt.Sprintf("dnssrvnoa+_grpc._tcp.%s.%s.svc", fmt.Sprintf("%s-%s", s.Name, SidecarName), s.Namespace)
 	}
 	return ""
 }

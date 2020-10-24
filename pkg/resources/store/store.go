@@ -58,7 +58,7 @@ func (s *storeInstance) getMeta() metav1.ObjectMeta {
 }
 
 func (s *storeInstance) getSvc() string {
-	return fmt.Sprintf("_grpc._tcp.%s.%s.svc.cluster.local", s.getName(), s.StoreEndpoint.Namespace)
+	return fmt.Sprintf("_grpc._tcp.%s.%s.svc", s.getName(), s.StoreEndpoint.Namespace)
 }
 
 func (s *Store) resourceFactory() []resources.Resource {
