@@ -16,6 +16,7 @@ package query
 
 import (
 	"fmt"
+	"regexp"
 	"sort"
 
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
@@ -123,7 +124,13 @@ func (q *Query) getStoreEndpoints() []string {
 	// Discover StoreEndpoint aka Sidecars
 	for _, endpoint := range q.StoreEndpoints {
 		if url := endpoint.GetServiceURL(); url != "" {
-			endpoints = append(endpoints, fmt.Sprintf("--store=%s.%s", url, q.Thanos.GetClusterDomain()))
+			r, _ := regexp.Compile(`.*\.svc$`)
+			switch r.MatchString(url) {
+			case true:
+				endpoints = append(endpoints, fmt.Sprintf("--store=%s.%s", url, q.Thanos.GetClusterDomain()))
+			default:
+				endpoints = append(endpoints, fmt.Sprintf("--store=%s", url))
+			}
 		}
 	}
 	// Discover static StoreAPI endpoints provided as stores parameter
