@@ -42,7 +42,6 @@ const (
 	defaultNamespace = "thanos-system"
 )
 
-
 // +kubebuilder:object:generate=true
 
 type ComponentConfig struct {
