@@ -17,11 +17,15 @@ package controllers
 import (
 	"context"
 
+	"github.com/banzaicloud/operator-tools/pkg/prometheus"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/resources/bucketweb"
 	"github.com/banzaicloud/thanos-operator/pkg/resources/compactor"
 	"github.com/go-logr/logr"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/api/extensions/v1beta1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -68,5 +72,10 @@ func (r *ObjectStoreReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 func (r *ObjectStoreReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&monitoringv1alpha1.ObjectStore{}).
+		Owns(&appsv1.Deployment{}).
+		Owns(&corev1.Service{}).
+		Owns(&prometheus.ServiceMonitor{}).
+		Owns(&v1beta1.Ingress{}).
+		Owns(&corev1.PersistentVolumeClaim{}).
 		Complete(r)
 }

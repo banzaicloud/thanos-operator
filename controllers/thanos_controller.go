@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/banzaicloud/operator-tools/pkg/prometheus"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/resources/query"
@@ -26,6 +27,9 @@ import (
 	"github.com/banzaicloud/thanos-operator/pkg/resources/store"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/go-logr/logr"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/api/extensions/v1beta1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -151,5 +155,10 @@ func (r *ThanosReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.Thanos{}).
 		Watches(&source.Kind{Type: &v1alpha1.StoreEndpoint{}}, requestMapper).
+		Owns(&appsv1.Deployment{}).
+		Owns(&corev1.Service{}).
+		Owns(&prometheus.ServiceMonitor{}).
+		Owns(&v1beta1.Ingress{}).
+		Owns(&appsv1.StatefulSet{}).
 		Complete(r)
 }
