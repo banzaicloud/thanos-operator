@@ -22,6 +22,8 @@ import (
 	"github.com/banzaicloud/thanos-operator/pkg/resources/sidecar"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/go-logr/logr"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/api/extensions/v1beta1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -63,5 +65,7 @@ func (r *StoreEndpointReconciler) Reconcile(req ctrl.Request) (ctrl.Result, erro
 func (r *StoreEndpointReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.StoreEndpoint{}).
+		Owns(&corev1.Service{}).
+		Owns(&v1beta1.Ingress{}).
 		Complete(r)
 }
