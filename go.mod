@@ -19,5 +19,3 @@ require (
 )
 
 replace github.com/banzaicloud/thanos-operator/pkg/sdk => ./pkg/sdk
-
-// replace github.com/banzaicloud/operator-tools => ../operator-tools

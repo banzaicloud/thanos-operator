@@ -13,5 +13,3 @@ require (
 )
 
 replace github.com/shurcooL/vfsgen => github.com/banzaicloud/vfsgen v0.0.0-20200203103248-c48ce8603af1
-
-// replace github.com/banzaicloud/operator-tools => ../../../operator-tools
