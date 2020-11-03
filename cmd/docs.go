@@ -21,10 +21,10 @@ import (
 	"emperror.dev/errors"
 	"github.com/MakeNowJust/heredoc"
 	"github.com/banzaicloud/operator-tools/pkg/docgen"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	"github.com/banzaicloud/operator-tools/pkg/utils"
 )
 
-var logger = zap.New(zap.UseDevMode(true))
+var logger = utils.Log
 
 func main() {
 	crds()

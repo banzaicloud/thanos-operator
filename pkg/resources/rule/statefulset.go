@@ -35,60 +35,61 @@ func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, e
 			ObjectMeta: rule.MetaOverrides.Merge(r.getMeta()),
 		}
 
-		statefulset.Spec = appsv1.StatefulSetSpec{
-			Replicas: utils.IntPointer(1),
-			Selector: &metav1.LabelSelector{
-				MatchLabels: r.getLabels(),
-			},
-			Template: corev1.PodTemplateSpec{
-				ObjectMeta: rule.WorkloadMetaOverrides.Merge(r.getMeta()),
-				Spec: rule.WorkloadOverrides.Override(corev1.PodSpec{
-					Containers: []corev1.Container{
-						rule.ContainerOverrides.Override(corev1.Container{
-							Name:  "rule",
-							Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
-							Args: []string{
-								"rule",
-								fmt.Sprintf("--objstore.config-file=/etc/config/%s", r.StoreEndpoint.Spec.Config.MountFrom.SecretKeyRef.Key),
-							},
-							WorkingDir: "",
-							Ports: []corev1.ContainerPort{
-								{
-									Name:          "http",
-									ContainerPort: resources.GetPort(rule.HttpAddress),
-									Protocol:      corev1.ProtocolTCP,
+		statefulset.Spec = rule.StatefulsetOverrides.Override(
+			appsv1.StatefulSetSpec{
+				Replicas: utils.IntPointer(1),
+				Selector: &metav1.LabelSelector{
+					MatchLabels: r.getLabels(),
+				},
+				Template: corev1.PodTemplateSpec{
+					ObjectMeta: rule.WorkloadMetaOverrides.Merge(r.getMeta()),
+					Spec: rule.WorkloadOverrides.Override(corev1.PodSpec{
+						Containers: []corev1.Container{
+							rule.ContainerOverrides.Override(corev1.Container{
+								Name:  "rule",
+								Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
+								Args: []string{
+									"rule",
+									fmt.Sprintf("--objstore.config-file=/etc/config/%s", r.StoreEndpoint.Spec.Config.MountFrom.SecretKeyRef.Key),
 								},
-								{
-									Name:          "grpc",
-									ContainerPort: resources.GetPort(rule.GRPCAddress),
-									Protocol:      corev1.ProtocolTCP,
+								WorkingDir: "",
+								Ports: []corev1.ContainerPort{
+									{
+										Name:          "http",
+										ContainerPort: resources.GetPort(rule.HttpAddress),
+										Protocol:      corev1.ProtocolTCP,
+									},
+									{
+										Name:          "grpc",
+										ContainerPort: resources.GetPort(rule.GRPCAddress),
+										Protocol:      corev1.ProtocolTCP,
+									},
 								},
-							},
-							VolumeMounts: []corev1.VolumeMount{
-								{
-									Name:      "objectstore-secret",
-									ReadOnly:  true,
-									MountPath: "/etc/config/",
+								VolumeMounts: []corev1.VolumeMount{
+									{
+										Name:      "objectstore-secret",
+										ReadOnly:  true,
+										MountPath: "/etc/config/",
+									},
 								},
-							},
-							LivenessProbe:   r.GetCheck(resources.GetPort(rule.HttpAddress), resources.HealthCheckPath),
-							ReadinessProbe:  r.GetCheck(resources.GetPort(rule.HttpAddress), resources.ReadyCheckPath),
-							ImagePullPolicy: corev1.PullIfNotPresent,
-						}),
-					},
-					Volumes: []corev1.Volume{
-						{
-							Name: "objectstore-secret",
-							VolumeSource: corev1.VolumeSource{
-								Secret: &corev1.SecretVolumeSource{
-									SecretName: r.StoreEndpoint.Spec.Config.MountFrom.SecretKeyRef.Name,
+								LivenessProbe:   r.GetCheck(resources.GetPort(rule.HttpAddress), resources.HealthCheckPath),
+								ReadinessProbe:  r.GetCheck(resources.GetPort(rule.HttpAddress), resources.ReadyCheckPath),
+								ImagePullPolicy: corev1.PullIfNotPresent,
+							}),
+						},
+						Volumes: []corev1.Volume{
+							{
+								Name: "objectstore-secret",
+								VolumeSource: corev1.VolumeSource{
+									Secret: &corev1.SecretVolumeSource{
+										SecretName: r.StoreEndpoint.Spec.Config.MountFrom.SecretKeyRef.Name,
+									},
 								},
 							},
 						},
-					},
-				}),
-			},
-		}
+					}),
+				},
+			})
 
 		statefulset.Spec.Template.Spec.Containers[0].Args = r.setArgs(statefulset.Spec.Template.Spec.Containers[0].Args)
 

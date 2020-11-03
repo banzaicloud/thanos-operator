@@ -47,6 +47,11 @@ func (in *BucketWeb) DeepCopyInto(out *BucketWeb) {
 		*out = new(types.ContainerBase)
 		(*in).DeepCopyInto(*out)
 	}
+	if in.DeploymentOverrides != nil {
+		in, out := &in.DeploymentOverrides, &out.DeploymentOverrides
+		*out = new(types.DeploymentSpecBase)
+		(*in).DeepCopyInto(*out)
+	}
 	if in.Metrics != nil {
 		in, out := &in.Metrics, &out.Metrics
 		*out = new(Metrics)
@@ -88,6 +93,11 @@ func (in *Compactor) DeepCopyInto(out *Compactor) {
 	if in.ContainerOverrides != nil {
 		in, out := &in.ContainerOverrides, &out.ContainerOverrides
 		*out = new(types.ContainerBase)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.DeploymentOverrides != nil {
+		in, out := &in.DeploymentOverrides, &out.DeploymentOverrides
+		*out = new(types.DeploymentSpecBase)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.Metrics != nil {
@@ -299,6 +309,11 @@ func (in *Query) DeepCopyInto(out *Query) {
 		*out = new(types.ContainerBase)
 		(*in).DeepCopyInto(*out)
 	}
+	if in.DeploymentOverrides != nil {
+		in, out := &in.DeploymentOverrides, &out.DeploymentOverrides
+		*out = new(types.DeploymentSpecBase)
+		(*in).DeepCopyInto(*out)
+	}
 	if in.Metrics != nil {
 		in, out := &in.Metrics, &out.Metrics
 		*out = new(Metrics)
@@ -371,6 +386,11 @@ func (in *QueryFrontend) DeepCopyInto(out *QueryFrontend) {
 		*out = new(types.ContainerBase)
 		(*in).DeepCopyInto(*out)
 	}
+	if in.DeploymentOverrides != nil {
+		in, out := &in.DeploymentOverrides, &out.DeploymentOverrides
+		*out = new(types.DeploymentSpecBase)
+		(*in).DeepCopyInto(*out)
+	}
 	if in.Metrics != nil {
 		in, out := &in.Metrics, &out.Metrics
 		*out = new(Metrics)
@@ -424,6 +444,11 @@ func (in *Rule) DeepCopyInto(out *Rule) {
 	if in.ContainerOverrides != nil {
 		in, out := &in.ContainerOverrides, &out.ContainerOverrides
 		*out = new(types.ContainerBase)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.StatefulsetOverrides != nil {
+		in, out := &in.StatefulsetOverrides, &out.StatefulsetOverrides
+		*out = new(types.StatefulsetSpecBase)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.Metrics != nil {
@@ -608,6 +633,11 @@ func (in *StoreGateway) DeepCopyInto(out *StoreGateway) {
 	if in.ContainerOverrides != nil {
 		in, out := &in.ContainerOverrides, &out.ContainerOverrides
 		*out = new(types.ContainerBase)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.DeploymentOverrides != nil {
+		in, out := &in.DeploymentOverrides, &out.DeploymentOverrides
+		*out = new(types.DeploymentSpecBase)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.Metrics != nil {

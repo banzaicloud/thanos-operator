@@ -19,13 +19,13 @@ import (
 	"os"
 
 	"github.com/banzaicloud/operator-tools/pkg/prometheus"
+	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/controllers"
 	thanosv1alpha1 "github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -57,9 +57,7 @@ func main() {
 	flag.StringVar(&leaderElectionNamespace, "leader-election-ns", "", "The NS  of the leader election")
 	flag.Parse()
 
-	ctrl.SetLogger(zap.New(func(o *zap.Options) {
-		o.Development = true
-	}))
+	ctrl.SetLogger(utils.Log)
 
 	if leaderElectionId == "" {
 		leaderElectionId = DefaultLeaderElectionID

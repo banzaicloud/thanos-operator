@@ -13,6 +13,7 @@
 | workloadMetaOverrides | *types.MetaBase | No | - |  |
 | workloadOverrides | *types.PodSpecBase | No | - |  |
 | containerOverrides | *types.ContainerBase | No | - |  |
+| deploymentOverrides | *types.DeploymentSpecBase | No | - |  |
 | metrics | *Metrics | No | - |  |
 | httpAddress | string | No | - | Listen host:port for HTTP endpoints.<br> |
 | httpGracePeriod | metav1.Duration | No | - | Time to wait after an interrupt received for HTTP Server.<br> |
@@ -33,6 +34,7 @@
 | workloadMetaOverrides | *types.MetaBase | No | - |  |
 | workloadOverrides | *types.PodSpecBase | No | - |  |
 | containerOverrides | *types.ContainerBase | No | - |  |
+| deploymentOverrides | *types.DeploymentSpecBase | No | - |  |
 | metrics | *Metrics | No | - |  |
 | httpAddress | string | No | - | Listen host:port for HTTP endpoints.<br> |
 | httpGracePeriod | metav1.Duration | No | - | Time to wait after an interrupt received for HTTP Server.<br> |
