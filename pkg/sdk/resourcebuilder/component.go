@@ -30,7 +30,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer/json"
@@ -38,19 +38,20 @@ import (
 )
 
 const (
-	Image            = "banzaicloud/thanos-operator:0.1.1"
+	Image            = "banzaicloud/thanos-operator:0.1.1-dev"
 	defaultNamespace = "thanos-system"
 )
 
 // +kubebuilder:object:generate=true
 
 type ComponentConfig struct {
-	Namespace             string               `json:"namespace,omitempty"`
-	Enabled               *bool                `json:"enabled,omitempty"`
-	MetaOverrides         *types.MetaBase      `json:"metaOverrides,omitempty"`
-	WorkloadMetaOverrides *types.MetaBase      `json:"workloadMetaOverrides,omitempty"`
-	WorkloadOverrides     *types.PodSpecBase   `json:"workloadOverrides,omitempty"`
-	ContainerOverrides    *types.ContainerBase `json:"containerOverrides,omitempty"`
+	Namespace             string                    `json:"namespace,omitempty"`
+	Enabled               *bool                     `json:"enabled,omitempty"`
+	MetaOverrides         *types.MetaBase           `json:"metaOverrides,omitempty"`
+	WorkloadMetaOverrides *types.MetaBase           `json:"workloadMetaOverrides,omitempty"`
+	WorkloadOverrides     *types.PodSpecBase        `json:"workloadOverrides,omitempty"`
+	ContainerOverrides    *types.ContainerBase      `json:"containerOverrides,omitempty"`
+	DeploymentOverrides   *types.DeploymentSpecBase `json:"deploymentOverrides,omitempty"`
 }
 
 func (c *ComponentConfig) IsEnabled() bool {
@@ -157,37 +158,38 @@ func Operator(parent reconciler.ResourceOwner, config ComponentConfig) (runtime.
 	if !config.IsEnabled() {
 		return deployment, reconciler.StateAbsent, nil
 	}
-	deployment.Spec = appsv1.DeploymentSpec{
-		Template: corev1.PodTemplateSpec{
-			ObjectMeta: config.WorkloadMetaOverrides.Merge(v1.ObjectMeta{
-				Labels: config.labelSelector(parent),
-			}),
-			Spec: config.WorkloadOverrides.Override(corev1.PodSpec{
-				ServiceAccountName: config.objectMeta(parent).Name,
-				Containers: []corev1.Container{
-					config.ContainerOverrides.Override(corev1.Container{
-						Name:    "thanos-operator",
-						Image:   Image,
-						Command: []string{"/manager"},
-						Args:    []string{"--enable-leader-election"},
-						Resources: corev1.ResourceRequirements{
-							Limits: corev1.ResourceList{
-								corev1.ResourceCPU:    resource.MustParse("100m"),
-								corev1.ResourceMemory: resource.MustParse("30Mi"),
+	deployment.Spec = config.DeploymentOverrides.Override(
+		appsv1.DeploymentSpec{
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: config.WorkloadMetaOverrides.Merge(v1.ObjectMeta{
+					Labels: config.labelSelector(parent),
+				}),
+				Spec: config.WorkloadOverrides.Override(corev1.PodSpec{
+					ServiceAccountName: config.objectMeta(parent).Name,
+					Containers: []corev1.Container{
+						config.ContainerOverrides.Override(corev1.Container{
+							Name:    "thanos-operator",
+							Image:   Image,
+							Command: []string{"/manager"},
+							Args:    []string{"--enable-leader-election"},
+							Resources: corev1.ResourceRequirements{
+								Limits: corev1.ResourceList{
+									corev1.ResourceCPU:    resource.MustParse("100m"),
+									corev1.ResourceMemory: resource.MustParse("30Mi"),
+								},
+								Requests: corev1.ResourceList{
+									corev1.ResourceCPU:    resource.MustParse("50m"),
+									corev1.ResourceMemory: resource.MustParse("20Mi"),
+								},
 							},
-							Requests: corev1.ResourceList{
-								corev1.ResourceCPU:    resource.MustParse("50m"),
-								corev1.ResourceMemory: resource.MustParse("20Mi"),
-							},
-						},
-					}),
-				},
-			}),
-		},
-		Selector: &v1.LabelSelector{
-			MatchLabels: config.labelSelector(parent),
-		},
-	}
+						}),
+					},
+				}),
+			},
+			Selector: &v1.LabelSelector{
+				MatchLabels: config.labelSelector(parent),
+			},
+		})
 	return deployment, reconciler.StatePresent, nil
 }
 

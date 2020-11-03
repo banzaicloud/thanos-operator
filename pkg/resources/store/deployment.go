@@ -39,44 +39,45 @@ func (s *storeInstance) deployment() (runtime.Object, reconciler.DesiredState, e
 			ObjectMeta: store.MetaOverrides.Merge(s.getMeta()),
 		}
 
-		deployment.Spec = appsv1.DeploymentSpec{
-			Replicas: utils.IntPointer(1),
-			Selector: &metav1.LabelSelector{
-				MatchLabels: s.getLabels(),
-			},
-			Template: corev1.PodTemplateSpec{
-				ObjectMeta: store.WorkloadMetaOverrides.Merge(s.getMeta()),
-				Spec: store.WorkloadOverrides.Override(corev1.PodSpec{
-					Containers: []corev1.Container{
-						store.ContainerOverrides.Override(corev1.Container{
-							Name:  v1alpha1.StoreName,
-							Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
-							Args: []string{
-								"store",
-								fmt.Sprintf("--objstore.config-file=/etc/config/%s", s.StoreEndpoint.Spec.Config.MountFrom.SecretKeyRef.Key),
-							},
-							Ports: []corev1.ContainerPort{
-								{
-									Name:          "http",
-									ContainerPort: resources.GetPort(store.HttpAddress),
-									Protocol:      corev1.ProtocolTCP,
+		deployment.Spec = store.DeploymentOverrides.Override(
+			appsv1.DeploymentSpec{
+				Replicas: utils.IntPointer(1),
+				Selector: &metav1.LabelSelector{
+					MatchLabels: s.getLabels(),
+				},
+				Template: corev1.PodTemplateSpec{
+					ObjectMeta: store.WorkloadMetaOverrides.Merge(s.getMeta()),
+					Spec: store.WorkloadOverrides.Override(corev1.PodSpec{
+						Containers: []corev1.Container{
+							store.ContainerOverrides.Override(corev1.Container{
+								Name:  v1alpha1.StoreName,
+								Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
+								Args: []string{
+									"store",
+									fmt.Sprintf("--objstore.config-file=/etc/config/%s", s.StoreEndpoint.Spec.Config.MountFrom.SecretKeyRef.Key),
 								},
-								{
-									Name:          "grpc",
-									ContainerPort: resources.GetPort(store.GRPCAddress),
-									Protocol:      corev1.ProtocolTCP,
+								Ports: []corev1.ContainerPort{
+									{
+										Name:          "http",
+										ContainerPort: resources.GetPort(store.HttpAddress),
+										Protocol:      corev1.ProtocolTCP,
+									},
+									{
+										Name:          "grpc",
+										ContainerPort: resources.GetPort(store.GRPCAddress),
+										Protocol:      corev1.ProtocolTCP,
+									},
 								},
-							},
-							VolumeMounts:    s.getVolumeMounts(),
-							ImagePullPolicy: corev1.PullIfNotPresent,
-							LivenessProbe:   s.GetCheck(resources.GetPort(store.HttpAddress), resources.HealthCheckPath),
-							ReadinessProbe:  s.GetCheck(resources.GetPort(store.HttpAddress), resources.ReadyCheckPath),
-						}),
-					},
-					Volumes: s.getVolumes(),
-				}),
-			},
-		}
+								VolumeMounts:    s.getVolumeMounts(),
+								ImagePullPolicy: corev1.PullIfNotPresent,
+								LivenessProbe:   s.GetCheck(resources.GetPort(store.HttpAddress), resources.HealthCheckPath),
+								ReadinessProbe:  s.GetCheck(resources.GetPort(store.HttpAddress), resources.ReadyCheckPath),
+							}),
+						},
+						Volumes: s.getVolumes(),
+					}),
+				},
+			})
 
 		// Set up args
 		deployment.Spec.Template.Spec.Containers[0].Args = s.setArgs(deployment.Spec.Template.Spec.Containers[0].Args)

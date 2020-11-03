@@ -37,62 +37,63 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 			ObjectMeta: compactor.MetaOverrides.Merge(c.getMeta()),
 		}
 
-		deployment.Spec = appsv1.DeploymentSpec{
-			Replicas: utils.IntPointer(1),
-			Selector: &metav1.LabelSelector{
-				MatchLabels: c.getLabels(),
-			},
-			Template: corev1.PodTemplateSpec{
-				ObjectMeta: compactor.WorkloadMetaOverrides.Merge(c.getMeta()),
-				Spec: compactor.WorkloadOverrides.Override(corev1.PodSpec{
-					Containers: []corev1.Container{
-						compactor.ContainerOverrides.Override(corev1.Container{
-							Name:  Name,
-							Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
-							Args: []string{
-								"compact",
-								"--log.level=info",
-								"--http-address=" + compactor.HTTPAddress,
-								"--http-grace-period=" + strconv.Itoa(int(math.Floor(compactor.HTTPGracePeriod.Duration.Seconds()))) + "s",
-								"--data-dir=" + compactor.DataDir,
-								// TODO: get secret file path from secret mount
-								"--objstore.config-file=/etc/config/" + c.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Key,
-								"--consistency-delay=" + strconv.Itoa(int(math.Floor(compactor.ConsistencyDelay.Duration.Seconds()))) + "s",
-								"--retention.resolution-raw=" + strconv.Itoa(int(math.Floor(compactor.RetentionResolutionRaw.Duration.Seconds()))) + "s",
-								"--retention.resolution-5m=" + strconv.Itoa(int(math.Floor(compactor.RetentionResolution5m.Duration.Seconds()))) + "s",
-								"--retention.resolution-1h=" + strconv.Itoa(int(math.Floor(compactor.RetentionResolution1h.Duration.Seconds()))) + "s",
-								"--compact.concurrency=" + strconv.Itoa(compactor.CompactConcurrency),
-							},
-							Ports: []corev1.ContainerPort{
-								{
-									Name:          "http",
-									ContainerPort: resources.GetPort(compactor.HTTPAddress),
-									Protocol:      corev1.ProtocolTCP,
+		deployment.Spec = compactor.DeploymentOverrides.Override(
+			appsv1.DeploymentSpec{
+				Replicas: utils.IntPointer(1),
+				Selector: &metav1.LabelSelector{
+					MatchLabels: c.getLabels(),
+				},
+				Template: corev1.PodTemplateSpec{
+					ObjectMeta: compactor.WorkloadMetaOverrides.Merge(c.getMeta()),
+					Spec: compactor.WorkloadOverrides.Override(corev1.PodSpec{
+						Containers: []corev1.Container{
+							compactor.ContainerOverrides.Override(corev1.Container{
+								Name:  Name,
+								Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
+								Args: []string{
+									"compact",
+									"--log.level=info",
+									"--http-address=" + compactor.HTTPAddress,
+									"--http-grace-period=" + strconv.Itoa(int(math.Floor(compactor.HTTPGracePeriod.Duration.Seconds()))) + "s",
+									"--data-dir=" + compactor.DataDir,
+									// TODO: get secret file path from secret mount
+									"--objstore.config-file=/etc/config/" + c.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Key,
+									"--consistency-delay=" + strconv.Itoa(int(math.Floor(compactor.ConsistencyDelay.Duration.Seconds()))) + "s",
+									"--retention.resolution-raw=" + strconv.Itoa(int(math.Floor(compactor.RetentionResolutionRaw.Duration.Seconds()))) + "s",
+									"--retention.resolution-5m=" + strconv.Itoa(int(math.Floor(compactor.RetentionResolution5m.Duration.Seconds()))) + "s",
+									"--retention.resolution-1h=" + strconv.Itoa(int(math.Floor(compactor.RetentionResolution1h.Duration.Seconds()))) + "s",
+									"--compact.concurrency=" + strconv.Itoa(compactor.CompactConcurrency),
 								},
-							},
-							VolumeMounts: []corev1.VolumeMount{
-								{
-									Name:      "objectstore-secret",
-									ReadOnly:  true,
-									MountPath: "/etc/config/",
+								Ports: []corev1.ContainerPort{
+									{
+										Name:          "http",
+										ContainerPort: resources.GetPort(compactor.HTTPAddress),
+										Protocol:      corev1.ProtocolTCP,
+									},
 								},
-							},
-							ImagePullPolicy: corev1.PullIfNotPresent,
-						}),
-					},
-					Volumes: []corev1.Volume{
-						{
-							Name: "objectstore-secret",
-							VolumeSource: corev1.VolumeSource{
-								Secret: &corev1.SecretVolumeSource{
-									SecretName: c.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Name,
+								VolumeMounts: []corev1.VolumeMount{
+									{
+										Name:      "objectstore-secret",
+										ReadOnly:  true,
+										MountPath: "/etc/config/",
+									},
+								},
+								ImagePullPolicy: corev1.PullIfNotPresent,
+							}),
+						},
+						Volumes: []corev1.Volume{
+							{
+								Name: "objectstore-secret",
+								VolumeSource: corev1.VolumeSource{
+									Secret: &corev1.SecretVolumeSource{
+										SecretName: c.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Name,
+									},
 								},
 							},
 						},
-					},
-				}),
-			},
-		}
+					}),
+				},
+			})
 
 		if compactor.Wait {
 			deployment.Spec.Template.Spec.Containers[0].Args = append(deployment.Spec.Template.Spec.Containers[0].Args, "--wait")

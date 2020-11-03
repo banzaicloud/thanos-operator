@@ -100,14 +100,15 @@ type Ingress struct {
 }
 
 type QueryFrontend struct {
-	MetaOverrides         *types.MetaBase      `json:"metaOverrides,omitempty"`
-	WorkloadMetaOverrides *types.MetaBase      `json:"workloadMetaOverrides,omitempty"`
-	WorkloadOverrides     *types.PodSpecBase   `json:"workloadOverrides,omitempty"`
-	ContainerOverrides    *types.ContainerBase `json:"containerOverrides,omitempty"`
-	Metrics               *Metrics             `json:"metrics,omitempty"`
-	HTTPIngress           *Ingress             `json:"HTTPIngress,omitempty"`
-	LogLevel              string               `json:"logLevel,omitempty" thanos:"--log.level=%s"`
-	LogFormat             string               `json:"logFormat,omitempty" thanos:"--log.format=%s"`
+	MetaOverrides         *types.MetaBase           `json:"metaOverrides,omitempty"`
+	WorkloadMetaOverrides *types.MetaBase           `json:"workloadMetaOverrides,omitempty"`
+	WorkloadOverrides     *types.PodSpecBase        `json:"workloadOverrides,omitempty"`
+	ContainerOverrides    *types.ContainerBase      `json:"containerOverrides,omitempty"`
+	DeploymentOverrides   *types.DeploymentSpecBase `json:"deploymentOverrides,omitempty"`
+	Metrics               *Metrics                  `json:"metrics,omitempty"`
+	HTTPIngress           *Ingress                  `json:"HTTPIngress,omitempty"`
+	LogLevel              string                    `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat             string                    `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Split queries by an interval and execute in parallel, 0 disables it.
 	QueryRangeSplit string `json:"queryRangeSplit,omitempty" thanos:"--query-range.split-interval=%s"`
 	// Maximum number of retries for a single request; beyond this, the downstream error is returned.
@@ -142,17 +143,18 @@ type QueryFrontend struct {
 }
 
 type Query struct {
-	MetaOverrides         *types.MetaBase      `json:"metaOverrides,omitempty"`
-	WorkloadMetaOverrides *types.MetaBase      `json:"workloadMetaOverrides,omitempty"`
-	WorkloadOverrides     *types.PodSpecBase   `json:"workloadOverrides,omitempty"`
-	ContainerOverrides    *types.ContainerBase `json:"containerOverrides,omitempty"`
-	Metrics               *Metrics             `json:"metrics,omitempty"`
-	HTTPIngress           *Ingress             `json:"HTTPIngress,omitempty"`
-	GRPCIngress           *Ingress             `json:"GRPCIngress,omitempty"`
-	GRPCClientCertificate string               `json:"GRPCClientCertificate,omitempty"`
-	GRPCServerCertificate string               `json:"GRPCServerCertificate,omitempty"`
-	LogLevel              string               `json:"logLevel,omitempty" thanos:"--log.level=%s"`
-	LogFormat             string               `json:"logFormat,omitempty" thanos:"--log.format=%s"`
+	MetaOverrides         *types.MetaBase           `json:"metaOverrides,omitempty"`
+	WorkloadMetaOverrides *types.MetaBase           `json:"workloadMetaOverrides,omitempty"`
+	WorkloadOverrides     *types.PodSpecBase        `json:"workloadOverrides,omitempty"`
+	ContainerOverrides    *types.ContainerBase      `json:"containerOverrides,omitempty"`
+	DeploymentOverrides   *types.DeploymentSpecBase `json:"deploymentOverrides,omitempty"`
+	Metrics               *Metrics                  `json:"metrics,omitempty"`
+	HTTPIngress           *Ingress                  `json:"HTTPIngress,omitempty"`
+	GRPCIngress           *Ingress                  `json:"GRPCIngress,omitempty"`
+	GRPCClientCertificate string                    `json:"GRPCClientCertificate,omitempty"`
+	GRPCServerCertificate string                    `json:"GRPCServerCertificate,omitempty"`
+	LogLevel              string                    `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat             string                    `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Listen host:port for HTTP endpoints.
 	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
 	// Time to wait after an interrupt received for HTTP Server.
@@ -223,14 +225,15 @@ type TimeRange struct {
 }
 
 type StoreGateway struct {
-	MetaOverrides         *types.MetaBase      `json:"metaOverrides,omitempty"`
-	WorkloadMetaOverrides *types.MetaBase      `json:"workloadMetaOverrides,omitempty"`
-	WorkloadOverrides     *types.PodSpecBase   `json:"workloadOverrides,omitempty"`
-	ContainerOverrides    *types.ContainerBase `json:"containerOverrides,omitempty"`
-	Metrics               *Metrics             `json:"metrics,omitempty"`
-	GRPCServerCertificate string               `json:"GRPCServerCertificate,omitempty"`
-	LogLevel              string               `json:"logLevel,omitempty" thanos:"--log.level=%s"`
-	LogFormat             string               `json:"logFormat,omitempty" thanos:"--log.format=%s"`
+	MetaOverrides         *types.MetaBase           `json:"metaOverrides,omitempty"`
+	WorkloadMetaOverrides *types.MetaBase           `json:"workloadMetaOverrides,omitempty"`
+	WorkloadOverrides     *types.PodSpecBase        `json:"workloadOverrides,omitempty"`
+	ContainerOverrides    *types.ContainerBase      `json:"containerOverrides,omitempty"`
+	DeploymentOverrides   *types.DeploymentSpecBase `json:"deploymentOverrides,omitempty"`
+	Metrics               *Metrics                  `json:"metrics,omitempty"`
+	GRPCServerCertificate string                    `json:"GRPCServerCertificate,omitempty"`
+	LogLevel              string                    `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat             string                    `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Listen host:port for HTTP endpoints.
 	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
 	// Time to wait after an interrupt received for HTTP Server.
@@ -258,15 +261,16 @@ type StoreGateway struct {
 }
 
 type Rule struct {
-	MetaOverrides         *types.MetaBase      `json:"metaOverrides,omitempty"`
-	WorkloadMetaOverrides *types.MetaBase      `json:"workloadMetaOverrides,omitempty"`
-	WorkloadOverrides     *types.PodSpecBase   `json:"workloadOverrides,omitempty"`
-	ContainerOverrides    *types.ContainerBase `json:"containerOverrides,omitempty"`
-	Metrics               *Metrics             `json:"metrics,omitempty"`
-	HTTPIngress           *Ingress             `json:"HTTPIngress,omitempty"`
-	GRPCIngress           *Ingress             `json:"GRPCIngress,omitempty"`
-	LogLevel              string               `json:"logLevel,omitempty" thanos:"--log.level=%s"`
-	LogFormat             string               `json:"logFormat,omitempty" thanos:"--log.format=%s"`
+	MetaOverrides         *types.MetaBase            `json:"metaOverrides,omitempty"`
+	WorkloadMetaOverrides *types.MetaBase            `json:"workloadMetaOverrides,omitempty"`
+	WorkloadOverrides     *types.PodSpecBase         `json:"workloadOverrides,omitempty"`
+	ContainerOverrides    *types.ContainerBase       `json:"containerOverrides,omitempty"`
+	StatefulsetOverrides  *types.StatefulsetSpecBase `json:"statefulsetOverrides,omitempty"`
+	Metrics               *Metrics                   `json:"metrics,omitempty"`
+	HTTPIngress           *Ingress                   `json:"HTTPIngress,omitempty"`
+	GRPCIngress           *Ingress                   `json:"GRPCIngress,omitempty"`
+	LogLevel              string                     `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat             string                     `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Listen host:port for HTTP endpoints.
 	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
 	// Time to wait after an interrupt received for HTTP Server.

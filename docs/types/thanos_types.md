@@ -34,6 +34,7 @@
 | workloadMetaOverrides | *types.MetaBase | No | - |  |
 | workloadOverrides | *types.PodSpecBase | No | - |  |
 | containerOverrides | *types.ContainerBase | No | - |  |
+| deploymentOverrides | *types.DeploymentSpecBase | No | - |  |
 | metrics | *Metrics | No | - |  |
 | HTTPIngress | *Ingress | No | - |  |
 | logLevel | string | No | - |  |
@@ -59,6 +60,7 @@
 | workloadMetaOverrides | *types.MetaBase | No | - |  |
 | workloadOverrides | *types.PodSpecBase | No | - |  |
 | containerOverrides | *types.ContainerBase | No | - |  |
+| deploymentOverrides | *types.DeploymentSpecBase | No | - |  |
 | metrics | *Metrics | No | - |  |
 | HTTPIngress | *Ingress | No | - |  |
 | GRPCIngress | *Ingress | No | - |  |
@@ -100,6 +102,7 @@
 | workloadMetaOverrides | *types.MetaBase | No | - |  |
 | workloadOverrides | *types.PodSpecBase | No | - |  |
 | containerOverrides | *types.ContainerBase | No | - |  |
+| deploymentOverrides | *types.DeploymentSpecBase | No | - |  |
 | metrics | *Metrics | No | - |  |
 | GRPCServerCertificate | string | No | - |  |
 | logLevel | string | No | - |  |
@@ -122,6 +125,7 @@
 | workloadMetaOverrides | *types.MetaBase | No | - |  |
 | workloadOverrides | *types.PodSpecBase | No | - |  |
 | containerOverrides | *types.ContainerBase | No | - |  |
+| statefulsetOverrides | *types.StatefulsetSpecBase | No | - |  |
 | metrics | *Metrics | No | - |  |
 | HTTPIngress | *Ingress | No | - |  |
 | GRPCIngress | *Ingress | No | - |  |

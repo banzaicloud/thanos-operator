@@ -39,48 +39,49 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 			ObjectMeta: bucketWeb.MetaOverrides.Merge(b.getMeta()),
 		}
 
-		deployment.Spec = appsv1.DeploymentSpec{
-			Replicas: utils.IntPointer(1),
-			Selector: &metav1.LabelSelector{
-				MatchLabels: b.getLabels(),
-			},
-			Template: corev1.PodTemplateSpec{
-				ObjectMeta: bucketWeb.WorkloadMetaOverrides.Merge(b.getMeta()),
-				Spec: bucketWeb.WorkloadOverrides.Override(corev1.PodSpec{
-					Containers: []corev1.Container{
-						bucketWeb.ContainerOverrides.Override(corev1.Container{
-							Name:  Name,
-							Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
-							Ports: []corev1.ContainerPort{
-								{
-									Name:          "http",
-									ContainerPort: resources.GetPort(bucketWeb.HTTPAddress),
-									Protocol:      corev1.ProtocolTCP,
+		deployment.Spec = bucketWeb.DeploymentOverrides.Override(
+			appsv1.DeploymentSpec{
+				Replicas: utils.IntPointer(1),
+				Selector: &metav1.LabelSelector{
+					MatchLabels: b.getLabels(),
+				},
+				Template: corev1.PodTemplateSpec{
+					ObjectMeta: bucketWeb.WorkloadMetaOverrides.Merge(b.getMeta()),
+					Spec: bucketWeb.WorkloadOverrides.Override(corev1.PodSpec{
+						Containers: []corev1.Container{
+							bucketWeb.ContainerOverrides.Override(corev1.Container{
+								Name:  Name,
+								Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
+								Ports: []corev1.ContainerPort{
+									{
+										Name:          "http",
+										ContainerPort: resources.GetPort(bucketWeb.HTTPAddress),
+										Protocol:      corev1.ProtocolTCP,
+									},
 								},
-							},
-							VolumeMounts: []corev1.VolumeMount{
-								{
-									Name:      "objectstore-secret",
-									ReadOnly:  true,
-									MountPath: "/etc/config/",
+								VolumeMounts: []corev1.VolumeMount{
+									{
+										Name:      "objectstore-secret",
+										ReadOnly:  true,
+										MountPath: "/etc/config/",
+									},
 								},
-							},
-							ImagePullPolicy: corev1.PullIfNotPresent,
-						}),
-					},
-					Volumes: []corev1.Volume{
-						{
-							Name: "objectstore-secret",
-							VolumeSource: corev1.VolumeSource{
-								Secret: &corev1.SecretVolumeSource{
-									SecretName: b.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Name,
+								ImagePullPolicy: corev1.PullIfNotPresent,
+							}),
+						},
+						Volumes: []corev1.Volume{
+							{
+								Name: "objectstore-secret",
+								VolumeSource: corev1.VolumeSource{
+									Secret: &corev1.SecretVolumeSource{
+										SecretName: b.ObjectStore.Spec.Config.MountFrom.SecretKeyRef.Name,
+									},
 								},
 							},
 						},
 					},
-				},
-				)},
-		}
+					)},
+			})
 
 		var containerArgs = []string{
 			"tools",
