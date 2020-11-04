@@ -6,7 +6,7 @@ orbs:
 
 jobs:
   build:
-    resource_class: medium+
+    resource_class: large
     docker:
       - image: cimg/go:1.13
         environment:
