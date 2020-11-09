@@ -140,6 +140,7 @@ type QueryFrontend struct {
 	//	LogStartAndFinishCall : Logs the start and finish call of the requests.
 	//	NoLogCall : Disable request logging.
 	LogRequestDecision string `json:"logRequestDecision,omitempty" thanos:"--log.request.decision=%s"`
+	ServiceType        string `json:"serviceType,omitempty"`
 }
 
 type Query struct {

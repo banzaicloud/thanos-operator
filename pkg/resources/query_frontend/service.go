@@ -25,6 +25,11 @@ import (
 func (q *QueryFrontend) service() (runtime.Object, reconciler.DesiredState, error) {
 	if q.Thanos.Spec.QueryFrontend != nil {
 		queryFrontend := q.Thanos.Spec.QueryFrontend.DeepCopy()
+		serviceType := queryFrontend.ServiceType
+		if serviceType == "" {
+			serviceType = "ClusterIP"
+		}
+
 		queryService := &corev1.Service{
 			ObjectMeta: queryFrontend.MetaOverrides.Merge(q.getMeta(q.getName())),
 			Spec: corev1.ServiceSpec{
@@ -40,7 +45,7 @@ func (q *QueryFrontend) service() (runtime.Object, reconciler.DesiredState, erro
 					},
 				},
 				Selector: q.getLabels(),
-				Type:     corev1.ServiceTypeClusterIP,
+				Type:     corev1.ServiceType(serviceType),
 			},
 		}
 		return queryService, reconciler.StatePresent, nil

@@ -53,6 +53,7 @@
 | queryFrontendCompressResponses | *bool | No | - | Compress HTTP responses.<br> |
 | queryFrontendLogQueriesLongerThan | int | No | - | Log queries that are slower than the specified duration. Set to 0 to disable. Set to < 0 to enable on all queries.<br> |
 | logRequestDecision | string | No | - | Request Logging for logging the start and end of requests. LogFinishCall is enabled by default.<br>LogFinishCall : Logs the finish call of the requests.<br>LogStartAndFinishCall : Logs the start and finish call of the requests.<br>NoLogCall : Disable request logging.<br> |
+| serviceType | string | No | - |  |
 ### Query
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|

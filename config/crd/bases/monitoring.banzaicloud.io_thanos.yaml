@@ -1547,6 +1547,8 @@ spec:
                   type: string
                 queryRangeSplit:
                   type: string
+                serviceType:
+                  type: string
                 workloadMetaOverrides:
                   properties:
                     annotations:
