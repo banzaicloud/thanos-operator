@@ -258,6 +258,8 @@ type StoreGateway struct {
 	BlockSyncConcurrency int `json:"blockSyncConcurrency,omitempty" thanos:"--block-sync-concurrency=%s"`
 	// TimeRanges is a list of TimeRange to partition Store Gateway
 	TimeRanges []TimeRange `json:"timeRanges,omitempty"`
+	// ExtraArgs is a list of extra arguments to pass to `thanos store`
+	ExtraArgs []string `json:"extraArgs,omitempty"`
 }
 
 type Rule struct {

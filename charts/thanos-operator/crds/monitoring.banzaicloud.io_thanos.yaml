@@ -4144,6 +4144,10 @@ spec:
                           type: string
                       type: object
                   type: object
+                extraArgs:
+                  items:
+                    type: string
+                  type: array
                 grpcAddress:
                   type: string
                 grpcGracePeriod:

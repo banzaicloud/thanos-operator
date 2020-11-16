@@ -118,6 +118,7 @@
 | syncBlockDuration | string | No | - | Repeat interval for syncing the blocks between local and remote view.<br> |
 | blockSyncConcurrency | int | No | - | Number of goroutines to use when constructing index-cache.json blocks from object storage.<br> |
 | timeRanges | []TimeRange | No | - | TimeRanges is a list of TimeRange to partition Store Gateway<br> |
+| extraArgs | []string | No | - | ExtraArgs is a list of extra arguments to pass to `thanos store`<br> |
 ### Rule
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|

@@ -52,10 +52,10 @@ func (s *storeInstance) deployment() (runtime.Object, reconciler.DesiredState, e
 							store.ContainerOverrides.Override(corev1.Container{
 								Name:  v1alpha1.StoreName,
 								Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
-								Args: []string{
+								Args: append([]string{
 									"store",
 									fmt.Sprintf("--objstore.config-file=/etc/config/%s", s.StoreEndpoint.Spec.Config.MountFrom.SecretKeyRef.Key),
-								},
+								}, store.ExtraArgs...),
 								Ports: []corev1.ContainerPort{
 									{
 										Name:          "http",
