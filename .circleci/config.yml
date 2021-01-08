@@ -4,6 +4,11 @@ orbs:
   helm: banzaicloud/helm@0.0.8
   docker: circleci/docker@1.5.0
 
+executors:
+  helm311:
+    docker:
+      - image: ghcr.io/banzaicloud/helm:0.0.7
+
 jobs:
   build:
     resource_class: large
@@ -279,12 +284,14 @@ workflows:
     jobs:
       - helm/lint-chart:
           name: 'Helm lint'
+          executor: helm311
           filters:
             tags:
               ignore: /.*/
 
       - helm/publish-chart:
           name: 'Publish chart'
+          executor: helm311
           context: helm
           filters:
             branches:
