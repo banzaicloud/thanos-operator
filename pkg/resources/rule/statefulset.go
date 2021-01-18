@@ -31,21 +31,18 @@ func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, e
 	if r.Thanos.Spec.Rule != nil {
 		rule := r.Thanos.Spec.Rule.DeepCopy()
 
-		statefulset := &appsv1.StatefulSet{
-			ObjectMeta: rule.MetaOverrides.Merge(r.getMeta()),
-		}
-
-		statefulset.Spec = rule.StatefulsetOverrides.Override(
-			appsv1.StatefulSetSpec{
+		statefulset := rule.StatefulsetOverrides.Override(appsv1.StatefulSet{
+			ObjectMeta: r.getMeta(),
+			Spec: appsv1.StatefulSetSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
 					MatchLabels: r.getLabels(),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: rule.WorkloadMetaOverrides.Merge(r.getMeta()),
-					Spec: rule.WorkloadOverrides.Override(corev1.PodSpec{
+					ObjectMeta: r.getMeta(),
+					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
-							rule.ContainerOverrides.Override(corev1.Container{
+							{
 								Name:  "rule",
 								Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
 								Args: []string{
@@ -75,7 +72,7 @@ func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, e
 								LivenessProbe:   r.GetCheck(resources.GetPort(rule.HttpAddress), resources.HealthCheckPath),
 								ReadinessProbe:  r.GetCheck(resources.GetPort(rule.HttpAddress), resources.ReadyCheckPath),
 								ImagePullPolicy: corev1.PullIfNotPresent,
-							}),
+							},
 						},
 						Volumes: []corev1.Volume{
 							{
@@ -87,9 +84,10 @@ func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, e
 								},
 							},
 						},
-					}),
+					},
 				},
-			})
+			},
+		})
 
 		statefulset.Spec.Template.Spec.Containers[0].Args = r.setArgs(statefulset.Spec.Template.Spec.Containers[0].Args)
 
@@ -116,7 +114,7 @@ func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, e
 
 				volume, err := r.Thanos.Spec.Rule.DataVolume.GetVolume("data-volume")
 				if err != nil {
-					return statefulset, reconciler.StateAbsent, err
+					return &statefulset, reconciler.StateAbsent, err
 				}
 
 				statefulset.Spec.Template.Spec.Volumes = append(statefulset.Spec.Template.Spec.Volumes, volume)
@@ -124,7 +122,7 @@ func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, e
 
 		}
 
-		return statefulset, reconciler.StatePresent, nil
+		return &statefulset, reconciler.StatePresent, nil
 	}
 
 	delete := &appsv1.StatefulSet{

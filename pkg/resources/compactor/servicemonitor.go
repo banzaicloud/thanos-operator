@@ -27,7 +27,7 @@ func (c *Compactor) serviceMonitor() (runtime.Object, reconciler.DesiredState, e
 		meta := c.getMeta()
 		compactor := c.ObjectStore.Spec.Compactor.DeepCopy()
 		serviceMonitor := &prometheus.ServiceMonitor{
-			ObjectMeta: compactor.MetaOverrides.Merge(meta),
+			ObjectMeta: compactor.DeploymentOverrides.Merge(meta),
 			Spec: prometheus.ServiceMonitorSpec{
 				Endpoints: []prometheus.Endpoint{
 					{

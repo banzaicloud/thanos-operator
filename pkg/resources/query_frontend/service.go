@@ -26,7 +26,7 @@ func (q *QueryFrontend) service() (runtime.Object, reconciler.DesiredState, erro
 	if q.Thanos.Spec.QueryFrontend != nil {
 		queryFrontend := q.Thanos.Spec.QueryFrontend.DeepCopy()
 		queryService := &corev1.Service{
-			ObjectMeta: queryFrontend.MetaOverrides.Merge(q.getMeta(q.getName())),
+			ObjectMeta: queryFrontend.DeploymentOverrides.Merge(q.getMeta(q.getName())),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{

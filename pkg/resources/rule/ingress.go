@@ -28,7 +28,7 @@ func (r *ruleInstance) ingressHTTP() (runtime.Object, reconciler.DesiredState, e
 		rule := r.Thanos.Spec.Rule.DeepCopy()
 		ruleIngress := rule.HTTPIngress
 		ingress := &v1beta1.Ingress{
-			ObjectMeta: rule.MetaOverrides.Merge(r.getMeta("http")),
+			ObjectMeta: rule.StatefulsetOverrides.Merge(r.getMeta("http")),
 			Spec: v1beta1.IngressSpec{
 				Rules: []v1beta1.IngressRule{
 					{

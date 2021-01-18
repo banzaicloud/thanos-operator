@@ -54,12 +54,8 @@ var DefaultCompactor = &Compactor{
 }
 
 type Compactor struct {
-	MetaOverrides         *types.MetaBase           `json:"metaOverrides,omitempty"`
-	WorkloadMetaOverrides *types.MetaBase           `json:"workloadMetaOverrides,omitempty"`
-	WorkloadOverrides     *types.PodSpecBase        `json:"workloadOverrides,omitempty"`
-	ContainerOverrides    *types.ContainerBase      `json:"containerOverrides,omitempty"`
-	DeploymentOverrides   *types.DeploymentSpecBase `json:"deploymentOverrides,omitempty"`
-	Metrics               *Metrics                  `json:"metrics,omitempty"`
+	DeploymentOverrides *types.DeploymentBase `json:"deploymentOverrides,omitempty"`
+	Metrics             *Metrics              `json:"metrics,omitempty"`
 	// Listen host:port for HTTP endpoints.
 	HTTPAddress string `json:"httpAddress,omitempty"`
 	// Time to wait after an interrupt received for HTTP Server.
@@ -104,12 +100,8 @@ var DefaultBucketWeb = &BucketWeb{
 }
 
 type BucketWeb struct {
-	MetaOverrides         *types.MetaBase           `json:"metaOverrides,omitempty"`
-	WorkloadMetaOverrides *types.MetaBase           `json:"workloadMetaOverrides,omitempty"`
-	WorkloadOverrides     *types.PodSpecBase        `json:"workloadOverrides,omitempty"`
-	ContainerOverrides    *types.ContainerBase      `json:"containerOverrides,omitempty"`
-	DeploymentOverrides   *types.DeploymentSpecBase `json:"deploymentOverrides,omitempty"`
-	Metrics               *Metrics                  `json:"metrics,omitempty"`
+	DeploymentOverrides *types.DeploymentBase `json:"deploymentOverrides,omitempty"`
+	Metrics             *Metrics              `json:"metrics,omitempty"`
 	// Listen host:port for HTTP endpoints.
 	HTTPAddress string `json:"httpAddress,omitempty"`
 	// Time to wait after an interrupt received for HTTP Server.

@@ -32,7 +32,6 @@ const (
 
 // StoreEndpointSpec defines the desired state of StoreEndpoint
 type StoreEndpointSpec struct {
-	// Foo is an example field of StoreEndpoint. Edit StoreEndpoint_types.go to remove/update
 	MetaOverrides *types.MetaBase     `json:"metaOverrides,omitempty"`
 	URL           string              `json:"url,omitempty"`
 	Selector      *KubernetesSelector `json:"selector,omitempty"`

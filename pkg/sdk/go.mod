@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	emperror.dev/errors v0.8.0
-	github.com/banzaicloud/operator-tools v0.15.4
+	github.com/banzaicloud/operator-tools v0.16.3-0.20210118211330-d8450836aad0
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
 	k8s.io/api v0.19.2
 	k8s.io/apiextensions-apiserver v0.19.2
@@ -13,3 +13,5 @@ require (
 )
 
 replace github.com/shurcooL/vfsgen => github.com/banzaicloud/vfsgen v0.0.0-20200203103248-c48ce8603af1
+
+//replace github.com/banzaicloud/operator-tools => ../../../operator-tools

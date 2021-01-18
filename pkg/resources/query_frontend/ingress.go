@@ -28,7 +28,7 @@ func (q *QueryFrontend) ingressHTTP() (runtime.Object, reconciler.DesiredState, 
 		queryFrontendIngress := q.Thanos.Spec.QueryFrontend.HTTPIngress
 		queryFrontend := q.Thanos.Spec.QueryFrontend.DeepCopy()
 		ingress := &v1beta1.Ingress{
-			ObjectMeta: queryFrontend.MetaOverrides.Merge(q.getMeta(q.getName("http"))),
+			ObjectMeta: queryFrontend.DeploymentOverrides.Merge(q.getMeta(q.getName("http"))),
 			Spec: v1beta1.IngressSpec{
 				Rules: []v1beta1.IngressRule{
 					{

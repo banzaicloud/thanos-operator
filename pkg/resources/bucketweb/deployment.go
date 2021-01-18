@@ -35,21 +35,18 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 	if b.ObjectStore.Spec.BucketWeb != nil {
 		bucketWeb := b.ObjectStore.Spec.BucketWeb.DeepCopy()
 
-		deployment := &appsv1.Deployment{
-			ObjectMeta: bucketWeb.MetaOverrides.Merge(b.getMeta()),
-		}
-
-		deployment.Spec = bucketWeb.DeploymentOverrides.Override(
-			appsv1.DeploymentSpec{
+		deployment := bucketWeb.DeploymentOverrides.Override(appsv1.Deployment{
+			ObjectMeta: b.getMeta(),
+			Spec: appsv1.DeploymentSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
 					MatchLabels: b.getLabels(),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: bucketWeb.WorkloadMetaOverrides.Merge(b.getMeta()),
-					Spec: bucketWeb.WorkloadOverrides.Override(corev1.PodSpec{
+					ObjectMeta: b.getMeta(),
+					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
-							bucketWeb.ContainerOverrides.Override(corev1.Container{
+							{
 								Name:  Name,
 								Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
 								Ports: []corev1.ContainerPort{
@@ -67,7 +64,7 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 									},
 								},
 								ImagePullPolicy: corev1.PullIfNotPresent,
-							}),
+							},
 						},
 						Volumes: []corev1.Volume{
 							{
@@ -80,9 +77,9 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 							},
 						},
 					},
-					)},
-			})
-
+				},
+			},
+		})
 		var containerArgs = []string{
 			"tools",
 			"bucket",
@@ -105,7 +102,7 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 		}
 		deployment.Spec.Template.Spec.Containers[0].Args = containerArgs
 
-		return deployment, reconciler.StatePresent, nil
+		return &deployment, reconciler.StatePresent, nil
 	}
 
 	return &appsv1.Deployment{

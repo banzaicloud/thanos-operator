@@ -1,10 +1,10 @@
 
 ---
-apiVersion: apiextensions.k8s.io/v1
+apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.4.1
+    controller-gen.kubebuilder.io/version: v0.2.4
   creationTimestamp: null
   name: storeendpoints.monitoring.banzaicloud.io
 spec:
@@ -14,102 +14,104 @@ spec:
     listKind: StoreEndpointList
     plural: storeendpoints
     singular: storeendpoint
+  preserveUnknownFields: false
   scope: Namespaced
+  validation:
+    openAPIV3Schema:
+      properties:
+        apiVersion:
+          type: string
+        kind:
+          type: string
+        metadata:
+          type: object
+        spec:
+          properties:
+            config:
+              properties:
+                mountFrom:
+                  properties:
+                    secretKeyRef:
+                      properties:
+                        key:
+                          type: string
+                        name:
+                          type: string
+                        optional:
+                          type: boolean
+                      required:
+                      - key
+                      type: object
+                  type: object
+                value:
+                  type: string
+                valueFrom:
+                  properties:
+                    secretKeyRef:
+                      properties:
+                        key:
+                          type: string
+                        name:
+                          type: string
+                        optional:
+                          type: boolean
+                      required:
+                      - key
+                      type: object
+                  type: object
+              type: object
+            ingress:
+              properties:
+                certificate:
+                  type: string
+                host:
+                  type: string
+                path:
+                  type: string
+              type: object
+            metaOverrides:
+              properties:
+                annotations:
+                  additionalProperties:
+                    type: string
+                  type: object
+                labels:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+            selector:
+              properties:
+                annotations:
+                  additionalProperties:
+                    type: string
+                  type: object
+                grpcPort:
+                  format: int32
+                  type: integer
+                httpPort:
+                  format: int32
+                  type: integer
+                labels:
+                  additionalProperties:
+                    type: string
+                  type: object
+                namespaces:
+                  type: string
+              type: object
+            thanos:
+              type: string
+            url:
+              type: string
+          required:
+          - thanos
+          type: object
+        status:
+          type: object
+      type: object
+  version: v1alpha1
   versions:
   - name: v1alpha1
-    schema:
-      openAPIV3Schema:
-        properties:
-          apiVersion:
-            type: string
-          kind:
-            type: string
-          metadata:
-            type: object
-          spec:
-            properties:
-              config:
-                properties:
-                  mountFrom:
-                    properties:
-                      secretKeyRef:
-                        properties:
-                          key:
-                            type: string
-                          name:
-                            type: string
-                          optional:
-                            type: boolean
-                        required:
-                        - key
-                        type: object
-                    type: object
-                  value:
-                    type: string
-                  valueFrom:
-                    properties:
-                      secretKeyRef:
-                        properties:
-                          key:
-                            type: string
-                          name:
-                            type: string
-                          optional:
-                            type: boolean
-                        required:
-                        - key
-                        type: object
-                    type: object
-                type: object
-              ingress:
-                properties:
-                  certificate:
-                    type: string
-                  host:
-                    type: string
-                  path:
-                    type: string
-                type: object
-              metaOverrides:
-                properties:
-                  annotations:
-                    additionalProperties:
-                      type: string
-                    type: object
-                  labels:
-                    additionalProperties:
-                      type: string
-                    type: object
-                type: object
-              selector:
-                properties:
-                  annotations:
-                    additionalProperties:
-                      type: string
-                    type: object
-                  grpcPort:
-                    format: int32
-                    type: integer
-                  httpPort:
-                    format: int32
-                    type: integer
-                  labels:
-                    additionalProperties:
-                      type: string
-                    type: object
-                  namespaces:
-                    type: string
-                type: object
-              thanos:
-                type: string
-              url:
-                type: string
-            required:
-            - thanos
-            type: object
-          status:
-            type: object
-        type: object
     served: true
     storage: true
 status:

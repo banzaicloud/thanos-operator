@@ -26,7 +26,7 @@ func (c *Compactor) service() (runtime.Object, reconciler.DesiredState, error) {
 	if c.ObjectStore.Spec.Compactor != nil {
 		compactor := c.ObjectStore.Spec.Compactor.DeepCopy()
 		return &corev1.Service{
-			ObjectMeta: compactor.MetaOverrides.Merge(c.getMeta()),
+			ObjectMeta: compactor.DeploymentOverrides.Merge(c.getMeta()),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{

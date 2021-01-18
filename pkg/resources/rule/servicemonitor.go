@@ -27,7 +27,7 @@ func (r *ruleInstance) serviceMonitor() (runtime.Object, reconciler.DesiredState
 		rule := r.Thanos.Spec.Rule.DeepCopy()
 		meta := r.getMeta()
 		serviceMonitor := &prometheus.ServiceMonitor{
-			ObjectMeta: rule.MetaOverrides.Merge(meta),
+			ObjectMeta: rule.StatefulsetOverrides.Merge(meta),
 			Spec: prometheus.ServiceMonitorSpec{
 				Endpoints: []prometheus.Endpoint{
 					{
