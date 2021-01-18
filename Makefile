@@ -11,7 +11,7 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
-GOLANGCI_VERSION = 1.19.1
+GOLANGCI_VERSION = 1.35.2
 KUBEBUILDER_VERSION = 2.2.0
 export KUBEBUILDER_ASSETS := $(PWD)/bin
 LICENSEI_VERSION = 0.2.0
@@ -113,7 +113,7 @@ else
 CONTROLLER_GEN=$(shell which controller-gen)
 endif
 
-.PHONY: bin/kubebuilder_$(KUBEBUILDER_VERSION)
+# .PHONY: bin/kubebuilder_$(KUBEBUILDER_VERSION)
 bin/kubebuilder_$(KUBEBUILDER_VERSION):
 	@mkdir -p bin
 	curl -L https://github.com/kubernetes-sigs/kubebuilder/releases/download/v$(KUBEBUILDER_VERSION)/kubebuilder_$(KUBEBUILDER_VERSION)_$(OS)_amd64.tar.gz | tar xvz -C bin
