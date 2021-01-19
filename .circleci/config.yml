@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  helm: banzaicloud/helm@0.0.7
+  helm: banzaicloud/helm@0.0.8
   docker: circleci/docker@1.5.0
 
 jobs:
@@ -25,15 +25,15 @@ jobs:
       docker_layer_caching: true
     environment:
       GO_VERSION: '1.13'
-      K8S_VERSION: 'v1.15.7'
+      K8S_VERSION: 'v1.20.0'
       #VAULT_VERSION: '1.0.0'
       KUBECONFIG: '/home/circleci/.kube/config'
-      MINIKUBE_VERSION: 'v1.6.0'
+      MINIKUBE_VERSION: 'v1.16.0'
       MINIKUBE_WANTUPDATENOTIFICATION: 'false'
       MINIKUBE_WANTREPORTERRORPROMPT: 'false'
       MINIKUBE_HOME: '/home/circleci'
       CHANGE_MINIKUBE_NONE_USER: 'true'
-      HELM_VERSION: 'v3.1.1'
+      HELM_VERSION: 'v3.5.0'
 #      GOPATH: '/home/circleci/go'
     steps:
       - run:

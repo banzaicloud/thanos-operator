@@ -11,8 +11,8 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
-GOLANGCI_VERSION = 1.19.1
-KUBEBUILDER_VERSION = 2.2.0
+GOLANGCI_VERSION = 1.35.2
+KUBEBUILDER_VERSION = 2.3.1
 export KUBEBUILDER_ASSETS := $(PWD)/bin
 LICENSEI_VERSION = 0.2.0
 
@@ -105,7 +105,7 @@ ifeq (, $(shell which controller-gen))
 	CONTROLLER_GEN_TMP_DIR=$$(mktemp -d) ;\
 	cd $$CONTROLLER_GEN_TMP_DIR ;\
 	go mod init tmp ;\
-	go get sigs.k8s.io/controller-tools/cmd/controller-gen@v0.2.5 ;\
+	go get sigs.k8s.io/controller-tools/cmd/controller-gen@v0.4.1 ;\
 	rm -rf $$CONTROLLER_GEN_TMP_DIR ;\
 	}
 CONTROLLER_GEN=$(GOBIN)/controller-gen
@@ -113,7 +113,7 @@ else
 CONTROLLER_GEN=$(shell which controller-gen)
 endif
 
-.PHONY: bin/kubebuilder_$(KUBEBUILDER_VERSION)
+# .PHONY: bin/kubebuilder_$(KUBEBUILDER_VERSION)
 bin/kubebuilder_$(KUBEBUILDER_VERSION):
 	@mkdir -p bin
 	curl -L https://github.com/kubernetes-sigs/kubebuilder/releases/download/v$(KUBEBUILDER_VERSION)/kubebuilder_$(KUBEBUILDER_VERSION)_$(OS)_amd64.tar.gz | tar xvz -C bin
