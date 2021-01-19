@@ -61,13 +61,13 @@
 
 1. Add the Kubernetes stable Helm repository
     ```
-    helm repo add stable https://kubernetes-charts.storage.googleapis.com
+    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
     helm repo update
     ```
 
 1. Install prometheus-operator with the Thanos sidecar
     ```
-    helm install prometheus-operator --namespace monitor stable/prometheus-operator -f thanos-sidecar.yaml --set manageCrds=false
+    helm install prometheus-operator --namespace monitor prometheus-community/kube-prometheus-stack -f thanos-sidecar.yaml --set manageCrds=false
     ```
 
 1. Add the operator chart repository.
