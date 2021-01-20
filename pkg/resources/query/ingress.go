@@ -28,7 +28,7 @@ func (q *Query) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
 		queryIngress := q.Thanos.Spec.Query.HTTPIngress
 		query := q.Thanos.Spec.Query.DeepCopy()
 		ingress := &v1beta1.Ingress{
-			ObjectMeta: query.DeploymentOverrides.Merge(q.getMeta(q.getName("http"))),
+			ObjectMeta: query.HTTPIngressOverrides.Merge(q.getMeta(q.getName("http"))),
 			Spec: v1beta1.IngressSpec{
 				Rules: []v1beta1.IngressRule{
 					{
@@ -75,7 +75,7 @@ func (q *Query) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
 		queryIngress := q.Thanos.Spec.Query.GRPCIngress
 		query := q.Thanos.Spec.Query.DeepCopy()
 		ingress := &v1beta1.Ingress{
-			ObjectMeta: query.DeploymentOverrides.Merge(q.getMeta(q.getName("grpc"))),
+			ObjectMeta: query.GRPCIngressOverrides.Merge(q.getMeta(q.getName("grpc"))),
 			Spec: v1beta1.IngressSpec{
 				Rules: []v1beta1.IngressRule{
 					{

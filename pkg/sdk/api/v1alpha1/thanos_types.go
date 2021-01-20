@@ -139,6 +139,15 @@ type QueryFrontend struct {
 }
 
 type Query struct {
+	// IngressOverrides applies to the query ingress
+	HTTPIngressOverrides *types.MetaBase `json:"HTTPIngressOverrides,omitempty"`
+	// IngressOverrides applies to the query ingress
+	GRPCIngressOverrides *types.MetaBase `json:"GRPCIngressOverrides,omitempty"`
+	// ServiceOverrides applies to the query service
+	ServiceOverrides *types.ServiceBase `json:"serviceOverrides,omitempty"`
+	// ServiceMonitorOverrides applies to the query serviceMonitor
+	ServiceMonitorOverrides *types.MetaBase `json:"serviceMonitorOverrides,omitempty"`
+	// DeploymentOverrdes applies to the query deployment
 	DeploymentOverrides   *types.DeploymentBase `json:"deploymentOverrides,omitempty"`
 	Metrics               *Metrics              `json:"metrics,omitempty"`
 	HTTPIngress           *Ingress              `json:"HTTPIngress,omitempty"`

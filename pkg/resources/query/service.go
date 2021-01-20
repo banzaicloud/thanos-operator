@@ -25,8 +25,8 @@ import (
 func (q *Query) service() (runtime.Object, reconciler.DesiredState, error) {
 	if q.Thanos.Spec.Query != nil {
 		query := q.Thanos.Spec.Query.DeepCopy()
-		queryService := &corev1.Service{
-			ObjectMeta: query.DeploymentOverrides.Merge(q.getMeta(q.getName())),
+		queryService := query.ServiceOverrides.Override(corev1.Service{
+			ObjectMeta: q.getMeta(q.getName()),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
@@ -51,8 +51,8 @@ func (q *Query) service() (runtime.Object, reconciler.DesiredState, error) {
 				Selector: q.getLabels(),
 				Type:     corev1.ServiceTypeClusterIP,
 			},
-		}
-		return queryService, reconciler.StatePresent, nil
+		})
+		return &queryService, reconciler.StatePresent, nil
 
 	}
 	delete := &corev1.Service{
