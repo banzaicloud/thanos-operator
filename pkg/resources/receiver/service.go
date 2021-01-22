@@ -47,6 +47,15 @@ func (s *receiverInstance) service() (runtime.Object, reconciler.DesiredState, e
 							StrVal: "http",
 						},
 					},
+					{
+						Name:     "remote-write",
+						Protocol: corev1.ProtocolTCP,
+						Port:     resources.GetPort(receiver.RemoteWriteAddress),
+						TargetPort: intstr.IntOrString{
+							Type:   intstr.String,
+							StrVal: "remote-write",
+						},
+					},
 				},
 				Selector:  s.getLabels(),
 				ClusterIP: corev1.ClusterIPNone,
