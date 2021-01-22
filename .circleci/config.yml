@@ -224,7 +224,7 @@ workflows:
           context: dockerhub
           deploy: true
           image: banzaicloud/thanos-operator
-          tag: $CIRCLE_BRANCH
+          tag: ${CIRCLE_BRANCH//\//-}
           requires:
             - build
           filters:
