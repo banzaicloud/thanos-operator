@@ -4,6 +4,7 @@
 resources:
 - bases/monitoring.banzaicloud.io_objectstores.yaml
 - bases/monitoring.banzaicloud.io_thanos.yaml
+- bases/monitoring.banzaicloud.io_receivers.yaml
 - bases/monitoring.banzaicloud.io_storeendpoints.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 

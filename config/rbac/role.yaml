@@ -92,6 +92,26 @@ rules:
 - apiGroups:
   - monitoring.banzaicloud.io
   resources:
+  - receivers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - monitoring.banzaicloud.io
+  resources:
+  - receivers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - monitoring.banzaicloud.io
+  resources:
   - storeendpoints
   verbs:
   - create

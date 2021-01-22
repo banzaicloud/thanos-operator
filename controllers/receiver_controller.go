@@ -29,15 +29,15 @@ import (
 	monitoringv1alpha1 "github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 )
 
-// ObjectStoreReconciler reconciles a ObjectStore object
+// ReceiverReconciler reconciles a Receiver object
 type ReceiverReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=objectstores,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=objectstores/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=receivers,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=receivers/status,verbs=get;update;patch
 
 func (r *ReceiverReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	result := ctrl.Result{}
