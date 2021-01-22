@@ -23,7 +23,7 @@ import (
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
+	netv1 "k8s.io/api/networking/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -66,6 +66,6 @@ func (r *StoreEndpointReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.StoreEndpoint{}).
 		Owns(&corev1.Service{}).
-		Owns(&v1beta1.Ingress{}).
+		Owns(&netv1.Ingress{}).
 		Complete(r)
 }

@@ -16,30 +16,32 @@ package sidecar
 
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
-	"k8s.io/api/extensions/v1beta1"
+	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func (e *endpointService) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
 	if e.Spec.Ingress != nil {
 		endpointIngress := e.Spec.Ingress
-		ingress := &v1beta1.Ingress{
+		pathType := netv1.PathTypeImplementationSpecific
+		ingress := &netv1.Ingress{
 			ObjectMeta: e.getMeta(),
-			Spec: v1beta1.IngressSpec{
-				Rules: []v1beta1.IngressRule{
+			Spec: netv1.IngressSpec{
+				Rules: []netv1.IngressRule{
 					{
 						Host: endpointIngress.Host,
-						IngressRuleValue: v1beta1.IngressRuleValue{
-							HTTP: &v1beta1.HTTPIngressRuleValue{
-								Paths: []v1beta1.HTTPIngressPath{
+						IngressRuleValue: netv1.IngressRuleValue{
+							HTTP: &netv1.HTTPIngressRuleValue{
+								Paths: []netv1.HTTPIngressPath{
 									{
-										Path: endpointIngress.Path,
-										Backend: v1beta1.IngressBackend{
-											ServiceName: e.GetName(),
-											ServicePort: intstr.IntOrString{
-												Type:   intstr.String,
-												StrVal: "grpc",
+										Path:     endpointIngress.Path,
+										PathType: &pathType,
+										Backend: netv1.IngressBackend{
+											Service: &netv1.IngressServiceBackend{
+												Name: e.GetName(),
+												Port: netv1.ServiceBackendPort{
+													Name: "grpc",
+												},
 											},
 										},
 									},
@@ -51,7 +53,7 @@ func (e *endpointService) ingressGRPC() (runtime.Object, reconciler.DesiredState
 			},
 		}
 		if endpointIngress.Certificate != "" {
-			ingress.Spec.TLS = []v1beta1.IngressTLS{
+			ingress.Spec.TLS = []netv1.IngressTLS{
 				{
 					Hosts:      []string{endpointIngress.Host},
 					SecretName: endpointIngress.Certificate,
@@ -60,7 +62,7 @@ func (e *endpointService) ingressGRPC() (runtime.Object, reconciler.DesiredState
 		}
 		return ingress, reconciler.StatePresent, nil
 	}
-	delete := &v1beta1.Ingress{
+	delete := &netv1.Ingress{
 		ObjectMeta: e.getMeta(),
 	}
 	return delete, reconciler.StateAbsent, nil

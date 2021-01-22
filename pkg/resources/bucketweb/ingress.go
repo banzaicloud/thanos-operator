@@ -17,33 +17,38 @@ package bucketweb
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
-	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
+	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func (b *BucketWeb) ingress() (runtime.Object, reconciler.DesiredState, error) {
 	if b.ObjectStore.Spec.BucketWeb != nil {
 		bucketWeb := b.ObjectStore.Spec.BucketWeb.DeepCopy()
-		var ingress = &extensionsv1beta1.Ingress{
+		pathType := netv1.PathTypeImplementationSpecific
+		ingress := &netv1.Ingress{
 			ObjectMeta: bucketWeb.MetaOverrides.Merge(b.getMeta()),
-			Spec: extensionsv1beta1.IngressSpec{
-				//Certificate: []extensionsv1beta1.IngressTLS{
+			Spec: netv1.IngressSpec{
+				//Certificate: []networkingv1.IngressTLS{
 				//	{
 				//		Hosts: []string{"/"},
 				//	},
 				//},
-				Rules: []extensionsv1beta1.IngressRule{
+				Rules: []netv1.IngressRule{
 					{
 						Host: "/",
-						IngressRuleValue: extensionsv1beta1.IngressRuleValue{
-							HTTP: &extensionsv1beta1.HTTPIngressRuleValue{
-								Paths: []extensionsv1beta1.HTTPIngressPath{
+						IngressRuleValue: netv1.IngressRuleValue{
+							HTTP: &netv1.HTTPIngressRuleValue{
+								Paths: []netv1.HTTPIngressPath{
 									{
-										Path: "/",
-										Backend: extensionsv1beta1.IngressBackend{
-											ServiceName: b.getName(),
-											ServicePort: intstr.IntOrString{IntVal: resources.GetPort(bucketWeb.HTTPAddress)},
+										Path:     "/",
+										PathType: &pathType,
+										Backend: netv1.IngressBackend{
+											Service: &netv1.IngressServiceBackend{
+												Name: b.getName(),
+												Port: netv1.ServiceBackendPort{
+													Number: resources.GetPort(bucketWeb.HTTPAddress),
+												},
+											},
 										},
 									},
 								},
@@ -57,7 +62,7 @@ func (b *BucketWeb) ingress() (runtime.Object, reconciler.DesiredState, error) {
 		return ingress, reconciler.StateAbsent, nil
 	}
 
-	return &extensionsv1beta1.Ingress{
+	return &netv1.Ingress{
 		ObjectMeta: b.getMeta(),
 	}, reconciler.StateAbsent, nil
 }

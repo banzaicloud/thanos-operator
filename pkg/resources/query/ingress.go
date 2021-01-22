@@ -18,31 +18,34 @@ import (
 	"emperror.dev/errors"
 	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
-	"k8s.io/api/networking/v1beta1"
+	"k8s.io/api/extensions/v1beta1"
+	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func (q *Query) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
 	if q.Thanos.Spec.Query != nil &&
 		q.Thanos.Spec.Query.HTTPIngress != nil {
 		queryIngress := q.Thanos.Spec.Query.HTTPIngress
-		ingress := &v1beta1.Ingress{
+		pathType := netv1.PathTypeImplementationSpecific
+		ingress := &netv1.Ingress{
 			ObjectMeta: q.Thanos.Spec.Query.MetaOverrides.Merge(q.getMeta(q.getName("http"))),
-			Spec: v1beta1.IngressSpec{
-				Rules: []v1beta1.IngressRule{
+			Spec: netv1.IngressSpec{
+				Rules: []netv1.IngressRule{
 					{
 						Host: queryIngress.Host,
-						IngressRuleValue: v1beta1.IngressRuleValue{
-							HTTP: &v1beta1.HTTPIngressRuleValue{
-								Paths: []v1beta1.HTTPIngressPath{
+						IngressRuleValue: netv1.IngressRuleValue{
+							HTTP: &netv1.HTTPIngressRuleValue{
+								Paths: []netv1.HTTPIngressPath{
 									{
-										Path: queryIngress.Path,
-										Backend: v1beta1.IngressBackend{
-											ServiceName: q.getName(),
-											ServicePort: intstr.IntOrString{
-												Type:   intstr.String,
-												StrVal: "http",
+										Path:     queryIngress.Path,
+										PathType: &pathType,
+										Backend: netv1.IngressBackend{
+											Service: &netv1.IngressServiceBackend{
+												Name: q.getName(),
+												Port: netv1.ServiceBackendPort{
+													Name: "http",
+												},
 											},
 										},
 									},
@@ -54,7 +57,7 @@ func (q *Query) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
 			},
 		}
 		if queryIngress.Certificate != "" {
-			ingress.Spec.TLS = []v1beta1.IngressTLS{
+			ingress.Spec.TLS = []netv1.IngressTLS{
 				{
 					Hosts:      []string{queryIngress.Host},
 					SecretName: queryIngress.Certificate,
@@ -71,7 +74,7 @@ func (q *Query) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
 
 		return ingress, reconciler.StatePresent, nil
 	}
-	delete := &v1beta1.Ingress{
+	delete := &netv1.Ingress{
 		ObjectMeta: q.getMeta(q.getName("http")),
 	}
 	return delete, reconciler.StateAbsent, nil
@@ -81,22 +84,25 @@ func (q *Query) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
 	if q.Thanos.Spec.Query != nil &&
 		q.Thanos.Spec.Query.GRPCIngress != nil {
 		queryIngress := q.Thanos.Spec.Query.GRPCIngress
-		ingress := &v1beta1.Ingress{
+		pathType := netv1.PathTypeImplementationSpecific
+		ingress := &netv1.Ingress{
 			ObjectMeta: q.Thanos.Spec.Query.MetaOverrides.Merge(q.getMeta(q.getName("grpc"))),
-			Spec: v1beta1.IngressSpec{
-				Rules: []v1beta1.IngressRule{
+			Spec: netv1.IngressSpec{
+				Rules: []netv1.IngressRule{
 					{
 						Host: queryIngress.Host,
-						IngressRuleValue: v1beta1.IngressRuleValue{
-							HTTP: &v1beta1.HTTPIngressRuleValue{
-								Paths: []v1beta1.HTTPIngressPath{
+						IngressRuleValue: netv1.IngressRuleValue{
+							HTTP: &netv1.HTTPIngressRuleValue{
+								Paths: []netv1.HTTPIngressPath{
 									{
-										Path: queryIngress.Path,
-										Backend: v1beta1.IngressBackend{
-											ServiceName: q.getName(),
-											ServicePort: intstr.IntOrString{
-												Type:   intstr.String,
-												StrVal: "grpc",
+										Path:     queryIngress.Path,
+										PathType: &pathType,
+										Backend: netv1.IngressBackend{
+											Service: &netv1.IngressServiceBackend{
+												Name: q.getName(),
+												Port: netv1.ServiceBackendPort{
+													Name: "grpc",
+												},
 											},
 										},
 									},
@@ -108,7 +114,7 @@ func (q *Query) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
 			},
 		}
 		if queryIngress.Certificate != "" {
-			ingress.Spec.TLS = []v1beta1.IngressTLS{
+			ingress.Spec.TLS = []netv1.IngressTLS{
 				{
 					Hosts:      []string{queryIngress.Host},
 					SecretName: queryIngress.Certificate,
