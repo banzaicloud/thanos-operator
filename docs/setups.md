@@ -40,8 +40,8 @@ kubectl create secret generic thanos --from-file=object-store.yaml=object-store.
 prometheus:
   prometheusSpec:
     thanos:
-      image: quay.io/thanos/thanos:v0.9.0
-      version: v0.9.0
+      image: quay.io/thanos/thanos:v0.17.2
+      version: v0.17.2
       objectStorageConfig:
         name: thanos
         key: object-store.yaml
