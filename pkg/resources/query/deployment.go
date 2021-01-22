@@ -17,6 +17,8 @@ package query
 import (
 	"fmt"
 
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
@@ -33,19 +35,16 @@ func (q *Query) deployment() (runtime.Object, reconciler.DesiredState, error) {
 
 		deployment := &appsv1.Deployment{
 			ObjectMeta: query.MetaOverrides.Merge(q.getMeta(q.getName())),
-		}
-
-		deployment.Spec = query.DeploymentOverrides.Override(
-			appsv1.DeploymentSpec{
+			Spec: appsv1.DeploymentSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
 					MatchLabels: q.getLabels(),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: query.WorkloadMetaOverrides.Merge(q.getMeta(q.getName())),
-					Spec: query.WorkloadOverrides.Override(corev1.PodSpec{
+					ObjectMeta: q.getMeta(q.getName()),
+					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
-							query.ContainerOverrides.Override(corev1.Container{
+							{
 								Name:  "query",
 								Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
 								Args: []string{
@@ -67,14 +66,22 @@ func (q *Query) deployment() (runtime.Object, reconciler.DesiredState, error) {
 								LivenessProbe:   q.GetCheck(resources.GetPort(query.HttpAddress), resources.HealthCheckPath),
 								ReadinessProbe:  q.GetCheck(resources.GetPort(query.HttpAddress), resources.ReadyCheckPath),
 								VolumeMounts:    q.getVolumeMounts(),
-							})},
+							},
+						},
 						Volumes: q.getVolumes(),
-					}),
+					},
 				},
-			})
+			},
+		}
 
 		// Set up args
 		deployment.Spec.Template.Spec.Containers[0].Args = q.setArgs(deployment.Spec.Template.Spec.Containers[0].Args)
+
+		err := merge.Merge(deployment, query.DeploymentOverrides)
+		if err != nil {
+			return deployment, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+		}
+
 		return deployment, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.Deployment{

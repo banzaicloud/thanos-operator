@@ -15,9 +15,10 @@
 package query
 
 import (
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/api/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -26,9 +27,8 @@ func (q *Query) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
 	if q.Thanos.Spec.Query != nil &&
 		q.Thanos.Spec.Query.HTTPIngress != nil {
 		queryIngress := q.Thanos.Spec.Query.HTTPIngress
-		query := q.Thanos.Spec.Query.DeepCopy()
 		ingress := &v1beta1.Ingress{
-			ObjectMeta: query.MetaOverrides.Merge(q.getMeta(q.getName("http"))),
+			ObjectMeta: q.Thanos.Spec.Query.MetaOverrides.Merge(q.getMeta(q.getName("http"))),
 			Spec: v1beta1.IngressSpec{
 				Rules: []v1beta1.IngressRule{
 					{
@@ -61,9 +61,17 @@ func (q *Query) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
 				},
 			}
 		}
+
+		if q.Thanos.Spec.Query.HTTPIngress.IngressOverrides != nil {
+			err := merge.Merge(ingress, q.Thanos.Spec.Query.HTTPIngress.IngressOverrides)
+			if err != nil {
+				return ingress, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+			}
+		}
+
 		return ingress, reconciler.StatePresent, nil
 	}
-	delete := &corev1.Service{
+	delete := &v1beta1.Ingress{
 		ObjectMeta: q.getMeta(q.getName("http")),
 	}
 	return delete, reconciler.StateAbsent, nil
@@ -73,9 +81,8 @@ func (q *Query) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
 	if q.Thanos.Spec.Query != nil &&
 		q.Thanos.Spec.Query.GRPCIngress != nil {
 		queryIngress := q.Thanos.Spec.Query.GRPCIngress
-		query := q.Thanos.Spec.Query.DeepCopy()
 		ingress := &v1beta1.Ingress{
-			ObjectMeta: query.WorkloadMetaOverrides.Merge(q.getMeta(q.getName("grpc"))),
+			ObjectMeta: q.Thanos.Spec.Query.MetaOverrides.Merge(q.getMeta(q.getName("grpc"))),
 			Spec: v1beta1.IngressSpec{
 				Rules: []v1beta1.IngressRule{
 					{
@@ -108,9 +115,17 @@ func (q *Query) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
 				},
 			}
 		}
+
+		if q.Thanos.Spec.Query.GRPCIngress.IngressOverrides != nil {
+			err := merge.Merge(ingress, q.Thanos.Spec.Query.GRPCIngress.IngressOverrides)
+			if err != nil {
+				return ingress, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+			}
+		}
+
 		return ingress, reconciler.StatePresent, nil
 	}
-	delete := &corev1.Service{
+	delete := &v1beta1.Ingress{
 		ObjectMeta: q.getMeta(q.getName("grpc")),
 	}
 	return delete, reconciler.StateAbsent, nil

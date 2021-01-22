@@ -67,6 +67,103 @@ spec:
                     type: string
                   host:
                     type: string
+                  ingressOverrides:
+                    properties:
+                      metadata:
+                        properties:
+                          annotations:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          labels:
+                            additionalProperties:
+                              type: string
+                            type: object
+                        type: object
+                      spec:
+                        properties:
+                          backend:
+                            properties:
+                              resource:
+                                properties:
+                                  apiGroup:
+                                    type: string
+                                  kind:
+                                    type: string
+                                  name:
+                                    type: string
+                                required:
+                                - kind
+                                - name
+                                type: object
+                              serviceName:
+                                type: string
+                              servicePort:
+                                anyOf:
+                                - type: integer
+                                - type: string
+                                x-kubernetes-int-or-string: true
+                            type: object
+                          ingressClassName:
+                            type: string
+                          rules:
+                            items:
+                              properties:
+                                host:
+                                  type: string
+                                http:
+                                  properties:
+                                    paths:
+                                      items:
+                                        properties:
+                                          backend:
+                                            properties:
+                                              resource:
+                                                properties:
+                                                  apiGroup:
+                                                    type: string
+                                                  kind:
+                                                    type: string
+                                                  name:
+                                                    type: string
+                                                required:
+                                                - kind
+                                                - name
+                                                type: object
+                                              serviceName:
+                                                type: string
+                                              servicePort:
+                                                anyOf:
+                                                - type: integer
+                                                - type: string
+                                                x-kubernetes-int-or-string: true
+                                            type: object
+                                          path:
+                                            type: string
+                                          pathType:
+                                            type: string
+                                        required:
+                                        - backend
+                                        type: object
+                                      type: array
+                                  required:
+                                  - paths
+                                  type: object
+                              type: object
+                            type: array
+                          tls:
+                            items:
+                              properties:
+                                hosts:
+                                  items:
+                                    type: string
+                                  type: array
+                                secretName:
+                                  type: string
+                              type: object
+                            type: array
+                        type: object
+                    type: object
                   path:
                     type: string
                 type: object
