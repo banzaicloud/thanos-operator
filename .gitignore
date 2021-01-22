@@ -25,3 +25,5 @@ bin
 
 object-store.yaml
 thanos-sidecar.yaml
+!hack/object-store.yaml
+!hack/thanos-sidecar.yaml

@@ -47,7 +47,7 @@ manager: generate fmt vet
 	go build -o bin/manager main.go
 
 # Run against the configured Kubernetes cluster in ~/.kube/config
-run: generate fmt vet manifests
+run: generate install
 	go run ./main.go
 
 # Install CRDs into a cluster
@@ -148,3 +148,17 @@ license-cache: bin/licensei ## Generate license cache
 
 .PHONY: check
 check: lint license-check check-diff test
+
+install-minio:
+	helm repo add minio https://helm.min.io/
+	helm repo update
+	helm upgrade --install minio minio/minio --set accessKey=myaccesskey,secretKey=mysecretkey,defaultBucket.enabled=true
+	kubectl get secret thanos || kubectl create secret generic thanos --from-file=object-store.yaml=hack/object-store.yaml
+
+install-prometheus:
+	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+	helm repo update
+	helm upgrade --install prometheus prometheus-community/kube-prometheus-stack -f hack/thanos-sidecar.yaml
+
+install-thanos: install-minio install-prometheus
+	kubectl apply -f config/samples/

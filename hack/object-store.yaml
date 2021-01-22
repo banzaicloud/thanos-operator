@@ -1,0 +1,7 @@
+type: S3
+config:
+  endpoint: "minio:9000"
+  bucket: "bucket"
+  insecure: true
+  access_key: "myaccesskey"
+  secret_key: "mysecretkey"
