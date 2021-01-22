@@ -17,9 +17,8 @@ package rule
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
+	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func (r *ruleInstance) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
@@ -27,22 +26,25 @@ func (r *ruleInstance) ingressHTTP() (runtime.Object, reconciler.DesiredState, e
 		r.Thanos.Spec.Rule.HTTPIngress != nil {
 		rule := r.Thanos.Spec.Rule.DeepCopy()
 		ruleIngress := rule.HTTPIngress
-		ingress := &v1beta1.Ingress{
+		pathType := netv1.PathTypeImplementationSpecific
+		ingress := &netv1.Ingress{
 			ObjectMeta: rule.MetaOverrides.Merge(r.getMeta("http")),
-			Spec: v1beta1.IngressSpec{
-				Rules: []v1beta1.IngressRule{
+			Spec: netv1.IngressSpec{
+				Rules: []netv1.IngressRule{
 					{
 						Host: ruleIngress.Host,
-						IngressRuleValue: v1beta1.IngressRuleValue{
-							HTTP: &v1beta1.HTTPIngressRuleValue{
-								Paths: []v1beta1.HTTPIngressPath{
+						IngressRuleValue: netv1.IngressRuleValue{
+							HTTP: &netv1.HTTPIngressRuleValue{
+								Paths: []netv1.HTTPIngressPath{
 									{
-										Path: ruleIngress.Path,
-										Backend: v1beta1.IngressBackend{
-											ServiceName: r.getName(),
-											ServicePort: intstr.IntOrString{
-												Type:   intstr.String,
-												StrVal: "http",
+										Path:     ruleIngress.Path,
+										PathType: &pathType,
+										Backend: netv1.IngressBackend{
+											Service: &netv1.IngressServiceBackend{
+												Name: r.getName(),
+												Port: netv1.ServiceBackendPort{
+													Name: "http",
+												},
 											},
 										},
 									},
@@ -54,7 +56,7 @@ func (r *ruleInstance) ingressHTTP() (runtime.Object, reconciler.DesiredState, e
 			},
 		}
 		if ruleIngress.Certificate != "" {
-			ingress.Spec.TLS = []v1beta1.IngressTLS{
+			ingress.Spec.TLS = []netv1.IngressTLS{
 				{
 					Hosts:      []string{ruleIngress.Host},
 					SecretName: ruleIngress.Certificate,
@@ -73,22 +75,23 @@ func (r *ruleInstance) ingressGRPC() (runtime.Object, reconciler.DesiredState, e
 	if r.Thanos.Spec.Rule != nil &&
 		r.Thanos.Spec.Rule.GRPCIngress != nil {
 		queryIngress := r.Thanos.Spec.Rule.GRPCIngress
-		ingress := &v1beta1.Ingress{
+		ingress := &netv1.Ingress{
 			ObjectMeta: r.getMeta("grpc"),
-			Spec: v1beta1.IngressSpec{
-				Rules: []v1beta1.IngressRule{
+			Spec: netv1.IngressSpec{
+				Rules: []netv1.IngressRule{
 					{
 						Host: queryIngress.Host,
-						IngressRuleValue: v1beta1.IngressRuleValue{
-							HTTP: &v1beta1.HTTPIngressRuleValue{
-								Paths: []v1beta1.HTTPIngressPath{
+						IngressRuleValue: netv1.IngressRuleValue{
+							HTTP: &netv1.HTTPIngressRuleValue{
+								Paths: []netv1.HTTPIngressPath{
 									{
 										Path: queryIngress.Path,
-										Backend: v1beta1.IngressBackend{
-											ServiceName: r.getName(),
-											ServicePort: intstr.IntOrString{
-												Type:   intstr.String,
-												StrVal: "grpc",
+										Backend: netv1.IngressBackend{
+											Service: &netv1.IngressServiceBackend{
+												Name: r.getName(),
+												Port: netv1.ServiceBackendPort{
+													Name: "grpc",
+												},
 											},
 										},
 									},
@@ -100,7 +103,7 @@ func (r *ruleInstance) ingressGRPC() (runtime.Object, reconciler.DesiredState, e
 			},
 		}
 		if queryIngress.Certificate != "" {
-			ingress.Spec.TLS = []v1beta1.IngressTLS{
+			ingress.Spec.TLS = []netv1.IngressTLS{
 				{
 					Hosts:      []string{queryIngress.Host},
 					SecretName: queryIngress.Certificate,

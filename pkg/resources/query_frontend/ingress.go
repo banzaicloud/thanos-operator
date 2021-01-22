@@ -17,9 +17,8 @@ package query_frontend
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
+	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func (q *QueryFrontend) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
@@ -27,22 +26,25 @@ func (q *QueryFrontend) ingressHTTP() (runtime.Object, reconciler.DesiredState, 
 		q.Thanos.Spec.QueryFrontend.HTTPIngress != nil {
 		queryFrontendIngress := q.Thanos.Spec.QueryFrontend.HTTPIngress
 		queryFrontend := q.Thanos.Spec.QueryFrontend.DeepCopy()
-		ingress := &v1beta1.Ingress{
+		pathType := netv1.PathTypeImplementationSpecific
+		ingress := &netv1.Ingress{
 			ObjectMeta: queryFrontend.MetaOverrides.Merge(q.getMeta(q.getName("http"))),
-			Spec: v1beta1.IngressSpec{
-				Rules: []v1beta1.IngressRule{
+			Spec: netv1.IngressSpec{
+				Rules: []netv1.IngressRule{
 					{
 						Host: queryFrontendIngress.Host,
-						IngressRuleValue: v1beta1.IngressRuleValue{
-							HTTP: &v1beta1.HTTPIngressRuleValue{
-								Paths: []v1beta1.HTTPIngressPath{
+						IngressRuleValue: netv1.IngressRuleValue{
+							HTTP: &netv1.HTTPIngressRuleValue{
+								Paths: []netv1.HTTPIngressPath{
 									{
-										Path: queryFrontendIngress.Path,
-										Backend: v1beta1.IngressBackend{
-											ServiceName: q.getName(),
-											ServicePort: intstr.IntOrString{
-												Type:   intstr.String,
-												StrVal: "http",
+										Path:     queryFrontendIngress.Path,
+										PathType: &pathType,
+										Backend: netv1.IngressBackend{
+											Service: &netv1.IngressServiceBackend{
+												Name: q.getName(),
+												Port: netv1.ServiceBackendPort{
+													Name: "http",
+												},
 											},
 										},
 									},
@@ -54,7 +56,7 @@ func (q *QueryFrontend) ingressHTTP() (runtime.Object, reconciler.DesiredState, 
 			},
 		}
 		if queryFrontendIngress.Certificate != "" {
-			ingress.Spec.TLS = []v1beta1.IngressTLS{
+			ingress.Spec.TLS = []netv1.IngressTLS{
 				{
 					Hosts:      []string{queryFrontendIngress.Host},
 					SecretName: queryFrontendIngress.Certificate,
