@@ -63,6 +63,11 @@ func (r *receiverInstance) statefulset() (runtime.Object, reconciler.DesiredStat
 									ContainerPort: resources.GetPort(receiveGroup.GRPCAddress),
 									Protocol:      corev1.ProtocolTCP,
 								},
+								{
+									Name:          "remote-write",
+									ContainerPort: resources.GetPort(receiveGroup.RemoteWriteAddress),
+									Protocol:      corev1.ProtocolTCP,
+								},
 							},
 							VolumeMounts: []corev1.VolumeMount{
 								{
