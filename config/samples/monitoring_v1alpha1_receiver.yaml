@@ -1,0 +1,14 @@
+apiVersion: monitoring.banzaicloud.io/v1alpha1
+kind: Receiver
+metadata:
+  name: receiver-sample
+spec:
+  receiverGroups:
+    - groupName: receiver1
+      namespace: default # TODO shouldn't be mandatory
+      replicas: 1 # TODO shouldn't be mandatory
+      config:
+        mountFrom:
+          secretKeyRef:
+            name: thanos
+            key: object-store.yaml
