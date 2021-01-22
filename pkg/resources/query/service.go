@@ -15,6 +15,8 @@
 package query
 
 import (
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	corev1 "k8s.io/api/core/v1"
@@ -24,15 +26,14 @@ import (
 
 func (q *Query) service() (runtime.Object, reconciler.DesiredState, error) {
 	if q.Thanos.Spec.Query != nil {
-		query := q.Thanos.Spec.Query.DeepCopy()
 		queryService := &corev1.Service{
-			ObjectMeta: query.MetaOverrides.Merge(q.getMeta(q.getName())),
+			ObjectMeta: q.Thanos.Spec.Query.MetaOverrides.Merge(q.getMeta(q.getName())),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
 						Name:     "grpc",
 						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(query.GRPCAddress),
+						Port:     resources.GetPort(q.Thanos.Spec.Query.GRPCAddress),
 						TargetPort: intstr.IntOrString{
 							Type:   intstr.String,
 							StrVal: "grpc",
@@ -41,7 +42,7 @@ func (q *Query) service() (runtime.Object, reconciler.DesiredState, error) {
 					{
 						Name:     "http",
 						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(query.HttpAddress),
+						Port:     resources.GetPort(q.Thanos.Spec.Query.HttpAddress),
 						TargetPort: intstr.IntOrString{
 							Type:   intstr.String,
 							StrVal: "http",
@@ -52,8 +53,20 @@ func (q *Query) service() (runtime.Object, reconciler.DesiredState, error) {
 				Type:     corev1.ServiceTypeClusterIP,
 			},
 		}
-		return queryService, reconciler.StatePresent, nil
 
+		err := merge.Merge(queryService, q.Thanos.Spec.Query.ServiceOverrides)
+		if err != nil {
+			return queryService, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+		}
+
+		return queryService, reconciler.DesiredStateHook(func(current runtime.Object) error {
+			if s, ok := current.(*corev1.Service); ok {
+				queryService.Spec.ClusterIP = s.Spec.ClusterIP
+			} else {
+				return errors.Errorf("failed to cast service object %+v", current)
+			}
+			return nil
+		}), nil
 	}
 	delete := &corev1.Service{
 		ObjectMeta: q.getMeta(q.getName()),
