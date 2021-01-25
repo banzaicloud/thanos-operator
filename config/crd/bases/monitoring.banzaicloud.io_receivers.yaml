@@ -353,8 +353,6 @@ spec:
                         timeout:
                           type: string
                       type: object
-                    namespace:
-                      type: string
                     receiveDefaultTenantId:
                       type: string
                     receiveHashringsFileRefreshInterval:
@@ -1423,7 +1421,6 @@ spec:
                   required:
                   - config
                   - groupName
-                  - namespace
                   type: object
                 type: array
             type: object
