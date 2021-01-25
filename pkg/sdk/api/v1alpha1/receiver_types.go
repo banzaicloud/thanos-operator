@@ -40,11 +40,11 @@ type ReceiverSpec struct {
 	ClusterDomain  string          `json:"clusterDomain,omitempty"`
 }
 
-// Defines a Receiver group
+// ReceiverGroup defines a Receiver group
 // Tenants are the Hard tenants of the receiver group
 // Replicas are the number of instances in this receiver group
 type ReceiverGroup struct {
-	GroupName             string               `json:"groupName"`
+	Name                  string               `json:"groupName"`
 	Tenants               []string             `json:"tenants,omitempty"`
 	Config                secret.Secret        `json:"config"`
 	Replicas              int32                `json:"replicas,omitempty"`
@@ -52,16 +52,16 @@ type ReceiverGroup struct {
 	WorkloadMetaOverrides *types.MetaBase      `json:"workloadMetaOverrides,omitempty"`
 	WorkloadOverrides     *types.PodSpecBase   `json:"workloadOverrides,omitempty"`
 	ContainerOverrides    *types.ContainerBase `json:"containerOverrides,omitempty"`
-	HTTPIngress           *Ingress             `json:"HTTPIngress,omitempty"`
+	HTTPIngress           *Ingress             `json:"httpIngress,omitempty"`
 	// Secret name for HTTP Server certificate (Kubernetes TLS secret type)
-	HTTPServerCertificate string `json:"HTTPServerCertificate,omitempty"`
+	HTTPServerCertificate string `json:"httpServerCertificate,omitempty"`
 	// Secret name for HTTP Client certificate (Kubernetes TLS secret type)
-	HTTPClientCertificate string   `json:"HTTPClientCertificate,omitempty"`
-	GRPCIngress           *Ingress `json:"GRPCIngress,omitempty"`
+	HTTPClientCertificate string   `json:"httpClientCertificate,omitempty"`
+	GRPCIngress           *Ingress `json:"grpcIngress,omitempty"`
 	// Secret name for GRPC Server certificate (Kubernetes TLS secret type)
-	GRPCClientCertificate string `json:"GRPCClientCertificate,omitempty"`
+	GRPCClientCertificate string `json:"htpcClientCertificate,omitempty"`
 	// Secret name for GRPC Client certificate (Kubernetes TLS secret type)
-	GRPCServerCertificate string `json:"GRPCServerCertificate,omitempty"`
+	GRPCServerCertificate string `json:"grpcServerCertificate,omitempty"`
 	// Server name to verify the hostname on the returned gRPC certificates. See https://tools.ietf.org/html/rfc4366#section-3.1
 	RemoteWriteClientServerName string   `json:"remoteWriteClientServerName,omitempty" thanos:"--remote-write.client-server-name=%s"`
 	Metrics                     *Metrics `json:"metrics,omitempty"`

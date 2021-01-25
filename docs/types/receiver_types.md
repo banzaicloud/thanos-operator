@@ -4,7 +4,7 @@
 | receiverGroups | []ReceiverGroup | No | - |  |
 | clusterDomain | string | No | - |  |
 ### ReceiverGroup
-#### Defines a Receiver group
+#### ReceiverGroup defines a Receiver group
 Tenants are the Hard tenants of the receiver group
 Replicas are the number of instances in this receiver group
 
@@ -18,12 +18,12 @@ Replicas are the number of instances in this receiver group
 | workloadMetaOverrides | *types.MetaBase | No | - |  |
 | workloadOverrides | *types.PodSpecBase | No | - |  |
 | containerOverrides | *types.ContainerBase | No | - |  |
-| HTTPIngress | *Ingress | No | - |  |
-| HTTPServerCertificate | string | No | - | Secret name for HTTP Server certificate (Kubernetes TLS secret type)<br> |
-| HTTPClientCertificate | string | No | - | Secret name for HTTP Client certificate (Kubernetes TLS secret type)<br> |
-| GRPCIngress | *Ingress | No | - |  |
-| GRPCClientCertificate | string | No | - | Secret name for GRPC Server certificate (Kubernetes TLS secret type)<br> |
-| GRPCServerCertificate | string | No | - | Secret name for GRPC Client certificate (Kubernetes TLS secret type)<br> |
+| httpIngress | *Ingress | No | - |  |
+| httpServerCertificate | string | No | - | Secret name for HTTP Server certificate (Kubernetes TLS secret type)<br> |
+| httpClientCertificate | string | No | - | Secret name for HTTP Client certificate (Kubernetes TLS secret type)<br> |
+| grpcIngress | *Ingress | No | - |  |
+| htpcClientCertificate | string | No | - | Secret name for GRPC Server certificate (Kubernetes TLS secret type)<br> |
+| grpcServerCertificate | string | No | - | Secret name for GRPC Client certificate (Kubernetes TLS secret type)<br> |
 | remoteWriteClientServerName | string | No | - | Server name to verify the hostname on the returned gRPC certificates. See https://tools.ietf.org/html/rfc4366#section-3.1<br> |
 | metrics | *Metrics | No | - |  |
 | httpAddress | string | No | - | Listen host:port for HTTP endpoints.<br> |
