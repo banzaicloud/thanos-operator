@@ -65,7 +65,7 @@ func (r *Receiver) generateEndpointsForGroup(group v1alpha1.ReceiverGroup) []str
 func (r *Receiver) GenerateHashring() (string, error) {
 	hashringConfig := make([]HashRingGroup, len(r.Spec.ReceiverGroups))
 	for i, receiverGroup := range r.Spec.ReceiverGroups {
-		hashringConfig[i].HashRing = receiverGroup.GroupName
+		hashringConfig[i].HashRing = receiverGroup.Name
 		hashringConfig[i].Tenants = receiverGroup.Tenants
 		hashringConfig[i].Endpoints = r.generateEndpointsForGroup(receiverGroup)
 	}

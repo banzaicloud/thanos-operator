@@ -20,3 +20,4 @@ spec:
                 storage: 1Gi
       metrics:
         serviceMonitor: true
+      httpIngress: {}
