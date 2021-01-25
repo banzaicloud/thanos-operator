@@ -51,13 +51,6 @@ func (t *ReceiverReconciler) GetCheck(port int32, path string) *corev1.Probe {
 	}
 }
 
-func (t *ReceiverReconciler) GetClusterDomain() string {
-	if t.Spec.ClusterDomain != "" {
-		return t.Spec.ClusterDomain
-	}
-	return "cluster.local"
-}
-
 func (t *ReceiverReconciler) GetCommonLabels() Labels {
 	return Labels{
 		ManagedByLabel: t.Receiver.Name,
