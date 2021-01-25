@@ -51,9 +51,20 @@ func (r *receiverInstance) statefulset() (runtime.Object, reconciler.DesiredStat
 							Args: []string{
 								"receive",
 								fmt.Sprintf("--objstore.config-file=/etc/config/%s", r.receiverGroup.Config.MountFrom.SecretKeyRef.Key),
-								"--receive.local-endpoint=127.0.0.1:10907",
+								fmt.Sprintf("--receive.local-endpoint=$(NAME).%s:10907", r.getName("")),
 								"--receive.hashrings-file=/etc/hashring/hashring.json",
+								"--label=receive_replica=\"$(NAME)\"",
 								"--log.level=debug",
+							},
+							Env: []corev1.EnvVar{
+								{
+									Name: "NAME",
+									ValueFrom: &corev1.EnvVarSource{
+										FieldRef: &corev1.ObjectFieldSelector{
+											FieldPath: "metadata.name",
+										},
+									},
+								},
 							},
 							WorkingDir: "",
 							Ports: []corev1.ContainerPort{
