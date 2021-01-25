@@ -12,3 +12,11 @@ spec:
           secretKeyRef:
             name: thanos
             key: object-store.yaml
+      dataVolume:
+        pvc:
+          spec:
+            accessModes:
+            - ReadWriteOnce
+            resources:
+              requests:
+                storage: 1Gi
