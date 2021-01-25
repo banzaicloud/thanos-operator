@@ -43,7 +43,7 @@ func (r *Receiver) generateEndpointsForGroup(group v1alpha1.ReceiverGroup) []str
 			Receiver:      r,
 			receiverGroup: &group,
 		}).getName("")
-		endpoints = append(endpoints, fmt.Sprintf("%s-%d.%s.%s.svc.%s:10907", name, i, name, group.Namespace, r.GetClusterDomain()))
+		endpoints = append(endpoints, fmt.Sprintf("%s-%d.%s:10907", name, i, name))
 	}
 	return endpoints
 }
