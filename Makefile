@@ -143,7 +143,7 @@ license-cache: bin/licensei ## Generate license cache
 	bin/licensei cache
 
 .PHONY: check
-check: lint license-check check-diff test
+check: check-diff lint license-check test
 
 install-minio:
 	helm repo add minio https://helm.min.io/
