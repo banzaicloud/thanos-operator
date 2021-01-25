@@ -3,7 +3,7 @@
 
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
-| metaOverrides | *types.MetaBase | No | - | Foo is an example field of StoreEndpoint. Edit StoreEndpoint_types.go to remove/update<br> |
+| metaOverrides | *types.MetaBase | No | - |  |
 | url | string | No | - |  |
 | selector | *KubernetesSelector | No | - |  |
 | config | secret.Secret | No | - |  |
