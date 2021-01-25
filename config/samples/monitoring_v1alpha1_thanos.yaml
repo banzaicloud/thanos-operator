@@ -26,15 +26,15 @@ spec:
 #    GRPCServerCertificate: example-com-tls
     metrics:
       serviceMonitor: true
-
-
----
-
-apiVersion: monitoring.banzaicloud.io/v1alpha1
-kind: Thanos
-metadata:
-  name: query
-spec:
-  # Add fields here
-  query: {}
-  queryDiscovery: true
+#
+#
+#---
+#
+#apiVersion: monitoring.banzaicloud.io/v1alpha1
+#kind: Thanos
+#metadata:
+#  name: query
+#spec:
+#  # Add fields here
+#  query: {}
+#  queryDiscovery: true
