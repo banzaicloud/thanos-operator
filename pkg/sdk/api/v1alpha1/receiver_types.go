@@ -32,6 +32,7 @@ var DefaultReceiverGroup = &ReceiverGroup{
 	RemoteWriteAddress: "0.0.0.0:10908",
 	GRPCAddress:        "0.0.0.0:10907",
 	TSDBPath:           "/data",
+	Replicas:           1,
 }
 
 type ReceiverSpec struct {

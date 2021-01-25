@@ -5,7 +5,6 @@ metadata:
 spec:
   receiverGroups:
     - groupName: receiver1
-      replicas: 1 # TODO shouldn't be mandatory
       config:
         mountFrom:
           secretKeyRef:
