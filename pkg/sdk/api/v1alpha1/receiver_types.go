@@ -44,7 +44,6 @@ type ReceiverSpec struct {
 // Replicas are the number of instances in this receiver group
 type ReceiverGroup struct {
 	GroupName             string               `json:"groupName"`
-	Namespace             string               `json:"namespace"`
 	Tenants               []string             `json:"tenants,omitempty"`
 	Config                secret.Secret        `json:"config"`
 	Replicas              int32                `json:"replicas,omitempty"`

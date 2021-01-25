@@ -15,8 +15,6 @@
 package receiver
 
 import (
-	"fmt"
-
 	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
@@ -74,10 +72,6 @@ func (r *receiverInstance) getMeta(suffix ...string) metav1.ObjectMeta {
 	}
 	meta.Labels = r.getLabels()
 	return meta
-}
-
-func (r *receiverInstance) getSvc() string {
-	return fmt.Sprintf("_grpc._tcp.%s.%s.svc.cluster.local", r.getName(), r.receiverGroup.Namespace)
 }
 
 func New(reconciler *resources.ReceiverReconciler) *Receiver {
