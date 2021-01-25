@@ -40,6 +40,7 @@ func (r *receiverInstance) statefulset() (runtime.Object, reconciler.DesiredStat
 			Selector: &metav1.LabelSelector{
 				MatchLabels: r.getLabels(),
 			},
+			ServiceName: r.getName(""),
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: receiveGroup.WorkloadMetaOverrides.Merge(r.getMeta()),
 				Spec: receiveGroup.WorkloadOverrides.Override(corev1.PodSpec{
@@ -50,6 +51,9 @@ func (r *receiverInstance) statefulset() (runtime.Object, reconciler.DesiredStat
 							Args: []string{
 								"receive",
 								fmt.Sprintf("--objstore.config-file=/etc/config/%s", r.receiverGroup.Config.MountFrom.SecretKeyRef.Key),
+								"--receive.local-endpoint=127.0.0.1:10907",
+								"--receive.hashrings-file=/etc/hashring/hashring.json",
+								"--log.level=debug",
 							},
 							WorkingDir: "",
 							Ports: []corev1.ContainerPort{
@@ -75,6 +79,11 @@ func (r *receiverInstance) statefulset() (runtime.Object, reconciler.DesiredStat
 									ReadOnly:  true,
 									MountPath: "/etc/config/",
 								},
+								{
+									Name:      "hashring-config",
+									ReadOnly:  true,
+									MountPath: "/etc/hashring/",
+								},
 							},
 							LivenessProbe:   r.GetCheck(resources.GetPort(receiveGroup.HTTPAddress), resources.HealthCheckPath),
 							ReadinessProbe:  r.GetCheck(resources.GetPort(receiveGroup.HTTPAddress), resources.ReadyCheckPath),
@@ -87,6 +96,16 @@ func (r *receiverInstance) statefulset() (runtime.Object, reconciler.DesiredStat
 							VolumeSource: corev1.VolumeSource{
 								Secret: &corev1.SecretVolumeSource{
 									SecretName: r.receiverGroup.Config.MountFrom.SecretKeyRef.Name,
+								},
+							},
+						},
+						{
+							Name: "hashring-config",
+							VolumeSource: corev1.VolumeSource{
+								ConfigMap: &corev1.ConfigMapVolumeSource{
+									LocalObjectReference: corev1.LocalObjectReference{
+										Name: "hashring-config",
+									},
 								},
 							},
 						},
