@@ -91,7 +91,7 @@ func (r *Receiver) resourceFactory() ([]resources.Resource, error) {
 		resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).statefulset)
 		resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).hashring)
 		resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).service)
-		//resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).serviceMonitor)
+		resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).serviceMonitor)
 		//resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).ingressHTTP)
 		//resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).ingressGRPC)
 	}
