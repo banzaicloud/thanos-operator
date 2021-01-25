@@ -1,10 +1,16 @@
 prometheus:
   prometheusSpec:
-    thanos:
-      image: quay.io/thanos/thanos:v0.17.2
-      version: v0.17.2
-      objectStorageConfig:
-        name: thanos
-        key: object-store.yaml
-    externalLabels: 
-      cluster: thanos-operator-test
+    image:
+      tag: v2.22.2
+
+    # thanos:
+    #   image: quay.io/thanos/thanos:v0.17.2
+    #   version: v0.17.2
+    #   objectStorageConfig:
+    #     name: thanos
+    #     key: object-store.yaml
+    # externalLabels:
+    #   cluster: thanos-operator-test
+
+    remoteWrite:
+      - url: http://receiver-sample-receiver:10908/api/v1/receive
