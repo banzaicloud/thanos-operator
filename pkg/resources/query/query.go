@@ -150,7 +150,7 @@ func (q *Query) setArgs(originArgs []string) []string {
 		args = append(args, fmt.Sprintf("--grpc-client-tls-cert=%s/%s", clientCertMountPath, "tls.crt"))
 		args = append(args, fmt.Sprintf("--grpc-client-tls-key=%s/%s", clientCertMountPath, "tls.key"))
 		args = append(args, fmt.Sprintf("--grpc-client-tls-ca=%s/%s", clientCertMountPath, "ca.crt"))
-		args = append(args, "--grpc-client-server-name=example.com") //TODO this is dummy now
+		//args = append(args, "--grpc-client-server-name=example.com") //Does it make sense to configure SNI here at all?
 	}
 	if query.GRPCServerCertificate != "" {
 		args = append(args, fmt.Sprintf("--grpc-server-tls-cert=%s/%s", serverCertMountPath, "tls.crt"))
