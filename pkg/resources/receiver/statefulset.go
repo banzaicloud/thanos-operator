@@ -32,7 +32,7 @@ func (r *receiverInstance) statefulset() (runtime.Object, reconciler.DesiredStat
 		receiveGroup := r.receiverGroup.DeepCopy()
 
 		statefulset := &appsv1.StatefulSet{
-			ObjectMeta: receiveGroup.MetaOverrides.Merge(r.getMeta()),
+			ObjectMeta: receiveGroup.MetaOverrides.Merge(r.getMeta(r.receiverGroup.Name)),
 		}
 
 		statefulset.Spec = appsv1.StatefulSetSpec{
@@ -40,7 +40,7 @@ func (r *receiverInstance) statefulset() (runtime.Object, reconciler.DesiredStat
 			Selector: &metav1.LabelSelector{
 				MatchLabels: r.getLabels(),
 			},
-			ServiceName: r.getName(""),
+			ServiceName: r.getName(r.receiverGroup.Name),
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: receiveGroup.WorkloadMetaOverrides.Merge(r.getMeta()),
 				Spec: receiveGroup.WorkloadOverrides.Override(corev1.PodSpec{
@@ -51,8 +51,9 @@ func (r *receiverInstance) statefulset() (runtime.Object, reconciler.DesiredStat
 							Args: []string{
 								"receive",
 								fmt.Sprintf("--objstore.config-file=/etc/config/%s", r.receiverGroup.Config.MountFrom.SecretKeyRef.Key),
-								fmt.Sprintf("--receive.local-endpoint=$(NAME).%s:10907", r.getName("")),
+								fmt.Sprintf("--receive.local-endpoint=$(NAME).%s:10907", r.getName(r.receiverGroup.Name)),
 								"--receive.hashrings-file=/etc/hashring/hashring.json",
+								fmt.Sprintf("--receive.replication-factor=%d", r.receiverGroup.Replicas),
 								"--label=receive_replica=\"$(NAME)\"",
 								"--log.level=debug",
 							},

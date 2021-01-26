@@ -22,11 +22,11 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func (s *receiverInstance) service() (runtime.Object, reconciler.DesiredState, error) {
-	if s.receiverGroup != nil {
-		receiver := s.receiverGroup
+func (r *receiverInstance) service() (runtime.Object, reconciler.DesiredState, error) {
+	if r.receiverGroup != nil {
+		receiver := r.receiverGroup
 		storeService := &corev1.Service{
-			ObjectMeta: s.receiverGroup.MetaOverrides.Merge(s.getMeta()),
+			ObjectMeta: r.receiverGroup.MetaOverrides.Merge(r.getMeta(r.receiverGroup.Name)),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
@@ -57,7 +57,7 @@ func (s *receiverInstance) service() (runtime.Object, reconciler.DesiredState, e
 						},
 					},
 				},
-				Selector:  s.getLabels(),
+				Selector:  r.getLabels(),
 				ClusterIP: corev1.ClusterIPNone,
 				Type:      corev1.ServiceTypeClusterIP,
 			},
@@ -66,7 +66,7 @@ func (s *receiverInstance) service() (runtime.Object, reconciler.DesiredState, e
 
 	}
 	delete := &corev1.Service{
-		ObjectMeta: s.getMeta(),
+		ObjectMeta: r.getMeta(),
 	}
 	return delete, reconciler.StateAbsent, nil
 }
