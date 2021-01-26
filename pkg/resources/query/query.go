@@ -76,7 +76,7 @@ func (q *Query) getName(suffix ...string) string {
 }
 
 func (q *Query) GetGRPCService() string {
-	return fmt.Sprintf("_grpc._tcp.%s.%s.%s", q.getName(), q.Thanos.Namespace, q.Thanos.GetClusterDomain())
+	return fmt.Sprintf("_grpc._tcp.%s.%s.svc.%s", q.getName(), q.Thanos.Namespace, q.Thanos.GetClusterDomain())
 }
 
 func (q *Query) GetHTTPService() string {
@@ -105,7 +105,7 @@ func (q *Query) getStoreEndpoints() []string {
 			if t.Spec.Query != nil {
 				reconciler := resources.NewThanosComponentReconciler(t.DeepCopy(), nil, nil, nil)
 				svc := (&Query{reconciler}).GetGRPCService()
-				endpoints = append(endpoints, fmt.Sprintf("--store=dnssrvnoa+%s.%s", svc, q.Thanos.GetClusterDomain()))
+				endpoints = append(endpoints, fmt.Sprintf("--store=dnssrvnoa+%s", svc))
 			}
 		}
 	}
