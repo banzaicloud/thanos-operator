@@ -474,12 +474,12 @@ func (in *ReceiverGroup) DeepCopyInto(out *ReceiverGroup) {
 	if in.HTTPIngress != nil {
 		in, out := &in.HTTPIngress, &out.HTTPIngress
 		*out = new(Ingress)
-		**out = **in
+		(*in).DeepCopyInto(*out)
 	}
 	if in.GRPCIngress != nil {
 		in, out := &in.GRPCIngress, &out.GRPCIngress
 		*out = new(Ingress)
-		**out = **in
+		(*in).DeepCopyInto(*out)
 	}
 	if in.Metrics != nil {
 		in, out := &in.Metrics, &out.Metrics

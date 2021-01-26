@@ -36,7 +36,7 @@ func (r *receiverInstance) ingressGRPC() (runtime.Object, reconciler.DesiredStat
 									{
 										Path: endpointIngress.Path,
 										Backend: v1beta1.IngressBackend{
-											ServiceName: r.GetName(),
+											ServiceName: r.getName(r.receiverGroup.Name),
 											ServicePort: intstr.IntOrString{
 												Type:   intstr.String,
 												StrVal: "grpc",
@@ -81,7 +81,7 @@ func (r *receiverInstance) ingressHTTP() (runtime.Object, reconciler.DesiredStat
 									{
 										Path: endpointIngress.Path,
 										Backend: v1beta1.IngressBackend{
-											ServiceName: r.GetName(),
+											ServiceName: r.getName(r.receiverGroup.Name),
 											ServicePort: intstr.IntOrString{
 												Type:   intstr.String,
 												StrVal: "remote-write",

@@ -2,7 +2,6 @@
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
 | receiverGroups | []ReceiverGroup | No | - |  |
-| clusterDomain | string | No | - |  |
 ### ReceiverGroup
 #### ReceiverGroup defines a Receiver group
 Tenants are the Hard tenants of the receiver group
@@ -10,7 +9,7 @@ Replicas are the number of instances in this receiver group
 
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
-| groupName | string | Yes | - |  |
+| name | string | Yes | - |  |
 | tenants | []string | No | - |  |
 | config | secret.Secret | Yes | - |  |
 | replicas | int32 | No | - |  |

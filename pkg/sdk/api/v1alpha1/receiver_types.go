@@ -37,14 +37,13 @@ var DefaultReceiverGroup = &ReceiverGroup{
 
 type ReceiverSpec struct {
 	ReceiverGroups []ReceiverGroup `json:"receiverGroups,omitempty"`
-	ClusterDomain  string          `json:"clusterDomain,omitempty"`
 }
 
 // ReceiverGroup defines a Receiver group
 // Tenants are the Hard tenants of the receiver group
 // Replicas are the number of instances in this receiver group
 type ReceiverGroup struct {
-	Name                  string               `json:"groupName"`
+	Name                  string               `json:"name"`
 	Tenants               []string             `json:"tenants,omitempty"`
 	Config                secret.Secret        `json:"config"`
 	Replicas              int32                `json:"replicas,omitempty"`

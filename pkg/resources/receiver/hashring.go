@@ -52,17 +52,21 @@ type HashRingGroup struct {
 
 func (r *Receiver) generateEndpointsForGroup(group v1alpha1.ReceiverGroup) []string {
 	var endpoints []string
-	for i := 0; i < int(group.Replicas); i++ {
+	replicas := int(group.Replicas)
+	if replicas == 0 {
+		replicas = 1
+	}
+	for i := 0; i < replicas; i++ {
 		name := (&receiverInstance{
 			Receiver:      r,
 			receiverGroup: &group,
-		}).getName("")
+		}).getName(group.Name)
 		endpoints = append(endpoints, fmt.Sprintf("%s-%d.%s:10907", name, i, name))
 	}
 	return endpoints
 }
 
-func (r *Receiver) GenerateHashring() (string, error) {
+func (r *Receiver) generateHashring() (string, error) {
 	hashringConfig := make([]HashRingGroup, len(r.Spec.ReceiverGroups))
 	for i, receiverGroup := range r.Spec.ReceiverGroups {
 		hashringConfig[i].HashRing = receiverGroup.Name
@@ -77,7 +81,7 @@ func (r *Receiver) GenerateHashring() (string, error) {
 }
 
 func (r *Receiver) hashring() (runtime.Object, reconciler.DesiredState, error) {
-	configuration, err := r.GenerateHashring()
+	configuration, err := r.generateHashring()
 	if err != nil {
 		return nil, nil, err
 	}
