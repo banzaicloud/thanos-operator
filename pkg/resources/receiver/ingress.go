@@ -63,7 +63,7 @@ func (r *receiverInstance) ingressGRPC() (runtime.Object, reconciler.DesiredStat
 		return ingress, reconciler.StatePresent, nil
 	}
 	delete := &netv1.Ingress{
-		ObjectMeta: r.getMeta(),
+		ObjectMeta: r.getMeta(r.receiverGroup.Name + "-grpc"),
 	}
 	return delete, reconciler.StateAbsent, nil
 }
@@ -111,7 +111,7 @@ func (r *receiverInstance) ingressHTTP() (runtime.Object, reconciler.DesiredStat
 		return ingress, reconciler.StatePresent, nil
 	}
 	delete := &netv1.Ingress{
-		ObjectMeta: r.getMeta(),
+		ObjectMeta: r.getMeta(r.receiverGroup.Name + "-grpc"),
 	}
 	return delete, reconciler.StateAbsent, nil
 }
