@@ -17,6 +17,8 @@ package receiver
 import (
 	"fmt"
 
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
@@ -33,100 +35,104 @@ func (r *receiverInstance) statefulset() (runtime.Object, reconciler.DesiredStat
 
 		statefulset := &appsv1.StatefulSet{
 			ObjectMeta: receiveGroup.MetaOverrides.Merge(r.getMeta(r.receiverGroup.Name)),
-		}
-
-		statefulset.Spec = appsv1.StatefulSetSpec{
-			Replicas: utils.IntPointer(r.receiverGroup.Replicas),
-			Selector: &metav1.LabelSelector{
-				MatchLabels: r.getLabels(),
-			},
-			ServiceName: r.getName(r.receiverGroup.Name),
-			Template: corev1.PodTemplateSpec{
-				ObjectMeta: receiveGroup.WorkloadMetaOverrides.Merge(r.getMeta()),
-				Spec: receiveGroup.WorkloadOverrides.Override(corev1.PodSpec{
-					Containers: []corev1.Container{
-						receiveGroup.ContainerOverrides.Override(corev1.Container{
-							Name:  "receive",
-							Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
-							Args: []string{
-								"receive",
-								fmt.Sprintf("--objstore.config-file=/etc/config/%s", r.receiverGroup.Config.MountFrom.SecretKeyRef.Key),
-								fmt.Sprintf("--receive.local-endpoint=$(NAME).%s:10907", r.getName(r.receiverGroup.Name)),
-								"--receive.hashrings-file=/etc/hashring/hashring.json",
-								fmt.Sprintf("--receive.replication-factor=%d", r.receiverGroup.Replicas),
-								"--label=receive_replica=\"$(NAME)\"",
-								"--log.level=debug",
+			Spec: appsv1.StatefulSetSpec{
+				Replicas: utils.IntPointer(r.receiverGroup.Replicas),
+				Selector: &metav1.LabelSelector{
+					MatchLabels: r.getLabels(),
+				},
+				ServiceName: r.getName(r.receiverGroup.Name),
+				Template: corev1.PodTemplateSpec{
+					ObjectMeta: r.getMeta(),
+					Spec: corev1.PodSpec{
+						Containers: []corev1.Container{
+							{
+								Name:  "receive",
+								Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
+								Args: []string{
+									"receive",
+									fmt.Sprintf("--objstore.config-file=/etc/config/%s", r.receiverGroup.Config.MountFrom.SecretKeyRef.Key),
+									fmt.Sprintf("--receive.local-endpoint=$(NAME).%s:10907", r.getName(r.receiverGroup.Name)),
+									"--receive.hashrings-file=/etc/hashring/hashring.json",
+									fmt.Sprintf("--receive.replication-factor=%d", r.receiverGroup.Replicas),
+									"--label=receive_replica=\"$(NAME)\"",
+									"--log.level=debug",
+								},
+								Env: []corev1.EnvVar{
+									{
+										Name: "NAME",
+										ValueFrom: &corev1.EnvVarSource{
+											FieldRef: &corev1.ObjectFieldSelector{
+												FieldPath: "metadata.name",
+											},
+										},
+									},
+								},
+								WorkingDir: "",
+								Ports: []corev1.ContainerPort{
+									{
+										Name:          "http",
+										ContainerPort: resources.GetPort(receiveGroup.HTTPAddress),
+										Protocol:      corev1.ProtocolTCP,
+									},
+									{
+										Name:          "grpc",
+										ContainerPort: resources.GetPort(receiveGroup.GRPCAddress),
+										Protocol:      corev1.ProtocolTCP,
+									},
+									{
+										Name:          "remote-write",
+										ContainerPort: resources.GetPort(receiveGroup.RemoteWriteAddress),
+										Protocol:      corev1.ProtocolTCP,
+									},
+								},
+								VolumeMounts: []corev1.VolumeMount{
+									{
+										Name:      "objectstore-secret",
+										ReadOnly:  true,
+										MountPath: "/etc/config/",
+									},
+									{
+										Name:      "hashring-config",
+										ReadOnly:  true,
+										MountPath: "/etc/hashring/",
+									},
+								},
+								LivenessProbe:   r.GetCheck(resources.GetPort(receiveGroup.HTTPAddress), resources.HealthCheckPath),
+								ReadinessProbe:  r.GetCheck(resources.GetPort(receiveGroup.HTTPAddress), resources.ReadyCheckPath),
+								ImagePullPolicy: corev1.PullIfNotPresent,
 							},
-							Env: []corev1.EnvVar{
-								{
-									Name: "NAME",
-									ValueFrom: &corev1.EnvVarSource{
-										FieldRef: &corev1.ObjectFieldSelector{
-											FieldPath: "metadata.name",
+						},
+						Volumes: []corev1.Volume{
+							{
+								Name: "objectstore-secret",
+								VolumeSource: corev1.VolumeSource{
+									Secret: &corev1.SecretVolumeSource{
+										SecretName: r.receiverGroup.Config.MountFrom.SecretKeyRef.Name,
+									},
+								},
+							},
+							{
+								Name: "hashring-config",
+								VolumeSource: corev1.VolumeSource{
+									ConfigMap: &corev1.ConfigMapVolumeSource{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "hashring-config",
 										},
 									},
 								},
 							},
-							WorkingDir: "",
-							Ports: []corev1.ContainerPort{
-								{
-									Name:          "http",
-									ContainerPort: resources.GetPort(receiveGroup.HTTPAddress),
-									Protocol:      corev1.ProtocolTCP,
-								},
-								{
-									Name:          "grpc",
-									ContainerPort: resources.GetPort(receiveGroup.GRPCAddress),
-									Protocol:      corev1.ProtocolTCP,
-								},
-								{
-									Name:          "remote-write",
-									ContainerPort: resources.GetPort(receiveGroup.RemoteWriteAddress),
-									Protocol:      corev1.ProtocolTCP,
-								},
-							},
-							VolumeMounts: []corev1.VolumeMount{
-								{
-									Name:      "objectstore-secret",
-									ReadOnly:  true,
-									MountPath: "/etc/config/",
-								},
-								{
-									Name:      "hashring-config",
-									ReadOnly:  true,
-									MountPath: "/etc/hashring/",
-								},
-							},
-							LivenessProbe:   r.GetCheck(resources.GetPort(receiveGroup.HTTPAddress), resources.HealthCheckPath),
-							ReadinessProbe:  r.GetCheck(resources.GetPort(receiveGroup.HTTPAddress), resources.ReadyCheckPath),
-							ImagePullPolicy: corev1.PullIfNotPresent,
-						}),
-					},
-					Volumes: []corev1.Volume{
-						{
-							Name: "objectstore-secret",
-							VolumeSource: corev1.VolumeSource{
-								Secret: &corev1.SecretVolumeSource{
-									SecretName: r.receiverGroup.Config.MountFrom.SecretKeyRef.Name,
-								},
-							},
-						},
-						{
-							Name: "hashring-config",
-							VolumeSource: corev1.VolumeSource{
-								ConfigMap: &corev1.ConfigMapVolumeSource{
-									LocalObjectReference: corev1.LocalObjectReference{
-										Name: "hashring-config",
-									},
-								},
-							},
 						},
 					},
-				}),
+				},
 			},
 		}
 
 		statefulset.Spec.Template.Spec.Containers[0].Args = r.setArgs(statefulset.Spec.Template.Spec.Containers[0].Args)
+
+		err := merge.Merge(statefulset, r.receiverGroup.StatefulSetOverrides)
+		if err != nil {
+			return statefulset, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+		}
 
 		if receiveGroup.DataVolume != nil {
 			if receiveGroup.DataVolume.PersistentVolumeClaim != nil {

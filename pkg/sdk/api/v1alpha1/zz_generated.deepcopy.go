@@ -456,19 +456,9 @@ func (in *ReceiverGroup) DeepCopyInto(out *ReceiverGroup) {
 		*out = new(types.MetaBase)
 		(*in).DeepCopyInto(*out)
 	}
-	if in.WorkloadMetaOverrides != nil {
-		in, out := &in.WorkloadMetaOverrides, &out.WorkloadMetaOverrides
-		*out = new(types.MetaBase)
-		(*in).DeepCopyInto(*out)
-	}
-	if in.WorkloadOverrides != nil {
-		in, out := &in.WorkloadOverrides, &out.WorkloadOverrides
-		*out = new(types.PodSpecBase)
-		(*in).DeepCopyInto(*out)
-	}
-	if in.ContainerOverrides != nil {
-		in, out := &in.ContainerOverrides, &out.ContainerOverrides
-		*out = new(types.ContainerBase)
+	if in.StatefulSetOverrides != nil {
+		in, out := &in.StatefulSetOverrides, &out.StatefulSetOverrides
+		*out = new(types.StatefulSetBase)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.HTTPIngress != nil {

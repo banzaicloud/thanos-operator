@@ -24,11 +24,8 @@ import (
 func (r *receiverInstance) serviceMonitor() (runtime.Object, reconciler.DesiredState, error) {
 	if r.receiverGroup.Metrics != nil && r.receiverGroup.Metrics.ServiceMonitor {
 		metrics := r.receiverGroup.Metrics
-		rule := r.receiverGroup.DeepCopy()
-		meta := r.getMeta()
-		meta.Name = "thanos-receive-" + meta.Name
 		serviceMonitor := &prometheus.ServiceMonitor{
-			ObjectMeta: rule.MetaOverrides.Merge(meta),
+			ObjectMeta: r.receiverGroup.MetaOverrides.Merge(r.getMeta(r.receiverGroup.Name)),
 			Spec: prometheus.ServiceMonitorSpec{
 				Endpoints: []prometheus.Endpoint{
 					{
