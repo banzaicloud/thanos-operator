@@ -116,7 +116,7 @@ func (r *receiverInstance) statefulset() (runtime.Object, reconciler.DesiredStat
 								VolumeSource: corev1.VolumeSource{
 									ConfigMap: &corev1.ConfigMapVolumeSource{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "hashring-config",
+											Name: r.getName("hashring-config"),
 										},
 									},
 								},
