@@ -4,7 +4,26 @@ metadata:
   name: receiver-sample
 spec:
   receiverGroups:
-    - name: receiver1
+    - name: soft-tenant
+      config:
+        mountFrom:
+          secretKeyRef:
+            name: thanos
+            key: object-store.yaml
+      dataVolume:
+        pvc:
+          spec:
+            accessModes:
+            - ReadWriteOnce
+            resources:
+              requests:
+                storage: 1Gi
+      metrics:
+        serviceMonitor: true
+      httpIngress: {}
+    - name: tenant-a
+      replicas: 2
+      tenants: ["tenant-a"]
       config:
         mountFrom:
           secretKeyRef:
