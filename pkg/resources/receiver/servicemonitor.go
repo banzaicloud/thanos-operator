@@ -44,7 +44,7 @@ func (r *receiverInstance) serviceMonitor() (runtime.Object, reconciler.DesiredS
 		return serviceMonitor, reconciler.StatePresent, nil
 	}
 	delete := &prometheus.ServiceMonitor{
-		ObjectMeta: r.getMeta(),
+		ObjectMeta: r.getMeta(r.receiverGroup.Name),
 	}
 	return delete, reconciler.StateAbsent, nil
 }

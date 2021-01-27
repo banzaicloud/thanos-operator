@@ -66,7 +66,7 @@ func (r *receiverInstance) service() (runtime.Object, reconciler.DesiredState, e
 
 	}
 	delete := &corev1.Service{
-		ObjectMeta: r.getMeta(),
+		ObjectMeta: r.getMeta(r.receiverGroup.Name),
 	}
 	return delete, reconciler.StateAbsent, nil
 }
