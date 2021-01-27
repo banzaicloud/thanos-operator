@@ -65,6 +65,16 @@ spec:
       host: $PEER_ENDPOINT
 EOF
 
+cat <<EOF | kubectl apply -f-
+apiVersion: monitoring.banzaicloud.io/v1alpha1
+kind: StoreEndpoint
+metadata:
+  name: peer
+spec:
+  thanos: peer
+  selector: {}
+EOF
+
 # wait for the ingress endpoint and register it as a cname in an externalname service
 
 while true; do
@@ -85,6 +95,14 @@ spec:
   # Add fields here
   query:
     GRPCClientCertificate: "peer-tls"
-    stores:
-    - ${PEER_ENDPOINT}:443
+EOF
+
+cat <<EOF | kubectl apply -f-
+apiVersion: monitoring.banzaicloud.io/v1alpha1
+kind: StoreEndpoint
+metadata:
+  name: observer
+spec:
+  thanos: observer
+  url: ${PEER_ENDPOINT}:443
 EOF
