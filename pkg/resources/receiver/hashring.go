@@ -50,23 +50,20 @@ type HashRingGroup struct {
 //	return false
 //}
 
-func (r *Receiver) generateEndpointsForGroup(group v1alpha1.ReceiverGroup) []string {
+func (r *receiverInstance) generateEndpointsForGroup(group v1alpha1.ReceiverGroup) []string {
 	var endpoints []string
 	replicas := int(group.Replicas)
 	if replicas == 0 {
 		replicas = 1
 	}
+	name := r.getName(group.Name)
 	for i := 0; i < replicas; i++ {
-		name := (&receiverInstance{
-			Receiver:      r,
-			receiverGroup: &group,
-		}).getName(group.Name)
 		endpoints = append(endpoints, fmt.Sprintf("%s-%d.%s:10907", name, i, name))
 	}
 	return endpoints
 }
 
-func (r *Receiver) generateHashring() (string, error) {
+func (r *receiverInstance) generateHashring() (string, error) {
 	hashringConfig := make([]HashRingGroup, len(r.Spec.ReceiverGroups))
 	for i, receiverGroup := range r.Spec.ReceiverGroups {
 		hashringConfig[i].HashRing = receiverGroup.Name
@@ -80,13 +77,13 @@ func (r *Receiver) generateHashring() (string, error) {
 	return string(result), nil
 }
 
-func (r *Receiver) hashring() (runtime.Object, reconciler.DesiredState, error) {
+func (r *receiverInstance) hashring() (runtime.Object, reconciler.DesiredState, error) {
 	configuration, err := r.generateHashring()
 	if err != nil {
 		return nil, nil, err
 	}
 	configmap := &v1.ConfigMap{
-		ObjectMeta: r.GetObjectMeta("hashring-config"),
+		ObjectMeta: r.GetObjectMeta(r.getName("hashring-config")),
 		Data: map[string]string{
 			"hashring.json": configuration,
 		},
