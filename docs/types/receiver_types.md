@@ -14,9 +14,7 @@ Replicas are the number of instances in this receiver group
 | config | secret.Secret | Yes | - |  |
 | replicas | int32 | No | - |  |
 | metaOverrides | *types.MetaBase | No | - |  |
-| workloadMetaOverrides | *types.MetaBase | No | - |  |
-| workloadOverrides | *types.PodSpecBase | No | - |  |
-| containerOverrides | *types.ContainerBase | No | - |  |
+| statefulSetOverrides | *types.StatefulSetBase | No | - |  |
 | httpIngress | *Ingress | No | - |  |
 | httpServerCertificate | string | No | - | Secret name for HTTP Server certificate (Kubernetes TLS secret type)<br> |
 | httpClientCertificate | string | No | - | Secret name for HTTP Client certificate (Kubernetes TLS secret type)<br> |

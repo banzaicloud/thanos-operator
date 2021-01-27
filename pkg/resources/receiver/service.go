@@ -25,8 +25,8 @@ import (
 func (r *receiverInstance) service() (runtime.Object, reconciler.DesiredState, error) {
 	if r.receiverGroup != nil {
 		receiver := r.receiverGroup
-		storeService := &corev1.Service{
-			ObjectMeta: r.receiverGroup.MetaOverrides.Merge(r.getMeta(r.receiverGroup.Name)),
+		service := &corev1.Service{
+			ObjectMeta: receiver.MetaOverrides.Merge(r.getMeta(receiver.Name)),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
@@ -62,7 +62,7 @@ func (r *receiverInstance) service() (runtime.Object, reconciler.DesiredState, e
 				Type:      corev1.ServiceTypeClusterIP,
 			},
 		}
-		return storeService, reconciler.StatePresent, nil
+		return service, reconciler.StatePresent, nil
 
 	}
 	delete := &corev1.Service{
