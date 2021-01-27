@@ -135,7 +135,7 @@ func (r *ThanosReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			}
 			if o, ok := object.(*v1alpha1.StoreEndpoint); ok {
 				thanos := &v1alpha1.Thanos{}
-				err = mgr.GetCache().Get(context.TODO(), types.NamespacedName{Name: o.Spec.Thanos, Namespace: o.Namespace}, thanos)
+				err = mgr.GetClient().Get(context.TODO(), types.NamespacedName{Name: o.Spec.Thanos, Namespace: o.Namespace}, thanos)
 				if err != nil {
 					r.Log.Error(err, fmt.Sprintf("failed to get thanos resources %q for endpoint %q", o.Spec.Thanos, o.Name))
 					return nil
