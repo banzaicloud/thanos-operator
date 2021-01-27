@@ -16,30 +16,32 @@ package receiver
 
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
-	"k8s.io/api/extensions/v1beta1"
+	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func (r *receiverInstance) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
 	if r.receiverGroup.GRPCIngress != nil {
 		endpointIngress := r.receiverGroup.GRPCIngress
-		ingress := &v1beta1.Ingress{
+		pathType := netv1.PathTypeImplementationSpecific
+		ingress := &netv1.Ingress{
 			ObjectMeta: r.receiverGroup.MetaOverrides.Merge(r.getMeta(r.receiverGroup.Name + "-grpc")),
-			Spec: v1beta1.IngressSpec{
-				Rules: []v1beta1.IngressRule{
+			Spec: netv1.IngressSpec{
+				Rules: []netv1.IngressRule{
 					{
 						Host: endpointIngress.Host,
-						IngressRuleValue: v1beta1.IngressRuleValue{
-							HTTP: &v1beta1.HTTPIngressRuleValue{
-								Paths: []v1beta1.HTTPIngressPath{
+						IngressRuleValue: netv1.IngressRuleValue{
+							HTTP: &netv1.HTTPIngressRuleValue{
+								Paths: []netv1.HTTPIngressPath{
 									{
-										Path: endpointIngress.Path,
-										Backend: v1beta1.IngressBackend{
-											ServiceName: r.getName(r.receiverGroup.Name),
-											ServicePort: intstr.IntOrString{
-												Type:   intstr.String,
-												StrVal: "grpc",
+										Path:     endpointIngress.Path,
+										PathType: &pathType,
+										Backend: netv1.IngressBackend{
+											Service: &netv1.IngressServiceBackend{
+												Name: r.getName(r.receiverGroup.Name),
+												Port: netv1.ServiceBackendPort{
+													Name: "grpc",
+												},
 											},
 										},
 									},
@@ -51,7 +53,7 @@ func (r *receiverInstance) ingressGRPC() (runtime.Object, reconciler.DesiredStat
 			},
 		}
 		if endpointIngress.Certificate != "" {
-			ingress.Spec.TLS = []v1beta1.IngressTLS{
+			ingress.Spec.TLS = []netv1.IngressTLS{
 				{
 					Hosts:      []string{endpointIngress.Host},
 					SecretName: endpointIngress.Certificate,
@@ -60,7 +62,7 @@ func (r *receiverInstance) ingressGRPC() (runtime.Object, reconciler.DesiredStat
 		}
 		return ingress, reconciler.StatePresent, nil
 	}
-	delete := &v1beta1.Ingress{
+	delete := &netv1.Ingress{
 		ObjectMeta: r.getMeta(),
 	}
 	return delete, reconciler.StateAbsent, nil
@@ -69,22 +71,25 @@ func (r *receiverInstance) ingressGRPC() (runtime.Object, reconciler.DesiredStat
 func (r *receiverInstance) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
 	if r.receiverGroup.HTTPIngress != nil {
 		endpointIngress := r.receiverGroup.HTTPIngress
-		ingress := &v1beta1.Ingress{
+		pathType := netv1.PathTypeImplementationSpecific
+		ingress := &netv1.Ingress{
 			ObjectMeta: r.receiverGroup.MetaOverrides.Merge(r.getMeta(r.receiverGroup.Name + "-remote-write")),
-			Spec: v1beta1.IngressSpec{
-				Rules: []v1beta1.IngressRule{
+			Spec: netv1.IngressSpec{
+				Rules: []netv1.IngressRule{
 					{
 						Host: endpointIngress.Host,
-						IngressRuleValue: v1beta1.IngressRuleValue{
-							HTTP: &v1beta1.HTTPIngressRuleValue{
-								Paths: []v1beta1.HTTPIngressPath{
+						IngressRuleValue: netv1.IngressRuleValue{
+							HTTP: &netv1.HTTPIngressRuleValue{
+								Paths: []netv1.HTTPIngressPath{
 									{
-										Path: endpointIngress.Path,
-										Backend: v1beta1.IngressBackend{
-											ServiceName: r.getName(r.receiverGroup.Name),
-											ServicePort: intstr.IntOrString{
-												Type:   intstr.String,
-												StrVal: "remote-write",
+										Path:     endpointIngress.Path,
+										PathType: &pathType,
+										Backend: netv1.IngressBackend{
+											Service: &netv1.IngressServiceBackend{
+												Name: r.getName(r.receiverGroup.Name),
+												Port: netv1.ServiceBackendPort{
+													Name: "remote-write",
+												},
 											},
 										},
 									},
@@ -96,7 +101,7 @@ func (r *receiverInstance) ingressHTTP() (runtime.Object, reconciler.DesiredStat
 			},
 		}
 		if endpointIngress.Certificate != "" {
-			ingress.Spec.TLS = []v1beta1.IngressTLS{
+			ingress.Spec.TLS = []netv1.IngressTLS{
 				{
 					Hosts:      []string{endpointIngress.Host},
 					SecretName: endpointIngress.Certificate,
@@ -105,7 +110,7 @@ func (r *receiverInstance) ingressHTTP() (runtime.Object, reconciler.DesiredStat
 		}
 		return ingress, reconciler.StatePresent, nil
 	}
-	delete := &v1beta1.Ingress{
+	delete := &netv1.Ingress{
 		ObjectMeta: r.getMeta(),
 	}
 	return delete, reconciler.StateAbsent, nil
