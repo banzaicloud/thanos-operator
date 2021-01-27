@@ -1,6 +1,6 @@
 module github.com/banzaicloud/thanos-operator/pkg/sdk
 
-go 1.13
+go 1.15
 
 require (
 	emperror.dev/errors v0.8.0
