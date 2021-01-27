@@ -18,7 +18,6 @@ import (
 	"emperror.dev/errors"
 	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
-	"k8s.io/api/extensions/v1beta1"
 	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -131,7 +130,7 @@ func (q *Query) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
 
 		return ingress, reconciler.StatePresent, nil
 	}
-	delete := &v1beta1.Ingress{
+	delete := &netv1.Ingress{
 		ObjectMeta: q.getMeta(q.getName("grpc")),
 	}
 	return delete, reconciler.StateAbsent, nil
