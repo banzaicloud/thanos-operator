@@ -1,0 +1,7 @@
+prometheus:
+  prometheusSpec:
+    image:
+      tag: v2.22.2
+
+    remoteWrite:
+      - url: http://receiver-sample-receiver:10908/api/v1/receive
