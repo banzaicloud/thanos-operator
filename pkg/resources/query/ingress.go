@@ -18,8 +18,9 @@ import (
 	"emperror.dev/errors"
 	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
-	netv1 "k8s.io/api/networking/v1"
+	netv1 "k8s.io/api/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func (q *Query) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
@@ -40,12 +41,8 @@ func (q *Query) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
 										Path:     queryIngress.Path,
 										PathType: &pathType,
 										Backend: netv1.IngressBackend{
-											Service: &netv1.IngressServiceBackend{
-												Name: q.getName(),
-												Port: netv1.ServiceBackendPort{
-													Name: "http",
-												},
-											},
+											ServiceName: q.getName(),
+											ServicePort: intstr.FromString("http"),
 										},
 									},
 								},
@@ -97,12 +94,8 @@ func (q *Query) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
 										Path:     queryIngress.Path,
 										PathType: &pathType,
 										Backend: netv1.IngressBackend{
-											Service: &netv1.IngressServiceBackend{
-												Name: q.getName(),
-												Port: netv1.ServiceBackendPort{
-													Name: "grpc",
-												},
-											},
+											ServiceName: q.getName(),
+											ServicePort: intstr.FromString("grpc"),
 										},
 									},
 								},

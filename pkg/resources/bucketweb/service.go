@@ -23,10 +23,11 @@ import (
 )
 
 func (b *BucketWeb) service() (runtime.Object, reconciler.DesiredState, error) {
+	meta := b.getMeta(b.getName())
 	if b.ObjectStore.Spec.BucketWeb != nil {
-		bucketWeb := b.ObjectStore.Spec.BucketWeb.DeepCopy()
+		bucketWeb := b.ObjectStore.Spec.BucketWeb
 		return &corev1.Service{
-			ObjectMeta: bucketWeb.MetaOverrides.Merge(b.getMeta()),
+			ObjectMeta: bucketWeb.MetaOverrides.Merge(meta),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
@@ -45,6 +46,6 @@ func (b *BucketWeb) service() (runtime.Object, reconciler.DesiredState, error) {
 	}
 
 	return &corev1.Service{
-		ObjectMeta: b.getMeta(),
+		ObjectMeta: meta,
 	}, reconciler.StateAbsent, nil
 }

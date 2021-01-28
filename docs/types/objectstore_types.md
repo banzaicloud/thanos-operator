@@ -30,12 +30,10 @@
 ### BucketWeb
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
-| metaOverrides | *types.MetaBase | No | - |  |
-| workloadMetaOverrides | *types.MetaBase | No | - |  |
-| workloadOverrides | *types.PodSpecBase | No | - |  |
-| containerOverrides | *types.ContainerBase | No | - |  |
-| deploymentOverrides | *types.DeploymentSpecBase | No | - |  |
+| metaOverrides | *typeoverride.ObjectMeta | No | - |  |
+| deploymentOverrides | *typeoverride.Deployment | No | - |  |
 | metrics | *Metrics | No | - |  |
+| HTTPIngress | *Ingress | No | - |  |
 | httpAddress | string | No | - | Listen host:port for HTTP endpoints.<br> |
 | httpGracePeriod | metav1.Duration | No | - | Time to wait after an interrupt received for HTTP Server.<br> |
 | web_external_prefix | string | No | - | Static prefix for all HTML links and redirect URLs in the bucket web UI interface. Actual endpoints are still served on / or the web.route-prefix. This allows thanos bucket web UI to be served behind a reverse proxy that strips a URL sub-path.<br> |

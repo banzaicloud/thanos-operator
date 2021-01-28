@@ -148,7 +148,7 @@ check: check-diff lint license-check test
 install-minio:
 	helm repo add minio https://helm.min.io/
 	helm repo update
-	helm upgrade --install minio minio/minio --set accessKey=myaccesskey,secretKey=mysecretkey,defaultBucket.enabled=true
+	helm upgrade --install minio minio/minio --set accessKey=myaccesskey,secretKey=mysecretkey,defaultBucket.enabled=true,resources.requests.memory=256Mi
 	kubectl get secret thanos || kubectl create secret generic thanos --from-file=object-store.yaml=hack/object-store.yaml
 
 install-prometheus:

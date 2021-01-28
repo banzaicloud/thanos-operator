@@ -15,40 +15,36 @@
 package bucketweb
 
 import (
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
-	"github.com/banzaicloud/thanos-operator/pkg/resources"
-	netv1 "k8s.io/api/networking/v1"
+	netv1 "k8s.io/api/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func (b *BucketWeb) ingress() (runtime.Object, reconciler.DesiredState, error) {
-	if b.ObjectStore.Spec.BucketWeb != nil {
-		bucketWeb := b.ObjectStore.Spec.BucketWeb.DeepCopy()
+	meta := b.getMeta(b.getName())
+	if b.ObjectStore.Spec.BucketWeb != nil &&
+		b.ObjectStore.Spec.BucketWeb.HTTPIngress != nil {
+		bucketWeb := b.ObjectStore.Spec.BucketWeb
+		bucketWebIngress := bucketWeb.HTTPIngress
 		pathType := netv1.PathTypeImplementationSpecific
 		ingress := &netv1.Ingress{
-			ObjectMeta: bucketWeb.MetaOverrides.Merge(b.getMeta()),
+			ObjectMeta: bucketWeb.MetaOverrides.Merge(meta),
 			Spec: netv1.IngressSpec{
-				//Certificate: []networkingv1.IngressTLS{
-				//	{
-				//		Hosts: []string{"/"},
-				//	},
-				//},
 				Rules: []netv1.IngressRule{
 					{
-						Host: "/",
+						Host: bucketWebIngress.Host,
 						IngressRuleValue: netv1.IngressRuleValue{
 							HTTP: &netv1.HTTPIngressRuleValue{
 								Paths: []netv1.HTTPIngressPath{
 									{
-										Path:     "/",
+										Path:     bucketWebIngress.Path,
 										PathType: &pathType,
 										Backend: netv1.IngressBackend{
-											Service: &netv1.IngressServiceBackend{
-												Name: b.getName(),
-												Port: netv1.ServiceBackendPort{
-													Number: resources.GetPort(bucketWeb.HTTPAddress),
-												},
-											},
+											ServiceName: b.getName(),
+											ServicePort: intstr.FromString("http"),
 										},
 									},
 								},
@@ -58,11 +54,26 @@ func (b *BucketWeb) ingress() (runtime.Object, reconciler.DesiredState, error) {
 				},
 			},
 		}
+		if bucketWebIngress.Certificate != "" {
+			ingress.Spec.TLS = []netv1.IngressTLS{
+				{
+					Hosts:      []string{bucketWebIngress.Host},
+					SecretName: bucketWebIngress.Certificate,
+				},
+			}
+		}
 
-		return ingress, reconciler.StateAbsent, nil
+		if bucketWeb.HTTPIngress.IngressOverrides != nil {
+			err := merge.Merge(ingress, bucketWeb.HTTPIngress.IngressOverrides)
+			if err != nil {
+				return ingress, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to ingress base object")
+			}
+		}
+
+		return ingress, reconciler.StatePresent, nil
 	}
-
-	return &netv1.Ingress{
-		ObjectMeta: b.getMeta(),
-	}, reconciler.StateAbsent, nil
+	delete := &netv1.Ingress{
+		ObjectMeta: meta,
+	}
+	return delete, reconciler.StateAbsent, nil
 }

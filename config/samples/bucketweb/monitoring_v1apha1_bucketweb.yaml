@@ -1,0 +1,12 @@
+apiVersion: monitoring.banzaicloud.io/v1alpha1
+kind: ObjectStore
+metadata:
+  name: bucketweb-sample
+spec:
+  config:
+    mountFrom:
+      secretKeyRef:
+        name: thanos
+        key: object-store.yaml
+  bucketWeb:
+    HTTPIngress: {}

@@ -30,33 +30,23 @@ func (in *BucketWeb) DeepCopyInto(out *BucketWeb) {
 	*out = *in
 	if in.MetaOverrides != nil {
 		in, out := &in.MetaOverrides, &out.MetaOverrides
-		*out = new(types.MetaBase)
-		(*in).DeepCopyInto(*out)
-	}
-	if in.WorkloadMetaOverrides != nil {
-		in, out := &in.WorkloadMetaOverrides, &out.WorkloadMetaOverrides
-		*out = new(types.MetaBase)
-		(*in).DeepCopyInto(*out)
-	}
-	if in.WorkloadOverrides != nil {
-		in, out := &in.WorkloadOverrides, &out.WorkloadOverrides
-		*out = new(types.PodSpecBase)
-		(*in).DeepCopyInto(*out)
-	}
-	if in.ContainerOverrides != nil {
-		in, out := &in.ContainerOverrides, &out.ContainerOverrides
-		*out = new(types.ContainerBase)
+		*out = new(typeoverride.ObjectMeta)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.DeploymentOverrides != nil {
 		in, out := &in.DeploymentOverrides, &out.DeploymentOverrides
-		*out = new(types.DeploymentSpecBase)
+		*out = new(typeoverride.Deployment)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.Metrics != nil {
 		in, out := &in.Metrics, &out.Metrics
 		*out = new(Metrics)
 		**out = **in
+	}
+	if in.HTTPIngress != nil {
+		in, out := &in.HTTPIngress, &out.HTTPIngress
+		*out = new(Ingress)
+		(*in).DeepCopyInto(*out)
 	}
 	out.HTTPGracePeriod = in.HTTPGracePeriod
 	out.Refresh = in.Refresh

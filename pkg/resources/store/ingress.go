@@ -16,8 +16,9 @@ package store
 
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
-	netv1 "k8s.io/api/networking/v1"
+	netv1 "k8s.io/api/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func (e *storeInstance) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
@@ -37,12 +38,8 @@ func (e *storeInstance) ingressGRPC() (runtime.Object, reconciler.DesiredState, 
 										Path:     endpointIngress.Path,
 										PathType: &pathType,
 										Backend: netv1.IngressBackend{
-											Service: &netv1.IngressServiceBackend{
-												Name: e.GetName(),
-												Port: netv1.ServiceBackendPort{
-													Name: "grpc",
-												},
-											},
+											ServiceName: e.GetName(),
+											ServicePort: intstr.FromString("grpc"),
 										},
 									},
 								},

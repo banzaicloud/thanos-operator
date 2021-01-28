@@ -16,8 +16,9 @@ package receiver
 
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
-	netv1 "k8s.io/api/networking/v1"
+	netv1 "k8s.io/api/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func (r *receiverInstance) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
@@ -37,12 +38,8 @@ func (r *receiverInstance) ingressGRPC() (runtime.Object, reconciler.DesiredStat
 										Path:     endpointIngress.Path,
 										PathType: &pathType,
 										Backend: netv1.IngressBackend{
-											Service: &netv1.IngressServiceBackend{
-												Name: r.getName(r.receiverGroup.Name),
-												Port: netv1.ServiceBackendPort{
-													Name: "grpc",
-												},
-											},
+											ServiceName: r.getName(r.receiverGroup.Name),
+											ServicePort: intstr.FromString("grpc"),
 										},
 									},
 								},
@@ -85,12 +82,8 @@ func (r *receiverInstance) ingressHTTP() (runtime.Object, reconciler.DesiredStat
 										Path:     endpointIngress.Path,
 										PathType: &pathType,
 										Backend: netv1.IngressBackend{
-											Service: &netv1.IngressServiceBackend{
-												Name: r.getName(r.receiverGroup.Name),
-												Port: netv1.ServiceBackendPort{
-													Name: "remote-write",
-												},
-											},
+											ServiceName: r.getName(r.receiverGroup.Name),
+											ServicePort: intstr.FromString("remote-write"),
 										},
 									},
 								},
