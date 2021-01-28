@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/banzaicloud/operator-tools/pkg/secret"
+	"github.com/banzaicloud/operator-tools/pkg/typeoverride"
 	"github.com/banzaicloud/operator-tools/pkg/types"
 	"github.com/banzaicloud/operator-tools/pkg/volume"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -104,12 +105,10 @@ var DefaultBucketWeb = &BucketWeb{
 }
 
 type BucketWeb struct {
-	MetaOverrides         *types.MetaBase           `json:"metaOverrides,omitempty"`
-	WorkloadMetaOverrides *types.MetaBase           `json:"workloadMetaOverrides,omitempty"`
-	WorkloadOverrides     *types.PodSpecBase        `json:"workloadOverrides,omitempty"`
-	ContainerOverrides    *types.ContainerBase      `json:"containerOverrides,omitempty"`
-	DeploymentOverrides   *types.DeploymentSpecBase `json:"deploymentOverrides,omitempty"`
-	Metrics               *Metrics                  `json:"metrics,omitempty"`
+	MetaOverrides       *typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
+	DeploymentOverrides *typeoverride.Deployment `json:"deploymentOverrides,omitempty"`
+	Metrics             *Metrics                 `json:"metrics,omitempty"`
+	HTTPIngress         *Ingress                 `json:"HTTPIngress,omitempty"`
 	// Listen host:port for HTTP endpoints.
 	HTTPAddress string `json:"httpAddress,omitempty"`
 	// Time to wait after an interrupt received for HTTP Server.

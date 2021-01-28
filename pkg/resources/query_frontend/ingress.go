@@ -17,8 +17,9 @@ package query_frontend
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	corev1 "k8s.io/api/core/v1"
-	netv1 "k8s.io/api/networking/v1"
+	netv1 "k8s.io/api/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func (q *QueryFrontend) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
@@ -40,12 +41,8 @@ func (q *QueryFrontend) ingressHTTP() (runtime.Object, reconciler.DesiredState, 
 										Path:     queryFrontendIngress.Path,
 										PathType: &pathType,
 										Backend: netv1.IngressBackend{
-											Service: &netv1.IngressServiceBackend{
-												Name: q.getName(),
-												Port: netv1.ServiceBackendPort{
-													Name: "http",
-												},
-											},
+											ServiceName: q.getName(),
+											ServicePort: intstr.FromString("http"),
 										},
 									},
 								},

@@ -47,8 +47,12 @@ func (c *BucketWeb) Reconcile() (*reconcile.Result, error) {
 	})
 }
 
-func (c *BucketWeb) getName() string {
-	return c.QualifiedName(Name)
+func (b *BucketWeb) getName(suffix ...string) string {
+	name := Name
+	if len(suffix) > 0 {
+		name = name + "-" + suffix[0]
+	}
+	return b.QualifiedName(name)
 }
 
 func (b *BucketWeb) getLabels() resources.Labels {
@@ -58,8 +62,8 @@ func (b *BucketWeb) getLabels() resources.Labels {
 	return labels
 }
 
-func (b *BucketWeb) getMeta() metav1.ObjectMeta {
-	meta := b.GetObjectMeta(b.getName())
+func (b *BucketWeb) getMeta(name string) metav1.ObjectMeta {
+	meta := b.GetObjectMeta(name)
 	meta.Labels = b.getLabels()
 	return meta
 }
