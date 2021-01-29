@@ -9,11 +9,9 @@
 ### Compactor
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
-| metaOverrides | *types.MetaBase | No | - |  |
-| workloadMetaOverrides | *types.MetaBase | No | - |  |
-| workloadOverrides | *types.PodSpecBase | No | - |  |
-| containerOverrides | *types.ContainerBase | No | - |  |
-| deploymentOverrides | *types.DeploymentSpecBase | No | - |  |
+| metaOverrides | *typeoverride.ObjectMeta | No | - |  |
+| deploymentOverrides | *typeoverride.Deployment | No | - |  |
+| serviceOverrides | *typeoverride.Service | No | - |  |
 | metrics | *Metrics | No | - |  |
 | httpAddress | string | No | - | Listen host:port for HTTP endpoints.<br> |
 | httpGracePeriod | metav1.Duration | No | - | Time to wait after an interrupt received for HTTP Server.<br> |

@@ -19,6 +19,8 @@ import (
 	"math"
 	"strconv"
 
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
@@ -30,24 +32,23 @@ import (
 )
 
 func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error) {
+	meta := c.getMeta()
+
 	if c.ObjectStore.Spec.Compactor != nil {
-		compactor := c.ObjectStore.Spec.Compactor.DeepCopy()
+		compactor := c.ObjectStore.Spec.Compactor
 
 		deployment := &appsv1.Deployment{
-			ObjectMeta: compactor.MetaOverrides.Merge(c.getMeta()),
-		}
-
-		deployment.Spec = compactor.DeploymentOverrides.Override(
-			appsv1.DeploymentSpec{
+			ObjectMeta: compactor.MetaOverrides.Merge(meta),
+			Spec: appsv1.DeploymentSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
 					MatchLabels: c.getLabels(),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: compactor.WorkloadMetaOverrides.Merge(c.getMeta()),
-					Spec: compactor.WorkloadOverrides.Override(corev1.PodSpec{
+					ObjectMeta: meta,
+					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
-							compactor.ContainerOverrides.Override(corev1.Container{
+							{
 								Name:  Name,
 								Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
 								Args: []string{
@@ -79,7 +80,7 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 									},
 								},
 								ImagePullPolicy: corev1.PullIfNotPresent,
-							}),
+							},
 						},
 						Volumes: []corev1.Volume{
 							{
@@ -91,9 +92,10 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 								},
 							},
 						},
-					}),
+					},
 				},
-			})
+			},
+		}
 
 		if compactor.Wait {
 			deployment.Spec.Template.Spec.Containers[0].Args = append(deployment.Spec.Template.Spec.Containers[0].Args, "--wait")
@@ -123,10 +125,14 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 			deployment.Spec.Template.Spec.Volumes = append(deployment.Spec.Template.Spec.Volumes, volume)
 		}
 
+		if err := merge.Merge(deployment, compactor.DeploymentOverrides); err != nil {
+			return deployment, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to deployment base object")
+		}
+
 		return deployment, reconciler.StatePresent, nil
 	}
 
 	return &appsv1.Deployment{
-		ObjectMeta: c.getMeta(),
+		ObjectMeta: meta,
 	}, reconciler.StateAbsent, nil
 }

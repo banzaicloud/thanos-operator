@@ -15,6 +15,8 @@
 package compactor
 
 import (
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	corev1 "k8s.io/api/core/v1"
@@ -24,8 +26,8 @@ import (
 
 func (c *Compactor) service() (runtime.Object, reconciler.DesiredState, error) {
 	if c.ObjectStore.Spec.Compactor != nil {
-		compactor := c.ObjectStore.Spec.Compactor.DeepCopy()
-		return &corev1.Service{
+		compactor := c.ObjectStore.Spec.Compactor
+		service := &corev1.Service{
 			ObjectMeta: compactor.MetaOverrides.Merge(c.getMeta()),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
@@ -38,7 +40,21 @@ func (c *Compactor) service() (runtime.Object, reconciler.DesiredState, error) {
 				},
 				Selector: c.getLabels(),
 			},
-		}, reconciler.StatePresent, nil
+		}
+
+		err := merge.Merge(service, compactor.ServiceOverrides)
+		if err != nil {
+			return service, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to service base")
+		}
+
+		return service, reconciler.DesiredStateHook(func(current runtime.Object) error {
+			if s, ok := current.(*corev1.Service); ok {
+				service.Spec.ClusterIP = s.Spec.ClusterIP
+			} else {
+				return errors.Errorf("failed to cast service object %+v", current)
+			}
+			return nil
+		}), nil
 	}
 
 	return &corev1.Service{
