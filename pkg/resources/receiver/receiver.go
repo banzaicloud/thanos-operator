@@ -83,6 +83,8 @@ func New(reconciler *resources.ReceiverReconciler) *Receiver {
 func (r *Receiver) resourceFactory() ([]resources.Resource, error) {
 	var resourceList []resources.Resource
 
+	resourceList = append(resourceList, (&receiverInstance{r, nil}).commonService)
+
 	for _, group := range r.Spec.ReceiverGroups {
 		err := mergo.Merge(&group, v1alpha1.DefaultReceiverGroup)
 		if err != nil {
@@ -116,10 +118,15 @@ func (r *Receiver) Reconcile() (*reconcile.Result, error) {
 }
 
 func (r *receiverInstance) getLabels() resources.Labels {
+	groupLabels := resources.Labels{}
+	if r.receiverGroup != nil {
+		groupLabels["receiverGroup"] = r.receiverGroup.Name
+	}
 	labels := resources.Labels{
 		resources.NameLabel: v1alpha1.ReceiverName,
 	}.Merge(
 		r.GetCommonLabels(),
+		groupLabels,
 	)
 	return labels
 }
