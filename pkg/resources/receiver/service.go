@@ -70,3 +70,44 @@ func (r *receiverInstance) service() (runtime.Object, reconciler.DesiredState, e
 	}
 	return delete, reconciler.StateAbsent, nil
 }
+
+func (r *receiverInstance) commonService() (runtime.Object, reconciler.DesiredState, error) {
+	service := &corev1.Service{
+		ObjectMeta: r.getMeta(),
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{
+				{
+					Name:     "grpc",
+					Protocol: corev1.ProtocolTCP,
+					Port:     10907,
+					TargetPort: intstr.IntOrString{
+						Type:   intstr.String,
+						StrVal: "grpc",
+					},
+				},
+				{
+					Name:     "http",
+					Protocol: corev1.ProtocolTCP,
+					Port:     10909,
+					TargetPort: intstr.IntOrString{
+						Type:   intstr.String,
+						StrVal: "http",
+					},
+				},
+				{
+					Name:     "remote-write",
+					Protocol: corev1.ProtocolTCP,
+					Port:     10908,
+					TargetPort: intstr.IntOrString{
+						Type:   intstr.String,
+						StrVal: "remote-write",
+					},
+				},
+			},
+			Selector:  r.getLabels(),
+			ClusterIP: corev1.ClusterIPNone,
+			Type:      corev1.ServiceTypeClusterIP,
+		},
+	}
+	return service, reconciler.StatePresent, nil
+}
