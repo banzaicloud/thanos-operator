@@ -21,20 +21,21 @@ import (
 )
 
 func (c *Compactor) persistentVolumeClaim() (runtime.Object, reconciler.DesiredState, error) {
+	meta := c.getMeta()
 	if c.ObjectStore.Spec.Compactor != nil &&
 		c.ObjectStore.Spec.Compactor.DataVolume != nil &&
 		c.ObjectStore.Spec.Compactor.DataVolume.PersistentVolumeClaim != nil &&
 		c.ObjectStore.Spec.Compactor.DataVolume.PersistentVolumeClaim.PersistentVolumeSource.ClaimName == "" {
-		compactor := c.ObjectStore.Spec.Compactor.DeepCopy()
+		compactor := c.ObjectStore.Spec.Compactor
 		pvc := &corev1.PersistentVolumeClaim{
-			ObjectMeta: compactor.MetaOverrides.Merge(c.getMeta()),
+			ObjectMeta: compactor.MetaOverrides.Merge(meta),
 			Spec:       c.ObjectStore.Spec.Compactor.DataVolume.PersistentVolumeClaim.PersistentVolumeClaimSpec,
 		}
 		return pvc, reconciler.StatePresent, nil
 	}
 
 	pvc := &corev1.PersistentVolumeClaim{
-		ObjectMeta: c.getMeta(),
+		ObjectMeta: meta,
 	}
 	return pvc, reconciler.StateAbsent, nil
 }
