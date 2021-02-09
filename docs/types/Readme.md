@@ -9,5 +9,7 @@ For more information please click on the name
 | **[ReceiverSpec](receiver_types.md)** |  |
 | **[StoreEndpointSpec](storeendpoint_types.md)** |  |
 | **[ThanosSpec](thanos_types.md)** |  |
+| **[ThanosEndpoint](thanosendpoint_types.md)** |  |
+| **[ThanosPeer](thanospeer_types.md)** |  |
 </center>
 
