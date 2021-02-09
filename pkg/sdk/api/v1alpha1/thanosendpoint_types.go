@@ -34,7 +34,7 @@ type ThanosEndpoint struct {
 type ThanosEndpointList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Thanos `json:"items"`
+	Items           []ThanosEndpoint `json:"items"`
 }
 
 type ThanosEndpointSpec struct {

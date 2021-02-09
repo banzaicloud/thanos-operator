@@ -876,7 +876,7 @@ func (in *ThanosEndpointList) DeepCopyInto(out *ThanosEndpointList) {
 	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
-		*out = make([]Thanos, len(*in))
+		*out = make([]ThanosEndpoint, len(*in))
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
@@ -1007,7 +1007,7 @@ func (in *ThanosPeerList) DeepCopyInto(out *ThanosPeerList) {
 	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
-		*out = make([]Thanos, len(*in))
+		*out = make([]ThanosPeer, len(*in))
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}

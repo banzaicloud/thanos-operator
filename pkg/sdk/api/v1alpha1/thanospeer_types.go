@@ -32,7 +32,7 @@ type ThanosPeer struct {
 type ThanosPeerList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Thanos `json:"items"`
+	Items           []ThanosPeer `json:"items"`
 }
 
 type ThanosPeerSpec struct {

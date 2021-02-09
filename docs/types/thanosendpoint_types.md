@@ -10,7 +10,7 @@
 |---|---|---|---|---|
 |  | metav1.TypeMeta | Yes | - |  |
 | metadata | metav1.ListMeta | No | - |  |
-| items | []Thanos | Yes | - |  |
+| items | []ThanosEndpoint | Yes | - |  |
 ### ThanosEndpointSpec
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
