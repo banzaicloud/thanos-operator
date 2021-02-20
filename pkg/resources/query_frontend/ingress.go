@@ -15,6 +15,8 @@
 package query_frontend
 
 import (
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1beta1"
@@ -26,7 +28,7 @@ func (q *QueryFrontend) ingressHTTP() (runtime.Object, reconciler.DesiredState, 
 	if q.Thanos.Spec.QueryFrontend != nil &&
 		q.Thanos.Spec.QueryFrontend.HTTPIngress != nil {
 		queryFrontendIngress := q.Thanos.Spec.QueryFrontend.HTTPIngress
-		queryFrontend := q.Thanos.Spec.QueryFrontend.DeepCopy()
+		queryFrontend := q.Thanos.Spec.QueryFrontend
 		pathType := netv1.PathTypeImplementationSpecific
 		ingress := &netv1.Ingress{
 			ObjectMeta: queryFrontend.MetaOverrides.Merge(q.getMeta(q.getName("http"))),
@@ -60,6 +62,14 @@ func (q *QueryFrontend) ingressHTTP() (runtime.Object, reconciler.DesiredState, 
 				},
 			}
 		}
+
+		if queryFrontendIngress.IngressOverrides != nil {
+			err := merge.Merge(ingress, queryFrontendIngress.IngressOverrides)
+			if err != nil {
+				return ingress, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+			}
+		}
+
 		return ingress, reconciler.StatePresent, nil
 	}
 	delete := &corev1.Service{

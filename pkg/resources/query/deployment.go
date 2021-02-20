@@ -77,9 +77,11 @@ func (q *Query) deployment() (runtime.Object, reconciler.DesiredState, error) {
 		// Set up args
 		deployment.Spec.Template.Spec.Containers[0].Args = q.setArgs(deployment.Spec.Template.Spec.Containers[0].Args)
 
-		err := merge.Merge(deployment, query.DeploymentOverrides)
-		if err != nil {
-			return deployment, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+		if query.DeploymentOverrides != nil {
+			err := merge.Merge(deployment, query.DeploymentOverrides)
+			if err != nil {
+				return deployment, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+			}
 		}
 
 		return deployment, reconciler.StatePresent, nil

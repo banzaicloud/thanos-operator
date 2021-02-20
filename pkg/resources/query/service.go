@@ -54,9 +54,11 @@ func (q *Query) service() (runtime.Object, reconciler.DesiredState, error) {
 			},
 		}
 
-		err := merge.Merge(queryService, q.Thanos.Spec.Query.ServiceOverrides)
-		if err != nil {
-			return queryService, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+		if q.Thanos.Spec.Query.ServiceOverrides != nil {
+			err := merge.Merge(queryService, q.Thanos.Spec.Query.ServiceOverrides)
+			if err != nil {
+				return queryService, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+			}
 		}
 
 		return queryService, reconciler.DesiredStateHook(func(current runtime.Object) error {

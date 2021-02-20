@@ -125,8 +125,10 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 			deployment.Spec.Template.Spec.Volumes = append(deployment.Spec.Template.Spec.Volumes, volume)
 		}
 
-		if err := merge.Merge(deployment, compactor.DeploymentOverrides); err != nil {
-			return deployment, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to deployment base object")
+		if compactor.DeploymentOverrides != nil {
+			if err := merge.Merge(deployment, compactor.DeploymentOverrides); err != nil {
+				return deployment, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to deployment base object")
+			}
 		}
 
 		return deployment, reconciler.StatePresent, nil

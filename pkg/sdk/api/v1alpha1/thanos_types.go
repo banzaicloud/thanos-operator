@@ -102,15 +102,13 @@ type Ingress struct {
 }
 
 type QueryFrontend struct {
-	MetaOverrides         *types.MetaBase           `json:"metaOverrides,omitempty"`
-	WorkloadMetaOverrides *types.MetaBase           `json:"workloadMetaOverrides,omitempty"`
-	WorkloadOverrides     *types.PodSpecBase        `json:"workloadOverrides,omitempty"`
-	ContainerOverrides    *types.ContainerBase      `json:"containerOverrides,omitempty"`
-	DeploymentOverrides   *types.DeploymentSpecBase `json:"deploymentOverrides,omitempty"`
-	Metrics               *Metrics                  `json:"metrics,omitempty"`
-	HTTPIngress           *Ingress                  `json:"HTTPIngress,omitempty"`
-	LogLevel              string                    `json:"logLevel,omitempty" thanos:"--log.level=%s"`
-	LogFormat             string                    `json:"logFormat,omitempty" thanos:"--log.format=%s"`
+	MetaOverrides       *typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
+	DeploymentOverrides *typeoverride.Deployment `json:"deploymentOverrides,omitempty"`
+	ServiceOverrides    *typeoverride.Service    `json:"serviceOverrides,omitempty"`
+	Metrics             *Metrics                 `json:"metrics,omitempty"`
+	HTTPIngress         *Ingress                 `json:"HTTPIngress,omitempty"`
+	LogLevel            string                   `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat           string                   `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Split queries by an interval and execute in parallel, 0 disables it.
 	QueryRangeSplit string `json:"queryRangeSplit,omitempty" thanos:"--query-range.split-interval=%s"`
 	// Maximum number of retries for a single request; beyond this, the downstream error is returned.

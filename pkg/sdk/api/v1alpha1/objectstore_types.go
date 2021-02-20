@@ -104,6 +104,7 @@ var DefaultBucketWeb = &BucketWeb{
 type BucketWeb struct {
 	MetaOverrides       *typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
 	DeploymentOverrides *typeoverride.Deployment `json:"deploymentOverrides,omitempty"`
+	ServiceOverrides    *typeoverride.Service    `json:"serviceOverrides,omitempty"`
 	Metrics             *Metrics                 `json:"metrics,omitempty"`
 	HTTPIngress         *Ingress                 `json:"HTTPIngress,omitempty"`
 	// Listen host:port for HTTP endpoints.

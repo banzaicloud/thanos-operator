@@ -30,6 +30,7 @@
 |---|---|---|---|---|
 | metaOverrides | *typeoverride.ObjectMeta | No | - |  |
 | deploymentOverrides | *typeoverride.Deployment | No | - |  |
+| serviceOverrides | *typeoverride.Service | No | - |  |
 | metrics | *Metrics | No | - |  |
 | HTTPIngress | *Ingress | No | - |  |
 | httpAddress | string | No | - | Listen host:port for HTTP endpoints.<br> |

@@ -15,6 +15,8 @@
 package query_frontend
 
 import (
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	corev1 "k8s.io/api/core/v1"
@@ -24,7 +26,7 @@ import (
 
 func (q *QueryFrontend) service() (runtime.Object, reconciler.DesiredState, error) {
 	if q.Thanos.Spec.QueryFrontend != nil {
-		queryFrontend := q.Thanos.Spec.QueryFrontend.DeepCopy()
+		queryFrontend := q.Thanos.Spec.QueryFrontend
 		queryService := &corev1.Service{
 			ObjectMeta: queryFrontend.MetaOverrides.Merge(q.getMeta(q.getName())),
 			Spec: corev1.ServiceSpec{
@@ -43,8 +45,15 @@ func (q *QueryFrontend) service() (runtime.Object, reconciler.DesiredState, erro
 				Type:     corev1.ServiceTypeClusterIP,
 			},
 		}
-		return queryService, reconciler.StatePresent, nil
 
+		if queryFrontend.ServiceOverrides != nil {
+			err := merge.Merge(queryService, queryFrontend.ServiceOverrides)
+			if err != nil {
+				return queryService, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+			}
+		}
+
+		return queryService, reconciler.StatePresent, nil
 	}
 	delete := &corev1.Service{
 		ObjectMeta: q.getMeta(q.getName()),

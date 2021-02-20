@@ -17,6 +17,8 @@ package query_frontend
 import (
 	"fmt"
 
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
@@ -29,23 +31,20 @@ import (
 
 func (q *QueryFrontend) deployment() (runtime.Object, reconciler.DesiredState, error) {
 	if q.Thanos.Spec.QueryFrontend != nil {
-		queryFrontend := q.Thanos.Spec.QueryFrontend.DeepCopy()
+		queryFrontend := q.Thanos.Spec.QueryFrontend
 
 		deployment := &appsv1.Deployment{
 			ObjectMeta: queryFrontend.MetaOverrides.Merge(q.getMeta(q.getName())),
-		}
-
-		deployment.Spec = queryFrontend.DeploymentOverrides.Override(
-			appsv1.DeploymentSpec{
+			Spec: appsv1.DeploymentSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
 					MatchLabels: q.getLabels(),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: queryFrontend.WorkloadMetaOverrides.Merge(q.getMeta(q.getName())),
-					Spec: queryFrontend.WorkloadOverrides.Override(corev1.PodSpec{
+					ObjectMeta: q.getMeta(q.getName()),
+					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
-							queryFrontend.ContainerOverrides.Override(corev1.Container{
+							{
 								Name:  "query-frontend",
 								Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
 								Args: []string{
@@ -61,13 +60,22 @@ func (q *QueryFrontend) deployment() (runtime.Object, reconciler.DesiredState, e
 								ImagePullPolicy: corev1.PullIfNotPresent,
 								LivenessProbe:   q.GetCheck(resources.GetPort(queryFrontend.HttpAddress), resources.HealthCheckPath),
 								ReadinessProbe:  q.GetCheck(resources.GetPort(queryFrontend.HttpAddress), resources.ReadyCheckPath),
-							})},
-					}),
+							},
+						},
+					},
 				},
-			})
+			},
+		}
 
 		// Set up args
 		deployment.Spec.Template.Spec.Containers[0].Args = q.setArgs(deployment.Spec.Template.Spec.Containers[0].Args)
+
+		if  queryFrontend.DeploymentOverrides != nil {
+			if err := merge.Merge(deployment, queryFrontend.DeploymentOverrides); err != nil {
+				return deployment, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+			}
+		}
+
 		return deployment, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.Deployment{

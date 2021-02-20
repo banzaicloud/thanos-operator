@@ -15,6 +15,8 @@
 package bucketweb
 
 import (
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	corev1 "k8s.io/api/core/v1"
@@ -26,7 +28,7 @@ func (b *BucketWeb) service() (runtime.Object, reconciler.DesiredState, error) {
 	meta := b.getMeta(b.getName())
 	if b.ObjectStore.Spec.BucketWeb != nil {
 		bucketWeb := b.ObjectStore.Spec.BucketWeb
-		return &corev1.Service{
+		service := &corev1.Service{
 			ObjectMeta: bucketWeb.MetaOverrides.Merge(meta),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
@@ -42,7 +44,13 @@ func (b *BucketWeb) service() (runtime.Object, reconciler.DesiredState, error) {
 				},
 				Selector: b.getLabels(),
 			},
-		}, reconciler.StatePresent, nil
+		}
+
+		if bucketWeb.ServiceOverrides != nil {
+			if err := merge.Merge(service, bucketWeb.ServiceOverrides); err != nil {
+				return service, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to service base")
+			}
+		}
 	}
 
 	return &corev1.Service{

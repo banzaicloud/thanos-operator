@@ -3053,6 +3053,96 @@ spec:
                     type: object
                   refresh:
                     type: string
+                  serviceOverrides:
+                    properties:
+                      metadata:
+                        properties:
+                          annotations:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          labels:
+                            additionalProperties:
+                              type: string
+                            type: object
+                        type: object
+                      spec:
+                        properties:
+                          clusterIP:
+                            type: string
+                          externalIPs:
+                            items:
+                              type: string
+                            type: array
+                          externalName:
+                            type: string
+                          externalTrafficPolicy:
+                            type: string
+                          healthCheckNodePort:
+                            format: int32
+                            type: integer
+                          ipFamily:
+                            type: string
+                          loadBalancerIP:
+                            type: string
+                          loadBalancerSourceRanges:
+                            items:
+                              type: string
+                            type: array
+                          ports:
+                            items:
+                              properties:
+                                appProtocol:
+                                  type: string
+                                name:
+                                  type: string
+                                nodePort:
+                                  format: int32
+                                  type: integer
+                                port:
+                                  format: int32
+                                  type: integer
+                                protocol:
+                                  default: TCP
+                                  type: string
+                                targetPort:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  x-kubernetes-int-or-string: true
+                              required:
+                              - port
+                              type: object
+                            type: array
+                            x-kubernetes-list-map-keys:
+                            - port
+                            - protocol
+                            x-kubernetes-list-type: map
+                          publishNotReadyAddresses:
+                            type: boolean
+                          selector:
+                            additionalProperties:
+                              type: string
+                            type: object
+                          sessionAffinity:
+                            type: string
+                          sessionAffinityConfig:
+                            properties:
+                              clientIP:
+                                properties:
+                                  timeoutSeconds:
+                                    format: int32
+                                    type: integer
+                                type: object
+                            type: object
+                          topologyKeys:
+                            items:
+                              type: string
+                            type: array
+                          type:
+                            type: string
+                        type: object
+                    type: object
                   timeout:
                     type: string
                   web_external_prefix:
