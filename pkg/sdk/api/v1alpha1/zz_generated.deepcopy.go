@@ -565,27 +565,17 @@ func (in *Rule) DeepCopyInto(out *Rule) {
 	*out = *in
 	if in.MetaOverrides != nil {
 		in, out := &in.MetaOverrides, &out.MetaOverrides
-		*out = new(types.MetaBase)
-		(*in).DeepCopyInto(*out)
-	}
-	if in.WorkloadMetaOverrides != nil {
-		in, out := &in.WorkloadMetaOverrides, &out.WorkloadMetaOverrides
-		*out = new(types.MetaBase)
-		(*in).DeepCopyInto(*out)
-	}
-	if in.WorkloadOverrides != nil {
-		in, out := &in.WorkloadOverrides, &out.WorkloadOverrides
-		*out = new(types.PodSpecBase)
-		(*in).DeepCopyInto(*out)
-	}
-	if in.ContainerOverrides != nil {
-		in, out := &in.ContainerOverrides, &out.ContainerOverrides
-		*out = new(types.ContainerBase)
+		*out = new(typeoverride.ObjectMeta)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.StatefulsetOverrides != nil {
 		in, out := &in.StatefulsetOverrides, &out.StatefulsetOverrides
-		*out = new(types.StatefulsetSpecBase)
+		*out = new(typeoverride.StatefulSet)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.ServiceOverrides != nil {
+		in, out := &in.ServiceOverrides, &out.ServiceOverrides
+		*out = new(typeoverride.Service)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.Metrics != nil {

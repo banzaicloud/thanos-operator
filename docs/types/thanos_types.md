@@ -118,11 +118,9 @@
 ### Rule
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
-| metaOverrides | *types.MetaBase | No | - |  |
-| workloadMetaOverrides | *types.MetaBase | No | - |  |
-| workloadOverrides | *types.PodSpecBase | No | - |  |
-| containerOverrides | *types.ContainerBase | No | - |  |
-| statefulsetOverrides | *types.StatefulsetSpecBase | No | - |  |
+| metaOverrides | *typeoverride.ObjectMeta | No | - |  |
+| statefulsetOverrides | *typeoverride.StatefulSet | No | - |  |
+| serviceOverrides | *typeoverride.Service | No | - |  |
 | metrics | *Metrics | No | - |  |
 | HTTPIngress | *Ingress | No | - |  |
 | GRPCIngress | *Ingress | No | - |  |

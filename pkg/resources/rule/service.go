@@ -15,6 +15,8 @@
 package rule
 
 import (
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	corev1 "k8s.io/api/core/v1"
@@ -24,8 +26,8 @@ import (
 
 func (r *ruleInstance) service() (runtime.Object, reconciler.DesiredState, error) {
 	if r.Thanos.Spec.Rule != nil {
-		rule := r.Thanos.Spec.Rule.DeepCopy()
-		storeService := &corev1.Service{
+		rule := r.Thanos.Spec.Rule
+		service := &corev1.Service{
 			ObjectMeta: rule.MetaOverrides.Merge(r.getMeta()),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
@@ -53,8 +55,14 @@ func (r *ruleInstance) service() (runtime.Object, reconciler.DesiredState, error
 				ClusterIP: corev1.ClusterIPNone,
 			},
 		}
-		return storeService, reconciler.StatePresent, nil
+		if rule.ServiceOverrides != nil {
+			err := merge.Merge(service, rule.ServiceOverrides)
+			if err != nil {
+				return service, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+			}
+		}
 
+		return service, reconciler.StatePresent, nil
 	}
 	delete := &corev1.Service{
 		ObjectMeta: r.getMeta(),
