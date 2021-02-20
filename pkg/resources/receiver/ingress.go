@@ -15,6 +15,8 @@
 package receiver
 
 import (
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	netv1 "k8s.io/api/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -101,6 +103,13 @@ func (r *receiverInstance) ingressHTTP() (runtime.Object, reconciler.DesiredStat
 				},
 			}
 		}
+		if endpointIngress.IngressOverrides != nil {
+			err := merge.Merge(ingress, endpointIngress.IngressOverrides)
+			if err != nil {
+				return ingress, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+			}
+		}
+
 		return ingress, reconciler.StatePresent, nil
 	}
 	delete := &netv1.Ingress{

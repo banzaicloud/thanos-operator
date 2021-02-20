@@ -428,12 +428,17 @@ func (in *ReceiverGroup) DeepCopyInto(out *ReceiverGroup) {
 	in.Config.DeepCopyInto(&out.Config)
 	if in.MetaOverrides != nil {
 		in, out := &in.MetaOverrides, &out.MetaOverrides
-		*out = new(types.MetaBase)
+		*out = new(typeoverride.ObjectMeta)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.StatefulSetOverrides != nil {
 		in, out := &in.StatefulSetOverrides, &out.StatefulSetOverrides
-		*out = new(types.StatefulSetBase)
+		*out = new(typeoverride.StatefulSet)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.ServiceOverrides != nil {
+		in, out := &in.ServiceOverrides, &out.ServiceOverrides
+		*out = new(typeoverride.Service)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.HTTPIngress != nil {

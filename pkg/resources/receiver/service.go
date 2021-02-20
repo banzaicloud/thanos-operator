@@ -15,6 +15,8 @@
 package receiver
 
 import (
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	corev1 "k8s.io/api/core/v1"
@@ -62,8 +64,13 @@ func (r *receiverInstance) service() (runtime.Object, reconciler.DesiredState, e
 				Type:      corev1.ServiceTypeClusterIP,
 			},
 		}
+		if receiver.ServiceOverrides != nil {
+			err := merge.Merge(service, receiver.ServiceOverrides)
+			if err != nil {
+				return service, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+			}
+		}
 		return service, reconciler.StatePresent, nil
-
 	}
 	delete := &corev1.Service{
 		ObjectMeta: r.getMeta(r.receiverGroup.Name),

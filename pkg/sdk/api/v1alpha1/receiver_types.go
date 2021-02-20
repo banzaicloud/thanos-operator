@@ -16,7 +16,7 @@ package v1alpha1
 
 import (
 	"github.com/banzaicloud/operator-tools/pkg/secret"
-	"github.com/banzaicloud/operator-tools/pkg/types"
+	"github.com/banzaicloud/operator-tools/pkg/typeoverride"
 	"github.com/banzaicloud/operator-tools/pkg/volume"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -43,13 +43,14 @@ type ReceiverSpec struct {
 // Tenants are the Hard tenants of the receiver group
 // Replicas are the number of instances in this receiver group
 type ReceiverGroup struct {
-	Name                 string                 `json:"name"`
-	Tenants              []string               `json:"tenants,omitempty"`
-	Config               secret.Secret          `json:"config"`
-	Replicas             int32                  `json:"replicas,omitempty"`
-	MetaOverrides        *types.MetaBase        `json:"metaOverrides,omitempty"`
-	StatefulSetOverrides *types.StatefulSetBase `json:"statefulSetOverrides,omitempty"`
-	HTTPIngress          *Ingress               `json:"httpIngress,omitempty"`
+	Name                 string                    `json:"name"`
+	Tenants              []string                  `json:"tenants,omitempty"`
+	Config               secret.Secret             `json:"config"`
+	Replicas             int32                     `json:"replicas,omitempty"`
+	MetaOverrides        *typeoverride.ObjectMeta  `json:"metaOverrides,omitempty"`
+	StatefulSetOverrides *typeoverride.StatefulSet `json:"statefulSetOverrides,omitempty"`
+	ServiceOverrides     *typeoverride.Service     `json:"serviceOverrides,omitempty"`
+	HTTPIngress          *Ingress                  `json:"httpIngress,omitempty"`
 	// Secret name for HTTP Server certificate (Kubernetes TLS secret type)
 	HTTPServerCertificate string `json:"httpServerCertificate,omitempty"`
 	// Secret name for HTTP Client certificate (Kubernetes TLS secret type)
