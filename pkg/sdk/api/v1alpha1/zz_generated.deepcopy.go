@@ -698,7 +698,12 @@ func (in *StoreEndpointSpec) DeepCopyInto(out *StoreEndpointSpec) {
 	*out = *in
 	if in.MetaOverrides != nil {
 		in, out := &in.MetaOverrides, &out.MetaOverrides
-		*out = new(types.MetaBase)
+		*out = new(typeoverride.ObjectMeta)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.ServiceOverrides != nil {
+		in, out := &in.ServiceOverrides, &out.ServiceOverrides
+		*out = new(typeoverride.Service)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.Selector != nil {
