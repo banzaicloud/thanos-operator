@@ -95,11 +95,9 @@
 ### StoreGateway
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
-| metaOverrides | *types.MetaBase | No | - |  |
-| workloadMetaOverrides | *types.MetaBase | No | - |  |
-| workloadOverrides | *types.PodSpecBase | No | - |  |
-| containerOverrides | *types.ContainerBase | No | - |  |
-| deploymentOverrides | *types.DeploymentSpecBase | No | - |  |
+| metaOverrides | *typeoverride.ObjectMeta | No | - |  |
+| deploymentOverrides | *typeoverride.Deployment | No | - |  |
+| serviceOverride | *typeoverride.Service | No | - |  |
 | metrics | *Metrics | No | - |  |
 | GRPCServerCertificate | string | No | - |  |
 | logLevel | string | No | - |  |
