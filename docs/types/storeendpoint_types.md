@@ -3,7 +3,8 @@
 
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
-| metaOverrides | *types.MetaBase | No | - |  |
+| metaOverrides | *typeoverride.ObjectMeta | No | - |  |
+| serviceOverrides | *typeoverride.Service | No | - |  |
 | url | string | No | - |  |
 | selector | *KubernetesSelector | No | - |  |
 | config | secret.Secret | No | - |  |

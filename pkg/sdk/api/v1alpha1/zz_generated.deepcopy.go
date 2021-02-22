@@ -20,7 +20,6 @@ package v1alpha1
 
 import (
 	"github.com/banzaicloud/operator-tools/pkg/typeoverride"
-	"github.com/banzaicloud/operator-tools/pkg/types"
 	"github.com/banzaicloud/operator-tools/pkg/volume"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
@@ -36,6 +35,11 @@ func (in *BucketWeb) DeepCopyInto(out *BucketWeb) {
 	if in.DeploymentOverrides != nil {
 		in, out := &in.DeploymentOverrides, &out.DeploymentOverrides
 		*out = new(typeoverride.Deployment)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.ServiceOverrides != nil {
+		in, out := &in.ServiceOverrides, &out.ServiceOverrides
+		*out = new(typeoverride.Service)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.Metrics != nil {
@@ -340,27 +344,17 @@ func (in *QueryFrontend) DeepCopyInto(out *QueryFrontend) {
 	*out = *in
 	if in.MetaOverrides != nil {
 		in, out := &in.MetaOverrides, &out.MetaOverrides
-		*out = new(types.MetaBase)
-		(*in).DeepCopyInto(*out)
-	}
-	if in.WorkloadMetaOverrides != nil {
-		in, out := &in.WorkloadMetaOverrides, &out.WorkloadMetaOverrides
-		*out = new(types.MetaBase)
-		(*in).DeepCopyInto(*out)
-	}
-	if in.WorkloadOverrides != nil {
-		in, out := &in.WorkloadOverrides, &out.WorkloadOverrides
-		*out = new(types.PodSpecBase)
-		(*in).DeepCopyInto(*out)
-	}
-	if in.ContainerOverrides != nil {
-		in, out := &in.ContainerOverrides, &out.ContainerOverrides
-		*out = new(types.ContainerBase)
+		*out = new(typeoverride.ObjectMeta)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.DeploymentOverrides != nil {
 		in, out := &in.DeploymentOverrides, &out.DeploymentOverrides
-		*out = new(types.DeploymentSpecBase)
+		*out = new(typeoverride.Deployment)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.ServiceOverrides != nil {
+		in, out := &in.ServiceOverrides, &out.ServiceOverrides
+		*out = new(typeoverride.Service)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.Metrics != nil {
@@ -433,12 +427,17 @@ func (in *ReceiverGroup) DeepCopyInto(out *ReceiverGroup) {
 	in.Config.DeepCopyInto(&out.Config)
 	if in.MetaOverrides != nil {
 		in, out := &in.MetaOverrides, &out.MetaOverrides
-		*out = new(types.MetaBase)
+		*out = new(typeoverride.ObjectMeta)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.StatefulSetOverrides != nil {
 		in, out := &in.StatefulSetOverrides, &out.StatefulSetOverrides
-		*out = new(types.StatefulSetBase)
+		*out = new(typeoverride.StatefulSet)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.ServiceOverrides != nil {
+		in, out := &in.ServiceOverrides, &out.ServiceOverrides
+		*out = new(typeoverride.Service)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.HTTPIngress != nil {
@@ -565,27 +564,17 @@ func (in *Rule) DeepCopyInto(out *Rule) {
 	*out = *in
 	if in.MetaOverrides != nil {
 		in, out := &in.MetaOverrides, &out.MetaOverrides
-		*out = new(types.MetaBase)
-		(*in).DeepCopyInto(*out)
-	}
-	if in.WorkloadMetaOverrides != nil {
-		in, out := &in.WorkloadMetaOverrides, &out.WorkloadMetaOverrides
-		*out = new(types.MetaBase)
-		(*in).DeepCopyInto(*out)
-	}
-	if in.WorkloadOverrides != nil {
-		in, out := &in.WorkloadOverrides, &out.WorkloadOverrides
-		*out = new(types.PodSpecBase)
-		(*in).DeepCopyInto(*out)
-	}
-	if in.ContainerOverrides != nil {
-		in, out := &in.ContainerOverrides, &out.ContainerOverrides
-		*out = new(types.ContainerBase)
+		*out = new(typeoverride.ObjectMeta)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.StatefulsetOverrides != nil {
 		in, out := &in.StatefulsetOverrides, &out.StatefulsetOverrides
-		*out = new(types.StatefulsetSpecBase)
+		*out = new(typeoverride.StatefulSet)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.ServiceOverrides != nil {
+		in, out := &in.ServiceOverrides, &out.ServiceOverrides
+		*out = new(typeoverride.Service)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.Metrics != nil {
@@ -708,7 +697,12 @@ func (in *StoreEndpointSpec) DeepCopyInto(out *StoreEndpointSpec) {
 	*out = *in
 	if in.MetaOverrides != nil {
 		in, out := &in.MetaOverrides, &out.MetaOverrides
-		*out = new(types.MetaBase)
+		*out = new(typeoverride.ObjectMeta)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.ServiceOverrides != nil {
+		in, out := &in.ServiceOverrides, &out.ServiceOverrides
+		*out = new(typeoverride.Service)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.Selector != nil {
@@ -754,27 +748,17 @@ func (in *StoreGateway) DeepCopyInto(out *StoreGateway) {
 	*out = *in
 	if in.MetaOverrides != nil {
 		in, out := &in.MetaOverrides, &out.MetaOverrides
-		*out = new(types.MetaBase)
-		(*in).DeepCopyInto(*out)
-	}
-	if in.WorkloadMetaOverrides != nil {
-		in, out := &in.WorkloadMetaOverrides, &out.WorkloadMetaOverrides
-		*out = new(types.MetaBase)
-		(*in).DeepCopyInto(*out)
-	}
-	if in.WorkloadOverrides != nil {
-		in, out := &in.WorkloadOverrides, &out.WorkloadOverrides
-		*out = new(types.PodSpecBase)
-		(*in).DeepCopyInto(*out)
-	}
-	if in.ContainerOverrides != nil {
-		in, out := &in.ContainerOverrides, &out.ContainerOverrides
-		*out = new(types.ContainerBase)
+		*out = new(typeoverride.ObjectMeta)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.DeploymentOverrides != nil {
 		in, out := &in.DeploymentOverrides, &out.DeploymentOverrides
-		*out = new(types.DeploymentSpecBase)
+		*out = new(typeoverride.Deployment)
+		(*in).DeepCopyInto(*out)
+	}
+	if in.ServiceOverrides != nil {
+		in, out := &in.ServiceOverrides, &out.ServiceOverrides
+		*out = new(typeoverride.Service)
 		(*in).DeepCopyInto(*out)
 	}
 	if in.Metrics != nil {

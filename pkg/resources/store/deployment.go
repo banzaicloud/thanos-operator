@@ -17,6 +17,8 @@ package store
 import (
 	"fmt"
 
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
@@ -33,23 +35,19 @@ func (s *storeInstance) deployment() (runtime.Object, reconciler.DesiredState, e
 		if s.StoreEndpoint.Spec.Config.MountFrom == nil {
 			return nil, nil, fmt.Errorf("missing config for StorageGateway %q", s.StoreEndpoint.Name)
 		}
-		store := storeGateway.DeepCopy()
 
 		deployment := &appsv1.Deployment{
-			ObjectMeta: store.MetaOverrides.Merge(s.getMeta()),
-		}
-
-		deployment.Spec = store.DeploymentOverrides.Override(
-			appsv1.DeploymentSpec{
+			ObjectMeta: storeGateway.MetaOverrides.Merge(s.getMeta()),
+			Spec: appsv1.DeploymentSpec{
 				Replicas: utils.IntPointer(1),
 				Selector: &metav1.LabelSelector{
 					MatchLabels: s.getLabels(),
 				},
 				Template: corev1.PodTemplateSpec{
-					ObjectMeta: store.WorkloadMetaOverrides.Merge(s.getMeta()),
-					Spec: store.WorkloadOverrides.Override(corev1.PodSpec{
+					ObjectMeta: s.getMeta(),
+					Spec: corev1.PodSpec{
 						Containers: []corev1.Container{
-							store.ContainerOverrides.Override(corev1.Container{
+							corev1.Container{
 								Name:  v1alpha1.StoreName,
 								Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
 								Args: []string{
@@ -59,28 +57,36 @@ func (s *storeInstance) deployment() (runtime.Object, reconciler.DesiredState, e
 								Ports: []corev1.ContainerPort{
 									{
 										Name:          "http",
-										ContainerPort: resources.GetPort(store.HttpAddress),
+										ContainerPort: resources.GetPort(storeGateway.HttpAddress),
 										Protocol:      corev1.ProtocolTCP,
 									},
 									{
 										Name:          "grpc",
-										ContainerPort: resources.GetPort(store.GRPCAddress),
+										ContainerPort: resources.GetPort(storeGateway.GRPCAddress),
 										Protocol:      corev1.ProtocolTCP,
 									},
 								},
 								VolumeMounts:    s.getVolumeMounts(),
 								ImagePullPolicy: corev1.PullIfNotPresent,
-								LivenessProbe:   s.GetCheck(resources.GetPort(store.HttpAddress), resources.HealthCheckPath),
-								ReadinessProbe:  s.GetCheck(resources.GetPort(store.HttpAddress), resources.ReadyCheckPath),
-							}),
+								LivenessProbe:   s.GetCheck(resources.GetPort(storeGateway.HttpAddress), resources.HealthCheckPath),
+								ReadinessProbe:  s.GetCheck(resources.GetPort(storeGateway.HttpAddress), resources.ReadyCheckPath),
+							},
 						},
 						Volumes: s.getVolumes(),
-					}),
+					},
 				},
-			})
+			},
+		}
 
 		// Set up args
 		deployment.Spec.Template.Spec.Containers[0].Args = s.setArgs(deployment.Spec.Template.Spec.Containers[0].Args)
+
+		if storeGateway.DeploymentOverrides != nil {
+			if err := merge.Merge(deployment, storeGateway.DeploymentOverrides); err != nil {
+				return deployment, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+			}
+		}
+
 		return deployment, reconciler.StatePresent, nil
 	}
 	delete := &appsv1.Deployment{

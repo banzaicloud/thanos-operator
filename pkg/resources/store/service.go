@@ -15,6 +15,8 @@
 package store
 
 import (
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	corev1 "k8s.io/api/core/v1"
@@ -24,8 +26,8 @@ import (
 
 func (s *storeInstance) service() (runtime.Object, reconciler.DesiredState, error) {
 	if s.Thanos.Spec.StoreGateway != nil {
-		store := s.Thanos.Spec.StoreGateway.DeepCopy()
-		storeService := &corev1.Service{
+		store := s.Thanos.Spec.StoreGateway
+		service := &corev1.Service{
 			ObjectMeta: s.StoreEndpoint.Spec.MetaOverrides.Merge(s.getMeta()),
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
@@ -53,8 +55,13 @@ func (s *storeInstance) service() (runtime.Object, reconciler.DesiredState, erro
 				Type:      corev1.ServiceTypeClusterIP,
 			},
 		}
-		return storeService, reconciler.StatePresent, nil
-
+		if store.ServiceOverrides != nil {
+			err := merge.Merge(service, store.ServiceOverrides)
+			if err != nil {
+				return service, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+			}
+		}
+		return service, reconciler.StatePresent, nil
 	}
 	delete := &corev1.Service{
 		ObjectMeta: s.getMeta(),

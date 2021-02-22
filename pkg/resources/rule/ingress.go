@@ -15,6 +15,8 @@
 package rule
 
 import (
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1beta1"
@@ -60,6 +62,12 @@ func (r *ruleInstance) ingressHTTP() (runtime.Object, reconciler.DesiredState, e
 				},
 			}
 		}
+		if ruleIngress.IngressOverrides != nil {
+			err := merge.Merge(ingress, ruleIngress.IngressOverrides)
+			if err != nil {
+				return ingress, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+			}
+		}
 		return ingress, reconciler.StatePresent, nil
 	}
 	delete := &corev1.Service{
@@ -71,18 +79,18 @@ func (r *ruleInstance) ingressHTTP() (runtime.Object, reconciler.DesiredState, e
 func (r *ruleInstance) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
 	if r.Thanos.Spec.Rule != nil &&
 		r.Thanos.Spec.Rule.GRPCIngress != nil {
-		queryIngress := r.Thanos.Spec.Rule.GRPCIngress
+		ruleIngress := r.Thanos.Spec.Rule.GRPCIngress
 		ingress := &netv1.Ingress{
 			ObjectMeta: r.getMeta("grpc"),
 			Spec: netv1.IngressSpec{
 				Rules: []netv1.IngressRule{
 					{
-						Host: queryIngress.Host,
+						Host: ruleIngress.Host,
 						IngressRuleValue: netv1.IngressRuleValue{
 							HTTP: &netv1.HTTPIngressRuleValue{
 								Paths: []netv1.HTTPIngressPath{
 									{
-										Path: queryIngress.Path,
+										Path: ruleIngress.Path,
 										Backend: netv1.IngressBackend{
 											ServiceName: r.getName(),
 											ServicePort: intstr.FromString("grpc"),
@@ -95,12 +103,18 @@ func (r *ruleInstance) ingressGRPC() (runtime.Object, reconciler.DesiredState, e
 				},
 			},
 		}
-		if queryIngress.Certificate != "" {
+		if ruleIngress.Certificate != "" {
 			ingress.Spec.TLS = []netv1.IngressTLS{
 				{
-					Hosts:      []string{queryIngress.Host},
-					SecretName: queryIngress.Certificate,
+					Hosts:      []string{ruleIngress.Host},
+					SecretName: ruleIngress.Certificate,
 				},
+			}
+		}
+		if ruleIngress.IngressOverrides != nil {
+			err := merge.Merge(ingress, ruleIngress.IngressOverrides)
+			if err != nil {
+				return ingress, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
 			}
 		}
 		return ingress, reconciler.StatePresent, nil

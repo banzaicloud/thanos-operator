@@ -42,9 +42,11 @@ func (c *Compactor) service() (runtime.Object, reconciler.DesiredState, error) {
 			},
 		}
 
-		err := merge.Merge(service, compactor.ServiceOverrides)
-		if err != nil {
-			return service, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to service base")
+		if compactor.ServiceOverrides != nil {
+			err := merge.Merge(service, compactor.ServiceOverrides)
+			if err != nil {
+				return service, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to service base")
+			}
 		}
 
 		return service, reconciler.DesiredStateHook(func(current runtime.Object) error {

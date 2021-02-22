@@ -15,6 +15,8 @@
 package store
 
 import (
+	"emperror.dev/errors"
+	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	netv1 "k8s.io/api/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -55,6 +57,12 @@ func (e *storeInstance) ingressGRPC() (runtime.Object, reconciler.DesiredState, 
 					Hosts:      []string{endpointIngress.Host},
 					SecretName: endpointIngress.Certificate,
 				},
+			}
+		}
+		if endpointIngress.IngressOverrides != nil {
+			err := merge.Merge(ingress, endpointIngress.IngressOverrides)
+			if err != nil {
+				return ingress, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
 			}
 		}
 		return ingress, reconciler.StatePresent, nil

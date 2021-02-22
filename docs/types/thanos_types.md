@@ -31,11 +31,9 @@
 ### QueryFrontend
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
-| metaOverrides | *types.MetaBase | No | - |  |
-| workloadMetaOverrides | *types.MetaBase | No | - |  |
-| workloadOverrides | *types.PodSpecBase | No | - |  |
-| containerOverrides | *types.ContainerBase | No | - |  |
-| deploymentOverrides | *types.DeploymentSpecBase | No | - |  |
+| metaOverrides | *typeoverride.ObjectMeta | No | - |  |
+| deploymentOverrides | *typeoverride.Deployment | No | - |  |
+| serviceOverrides | *typeoverride.Service | No | - |  |
 | metrics | *Metrics | No | - |  |
 | HTTPIngress | *Ingress | No | - |  |
 | logLevel | string | No | - |  |
@@ -97,11 +95,9 @@
 ### StoreGateway
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
-| metaOverrides | *types.MetaBase | No | - |  |
-| workloadMetaOverrides | *types.MetaBase | No | - |  |
-| workloadOverrides | *types.PodSpecBase | No | - |  |
-| containerOverrides | *types.ContainerBase | No | - |  |
-| deploymentOverrides | *types.DeploymentSpecBase | No | - |  |
+| metaOverrides | *typeoverride.ObjectMeta | No | - |  |
+| deploymentOverrides | *typeoverride.Deployment | No | - |  |
+| serviceOverride | *typeoverride.Service | No | - |  |
 | metrics | *Metrics | No | - |  |
 | GRPCServerCertificate | string | No | - |  |
 | logLevel | string | No | - |  |
@@ -120,11 +116,9 @@
 ### Rule
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
-| metaOverrides | *types.MetaBase | No | - |  |
-| workloadMetaOverrides | *types.MetaBase | No | - |  |
-| workloadOverrides | *types.PodSpecBase | No | - |  |
-| containerOverrides | *types.ContainerBase | No | - |  |
-| statefulsetOverrides | *types.StatefulsetSpecBase | No | - |  |
+| metaOverrides | *typeoverride.ObjectMeta | No | - |  |
+| statefulsetOverrides | *typeoverride.StatefulSet | No | - |  |
+| serviceOverrides | *typeoverride.Service | No | - |  |
 | metrics | *Metrics | No | - |  |
 | HTTPIngress | *Ingress | No | - |  |
 | GRPCIngress | *Ingress | No | - |  |

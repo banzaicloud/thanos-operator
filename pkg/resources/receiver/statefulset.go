@@ -31,7 +31,7 @@ import (
 
 func (r *receiverInstance) statefulset() (runtime.Object, reconciler.DesiredState, error) {
 	if r.receiverGroup != nil {
-		receiveGroup := r.receiverGroup.DeepCopy()
+		receiveGroup := r.receiverGroup
 
 		statefulset := &appsv1.StatefulSet{
 			ObjectMeta: receiveGroup.MetaOverrides.Merge(r.getMeta(r.receiverGroup.Name)),
@@ -129,11 +129,6 @@ func (r *receiverInstance) statefulset() (runtime.Object, reconciler.DesiredStat
 
 		statefulset.Spec.Template.Spec.Containers[0].Args = r.setArgs(statefulset.Spec.Template.Spec.Containers[0].Args)
 
-		err := merge.Merge(statefulset, r.receiverGroup.StatefulSetOverrides)
-		if err != nil {
-			return statefulset, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
-		}
-
 		if receiveGroup.DataVolume != nil {
 			if receiveGroup.DataVolume.PersistentVolumeClaim != nil {
 				statefulset.Spec.Template.Spec.Containers[0].VolumeMounts = append(statefulset.Spec.Template.Spec.Containers[0].VolumeMounts, corev1.VolumeMount{
@@ -162,7 +157,12 @@ func (r *receiverInstance) statefulset() (runtime.Object, reconciler.DesiredStat
 
 				statefulset.Spec.Template.Spec.Volumes = append(statefulset.Spec.Template.Spec.Volumes, volume)
 			}
+		}
 
+		if r.receiverGroup.StatefulSetOverrides != nil {
+			if err := merge.Merge(statefulset, r.receiverGroup.StatefulSetOverrides); err != nil {
+				return statefulset, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+			}
 		}
 
 		return statefulset, reconciler.StatePresent, nil
