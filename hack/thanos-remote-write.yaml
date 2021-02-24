@@ -1,7 +1,7 @@
 prometheus:
   prometheusSpec:
     image:
-      tag: master # the headers: feature is not yet released
+      tag: v2.25.0
 
     remoteWrite:
       - url: http://receiver-sample-receiver:10908/api/v1/receive
