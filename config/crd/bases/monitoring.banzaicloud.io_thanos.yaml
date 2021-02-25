@@ -9895,9 +9895,13 @@ spec:
                 properties:
                   GRPCServerCertificate:
                     type: string
+                  blockMetaFetchConcurrency:
+                    type: integer
                   blockSyncConcurrency:
                     type: integer
                   chunkPoolSize:
+                    type: string
+                  consistencyDelay:
                     type: string
                   deploymentOverrides:
                     properties:
@@ -12789,6 +12793,12 @@ spec:
                     type: string
                   httpAddress:
                     type: string
+                  ignoreDeletionMarksDelay:
+                    type: string
+                  indexCacheConfig:
+                    type: string
+                  indexCacheConfigFile:
+                    type: string
                   indexCacheSize:
                     type: string
                   logFormat:
@@ -12822,6 +12832,10 @@ spec:
                       timeout:
                         type: string
                     type: object
+                  selectorRelabelConfig:
+                    type: string
+                  selectorRelabelConfigFile:
+                    type: string
                   serviceOverride:
                     properties:
                       metadata:
@@ -12912,10 +12926,14 @@ spec:
                             type: string
                         type: object
                     type: object
+                  storeEnableIndexHeaderLazyReader:
+                    type: boolean
                   storeGRPCSeriesMaxConcurrency:
                     type: integer
                   storeGRPCSeriesSampleLimit:
                     type: string
+                  storeGRPCTouchedSeriesSampleLimit:
+                    type: integer
                   syncBlockDuration:
                     type: string
                   timeRanges:
@@ -12927,6 +12945,22 @@ spec:
                           type: string
                       type: object
                     type: array
+                  webExternalPrefix:
+                    type: string
+                  webPrefixHeader:
+                    type: string
+                required:
+                - blockMetaFetchConcurrency
+                - consistencyDelay
+                - ignoreDeletionMarksDelay
+                - indexCacheConfig
+                - indexCacheConfigFile
+                - selectorRelabelConfig
+                - selectorRelabelConfigFile
+                - storeEnableIndexHeaderLazyReader
+                - storeGRPCTouchedSeriesSampleLimit
+                - webExternalPrefix
+                - webPrefixHeader
                 type: object
             type: object
           status:

@@ -766,6 +766,11 @@ func (in *StoreGateway) DeepCopyInto(out *StoreGateway) {
 		*out = new(Metrics)
 		**out = **in
 	}
+	if in.StoreEnableIndexHeaderLazyReader != nil {
+		in, out := &in.StoreEnableIndexHeaderLazyReader, &out.StoreEnableIndexHeaderLazyReader
+		*out = new(bool)
+		**out = **in
+	}
 	if in.TimeRanges != nil {
 		in, out := &in.TimeRanges, &out.TimeRanges
 		*out = make([]TimeRange, len(*in))
