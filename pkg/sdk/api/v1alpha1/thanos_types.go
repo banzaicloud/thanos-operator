@@ -241,10 +241,10 @@ type StoreGateway struct {
 	IndexCacheSize string `json:"indexCacheSize,omitempty" thanos:"--index-cache-size=%s"`
 	// Path to YAML file that contains index cache configuration. See format details:
 	// https://thanos.io/tip/components/store.md/#index-cache
-	IndexCacheConfigFile string `json:"indexCacheConfigFile" thanos:"index-cache.config-file=%s"`
+	IndexCacheConfigFile string `json:"indexCacheConfigFile,omitempty" thanos:"index-cache.config-file=%s"`
 	// Alternative to 'index-cache.config-file' flag (lower priority). Content of YAML file that contains index cache configuration. See format details:
 	// https://thanos.io/tip/components/store.md/#index-cache
-	IndexCacheConfig string `json:"indexCacheConfig" thanos"--index-cache.config=%s"`
+	IndexCacheConfig string `json:"indexCacheConfig,omitempty" thanos:"--index-cache.config=%s"`
 	// Maximum size of concurrently allocatable bytes for chunks.
 	ChunkPoolSize string `json:"chunkPoolSize,omitempty" thanos:"--chunk-pool-size=%s"`
 	// Maximum amount of samples returned via a single Series call. 0 means no limit. NOTE: For
@@ -252,7 +252,7 @@ type StoreGateway struct {
 	// the actual number of samples might be lower, even though the maximum could be hit.
 	StoreGRPCSeriesSampleLimit string `json:"storeGRPCSeriesSampleLimit,omitempty" thanos:"--store.grpc.series-sample-limit=%s"`
 	// Maximum amount of touched series returned via a single Series call. The Series call fails if this limit is exceeded. 0 means no limit.
-	StoreGRPCTouchedSeriesSampleLimit int `json:"storeGRPCTouchedSeriesSampleLimit" thanos:"--store.grpc.touched-series-limit=%d"`
+	StoreGRPCTouchedSeriesSampleLimit int `json:"storeGRPCTouchedSeriesSampleLimit,omitempty" thanos:"--store.grpc.touched-series-limit=%d"`
 	// Maximum number of concurrent Series calls.
 	StoreGRPCSeriesMaxConcurrency int `json:"storeGRPCSeriesMaxConcurrency,omitempty" thanos:"--store.grpc.series-max-concurrency=%d"`
 	// Repeat interval for syncing the blocks between local and remote view.
@@ -260,19 +260,19 @@ type StoreGateway struct {
 	// Number of goroutines to use when constructing index-cache.json blocks from object storage.
 	BlockSyncConcurrency int `json:"blockSyncConcurrency,omitempty" thanos:"--block-sync-concurrency=%d"`
 	// Number of goroutines to use when fetching block metadata from object storage.
-	BlockMetaFetchConcurrency int `json:"blockMetaFetchConcurrency" thanos:"--block-meta-fetch-concurrency=%d"`
+	BlockMetaFetchConcurrency int `json:"blockMetaFetchConcurrency,omitempty" thanos:"--block-meta-fetch-concurrency=%d"`
 	// Path to YAML file that contains relabeling configuration that allows selecting blocks. It
 	// follows native Prometheus relabel-config syntax. See format details:
 	// https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
-	SelectorRelabelConfigFile string `json:"selectorRelabelConfigFile" thanos:"--selector.relabel-config-file=%s"`
+	SelectorRelabelConfigFile string `json:"selectorRelabelConfigFile,omitempty" thanos:"--selector.relabel-config-file=%s"`
 	// Alternative to 'selector.relabel-config-file' flag (lower priority). Content of YAML file
 	// that contains relabeling configuration that allows selecting blocks. It follows native
 	// Prometheus relabel-config syntax. See format details:
 	// https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
-	SelectorRelabelConfig string `json:"selectorRelabelConfig" thanos:"--selector.relabel-config=%s"`
+	SelectorRelabelConfig string `json:"selectorRelabelConfig,omitempty" thanos:"--selector.relabel-config=%s"`
 	// Minimum age of all blocks before they are being read. Set it to safe value (e.g 30m) if your
 	// object storage is eventually consistent. GCS and S3 are (roughly) strongly consistent.
-	ConsistencyDelay string `json:"consistencyDelay" thanos:"--consistency-delay=%s"`
+	ConsistencyDelay string `json:"consistencyDelay,omitempty" thanos:"--consistency-delay=%s"`
 	// Duration after which the blocks marked for deletion will be filtered out while fetching blocks. The idea of ignore-deletion-marks-delay
 	// is to ignore blocks that are marked for deletion with some delay. This ensures store can still serve blocks that are meant to be
 	// deleted but do not have a replacement yet. If delete-delay duration is provided to compactor or bucket verify component, it will upload
@@ -280,20 +280,20 @@ type StoreGateway struct {
 	// delete-delay is non-zero for compactor or bucket verify component, ignore-deletion-marks-delay should be set to
 	// (delete-delay)/2 so that blocks marked for deletion are filtered out while fetching blocks
 	// before being deleted from bucket. Default is 24h, half of the default value for --delete-delay on compactor.
-	IgnoreDeletionMarksDelay string `json:"ignoreDeletionMarksDelay" thanos:"--ignore-deletion-marks-delay=%s"`
+	IgnoreDeletionMarksDelay string `json:"ignoreDeletionMarksDelay,omitempty" thanos:"--ignore-deletion-marks-delay=%s"`
 	// 	If true, Store Gateway will lazy memory map index-header only once the block is required by a query.
-	StoreEnableIndexHeaderLazyReader *bool `json:"storeEnableIndexHeaderLazyReader" thanos:"--store.enable-index-header-lazy-reader"`
+	StoreEnableIndexHeaderLazyReader *bool `json:"storeEnableIndexHeaderLazyReader,omitempty" thanos:"--store.enable-index-header-lazy-reader"`
 	// Static prefix for all HTML links and redirect URLs in the bucket web UI interface. Actual endpoints are still served on / or the
 	// web.route-prefix. This allows thanos bucket web UI to be served behind a reverse proxy that
 	// strips a URL sub-path.
-	WebExternalPrefix string `json:"webExternalPrefix" thanos:"--web.external-prefix=%s"`
+	WebExternalPrefix string `json:"webExternalPrefix,omitempty" thanos:"--web.external-prefix=%s"`
 	// Name of HTTP request header used for dynamic prefixing of UI links and redirects. This
 	// option is ignored if web.external-prefix argument is set. Security risk: enable this
 	// option only if a reverse proxy in front of thanos is resetting the header. The
 	// --web.prefix-header=X-Forwarded-Prefix option can be useful, for example, if Thanos UI is
 	// served via Traefik reverse proxy with PathPrefixStrip option enabled, which sends the
 	// stripped prefix value in X-Forwarded-Prefix header. This allows thanos UI to be served on a sub-path.
-	WebPrefixHeader string `json:"webPrefixHeader" thanos:"--web.prefix-header=%s"`
+	WebPrefixHeader string `json:"webPrefixHeader,omitempty" thanos:"--web.prefix-header=%s"`
 	// TimeRanges is a list of TimeRange to partition Store Gateway
 	TimeRanges []TimeRange `json:"timeRanges,omitempty"`
 }
