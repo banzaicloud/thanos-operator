@@ -12949,18 +12949,6 @@ spec:
                     type: string
                   webPrefixHeader:
                     type: string
-                required:
-                - blockMetaFetchConcurrency
-                - consistencyDelay
-                - ignoreDeletionMarksDelay
-                - indexCacheConfig
-                - indexCacheConfigFile
-                - selectorRelabelConfig
-                - selectorRelabelConfigFile
-                - storeEnableIndexHeaderLazyReader
-                - storeGRPCTouchedSeriesSampleLimit
-                - webExternalPrefix
-                - webPrefixHeader
                 type: object
             type: object
           status:
