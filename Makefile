@@ -154,7 +154,9 @@ install-minio:
 install-prometheus:
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 	helm repo update
-	helm upgrade --install prometheus prometheus-community/kube-prometheus-stack -f hack/thanos-sidecar.yaml
+	# TODO: we need to pre-install the v0.46.0 version of the Prometheus CRD since that is the version where the headers feature got added:
+	kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.46.0/example/prometheus-operator-crd/monitoring.coreos.com_prometheuses.yaml
+	helm upgrade --install prometheus prometheus-community/kube-prometheus-stack -f hack/thanos-remote-write.yaml
 
 install-thanos: install-minio install-prometheus
 	kubectl apply -f config/samples/
