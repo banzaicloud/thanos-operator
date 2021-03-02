@@ -1,3 +1,9 @@
+prometheusOperator:
+  image:
+    tag: v0.46.0
+  prometheusConfigReloaderImage:
+    tag: v0.46.0
+
 prometheus:
   prometheusSpec:
     image:
