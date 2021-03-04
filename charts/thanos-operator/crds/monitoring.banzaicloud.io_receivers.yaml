@@ -3505,6 +3505,10 @@ spec:
                       items:
                         type: string
                       type: array
+                    tsdbMaxBlockDuration:
+                      type: string
+                    tsdbMinBlockDuration:
+                      type: string
                     tsdbNoLockfile:
                       type: boolean
                     tsdbPath:

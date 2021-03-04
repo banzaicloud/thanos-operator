@@ -53,7 +53,7 @@ func (r *receiverInstance) statefulset() (runtime.Object, reconciler.DesiredStat
 									fmt.Sprintf("--objstore.config-file=/etc/config/%s", r.receiverGroup.Config.MountFrom.SecretKeyRef.Key),
 									fmt.Sprintf("--receive.local-endpoint=$(NAME).%s:10907", r.getName(r.receiverGroup.Name)),
 									"--receive.hashrings-file=/etc/hashring/hashring.json",
-									fmt.Sprintf("--receive.replication-factor=%d", r.receiverGroup.Replicas),
+									fmt.Sprintf("--receive.replication-factor=%d", 1),
 									"--label=receive_replica=\"$(NAME)\"",
 									"--log.level=debug",
 								},

@@ -28,11 +28,13 @@ var DefaultReceiverGroup = &ReceiverGroup{
 		Path:           "/metrics",
 		ServiceMonitor: false,
 	},
-	HTTPAddress:        "0.0.0.0:10909",
-	RemoteWriteAddress: "0.0.0.0:10908",
-	GRPCAddress:        "0.0.0.0:10907",
-	TSDBPath:           "/data",
-	Replicas:           1,
+	HTTPAddress:          "0.0.0.0:10909",
+	RemoteWriteAddress:   "0.0.0.0:10908",
+	GRPCAddress:          "0.0.0.0:10907",
+	TSDBPath:             "/data",
+	Replicas:             1,
+	TSDBMinBlockDuration: "15m",
+	TSDBMaxBlockDuration: "15m",
 }
 
 type ReceiverSpec struct {
@@ -80,6 +82,10 @@ type ReceiverGroup struct {
 	TSDBPath   string                   `json:"tsdbPath,omitempty" thanos:"--tsdb.path=%s"`
 	// How long to retain raw samples on local storage. 0d - disables this retention.
 	TSDBRetention string `json:"tsdbRetention,omitempty" thanos:"--tsdb.retention=%s"`
+	// The --tsdb.min-block-duration and --tsdb.max-block-duration must be set to equal values to disable local compaction
+	// on order to use Thanos sidecar upload. Leave local compaction on if sidecar just exposes StoreAPI and your retention is normal.
+	TSDBMinBlockDuration string `json:"tsdbMinBlockDuration,omitempty" thanos:"--tsdb.min-block-duration=%s"`
+	TSDBMaxBlockDuration string `json:"tsdbMaxBlockDuration,omitempty" thanos:"--tsdb.max-block-duration=%s"`
 	// Refresh interval to re-read the hashring configuration file. (used as a fallback)
 	ReceiveHashringsFileRefreshInterval string `json:"receiveHashringsFileRefreshInterval,omitempty" thanos:"--receive.hashrings-file-refresh-interval=%s"`
 	// HTTP header to determine tenant for write requests.

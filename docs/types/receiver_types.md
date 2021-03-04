@@ -33,6 +33,8 @@ Replicas are the number of instances in this receiver group
 | dataVolume | *volume.KubernetesVolume | No | - | Kubernetes volume abstraction refers to different types of volumes to be mounted to pods: emptyDir, hostPath, pvc.<br> |
 | tsdbPath | string | No | - |  |
 | tsdbRetention | string | No | - | How long to retain raw samples on local storage. 0d - disables this retention.<br> |
+| tsdbMinBlockDuration | string | No | - | The --tsdb.min-block-duration and --tsdb.max-block-duration must be set to equal values to disable local compaction<br>on order to use Thanos sidecar upload. Leave local compaction on if sidecar just exposes StoreAPI and your retention is normal.<br> |
+| tsdbMaxBlockDuration | string | No | - |  |
 | receiveHashringsFileRefreshInterval | string | No | - | Refresh interval to re-read the hashring configuration file. (used as a fallback)<br> |
 | receiveTenantHeader | string | No | - | HTTP header to determine tenant for write requests.<br> |
 | receiveDefaultTenantId | string | No | - | Default tenant ID to use when none is provided via a header.<br> |
