@@ -1,0 +1,5 @@
+apiVersion: monitoring.banzaicloud.io/v1alpha1
+kind: ThanosEndpoint
+metadata:
+  name: thanosendpoint-sample
+spec: {}

@@ -114,6 +114,15 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Receiver")
 		os.Exit(1)
 	}
+	if err = (&controllers.ThanosEndpointReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("ThanosEndpoint"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ThanosEndpoint")
+		os.Exit(1)
+	}
+
 	if err = (&controllers.ServiceMonitorWatchReconciler{
 		Log: ctrl.Log.WithName("controllers").WithName("ServiceMonitorWatch"),
 		Controllers: map[string]controllers.ControllerWithSource{
