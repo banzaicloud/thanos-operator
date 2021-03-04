@@ -18,14 +18,17 @@ import (
 	"flag"
 	"os"
 
-	"github.com/banzaicloud/operator-tools/pkg/prometheus"
 	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/controllers"
 	thanosv1alpha1 "github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
+	prometheus "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
+	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
+
 	// +kubebuilder:scaffold:imports
 )
 
@@ -40,6 +43,7 @@ func init() {
 	_ = clientgoscheme.AddToScheme(scheme)
 
 	_ = thanosv1alpha1.AddToScheme(scheme)
+	_ = apiextensions.AddToScheme(scheme)
 	_ = prometheus.AddToScheme(scheme)
 	// +kubebuilder:scaffold:scheme
 }
@@ -76,7 +80,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.ObjectStoreReconciler{
+	var ThanosController, ObjectStoreController, ReceiverController controller.Controller
+
+	if ObjectStoreController, err = (&controllers.ObjectStoreReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("ObjectStore"),
 		Scheme: mgr.GetScheme(),
@@ -84,7 +90,7 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "ObjectStore")
 		os.Exit(1)
 	}
-	if err = (&controllers.ThanosReconciler{
+	if ThanosController, err = (&controllers.ThanosReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("Thanos"),
 		Scheme: mgr.GetScheme(),
@@ -100,12 +106,33 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "StoreEndpoint")
 		os.Exit(1)
 	}
-	if err = (&controllers.ReceiverReconciler{
+	if ReceiverController, err = (&controllers.ReceiverReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("Receiver"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Receiver")
+		os.Exit(1)
+	}
+	if err = (&controllers.ServiceMonitorWatchReconciler{
+		Log: ctrl.Log.WithName("controllers").WithName("ServiceMonitorWatch"),
+		Controllers: map[string]controllers.ControllerWithSource{
+			"receiver": {
+				Controller: ReceiverController,
+				Source: &thanosv1alpha1.Receiver{},
+			},
+			"thanos": {
+				Controller: ThanosController,
+				Source: &thanosv1alpha1.Thanos{},
+			},
+			"objectstore": {
+				Controller: ObjectStoreController,
+				Source: &thanosv1alpha1.ObjectStore{},
+			},
+		},
+		Client: mgr.GetClient(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ServiceMonitorWatch")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder

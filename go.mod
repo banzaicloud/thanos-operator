@@ -12,7 +12,9 @@ require (
 	github.com/imdario/mergo v0.3.9
 	github.com/onsi/ginkgo v1.12.1
 	github.com/onsi/gomega v1.10.1
+	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.46.0
 	k8s.io/api v0.19.2
+	k8s.io/apiextensions-apiserver v0.19.2
 	k8s.io/apimachinery v0.19.2
 	k8s.io/client-go v0.19.2
 	sigs.k8s.io/controller-runtime v0.6.2
