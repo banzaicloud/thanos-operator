@@ -111,9 +111,8 @@ func (r *receiverInstance) commonService() (runtime.Object, reconciler.DesiredSt
 					},
 				},
 			},
-			Selector:  r.getLabels(),
-			ClusterIP: corev1.ClusterIPNone,
-			Type:      corev1.ServiceTypeClusterIP,
+			Selector: r.getLabels(),
+			Type:     corev1.ServiceTypeClusterIP,
 		},
 	}
 	return service, reconciler.StatePresent, nil
