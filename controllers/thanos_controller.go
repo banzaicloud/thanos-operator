@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/banzaicloud/operator-tools/pkg/prometheus"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/resources/query"
@@ -36,6 +35,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
@@ -124,8 +124,7 @@ func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	return resources.RunReconcilers(reconcilers)
 }
 
-func (r *ThanosReconciler) SetupWithManager(mgr ctrl.Manager) error {
-
+func (r *ThanosReconciler) SetupWithManager(mgr ctrl.Manager) (controller.Controller, error) {
 	requestMapper := &handler.EnqueueRequestsFromMapFunc{
 		ToRequests: handler.ToRequestsFunc(func(mapObject handler.MapObject) []reconcile.Request {
 			object, err := meta.Accessor(mapObject.Object)
@@ -157,8 +156,7 @@ func (r *ThanosReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Watches(&source.Kind{Type: &v1alpha1.StoreEndpoint{}}, requestMapper).
 		Owns(&appsv1.Deployment{}).
 		Owns(&corev1.Service{}).
-		Owns(&prometheus.ServiceMonitor{}).
 		Owns(&netv1.Ingress{}).
 		Owns(&appsv1.StatefulSet{}).
-		Complete(r)
+		Build(r)
 }

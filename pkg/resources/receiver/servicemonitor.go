@@ -15,7 +15,7 @@
 package receiver
 
 import (
-	"github.com/banzaicloud/operator-tools/pkg/prometheus"
+	prometheus "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
