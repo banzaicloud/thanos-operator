@@ -50,13 +50,14 @@ func init() {
 
 func main() {
 	var metricsAddr string
-	var enableLeaderElection bool
+	var enableLeaderElection, enablePromCRDWatches bool
 	var leaderElectionId string
 	var leaderElectionNamespace string
 
 	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
 		"Enable leader election for controller manager. Enabling this will ensure there is only one active controller manager.")
+	flag.BoolVar(&enablePromCRDWatches, "enable-prom-crd-watches", true, "Enable dynamic watches of Prometheus CRDs")
 	flag.StringVar(&leaderElectionId, "leader-election-id", "", "The ID of the leader election")
 	flag.StringVar(&leaderElectionNamespace, "leader-election-ns", "", "The NS  of the leader election")
 	flag.Parse()
@@ -123,27 +124,30 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.ServiceMonitorWatchReconciler{
-		Log: ctrl.Log.WithName("controllers").WithName("ServiceMonitorWatch"),
-		Controllers: map[string]controllers.ControllerWithSource{
-			"receiver": {
-				Controller: ReceiverController,
-				Source: &thanosv1alpha1.Receiver{},
+	if enablePromCRDWatches {
+		if err = (&controllers.ServiceMonitorWatchReconciler{
+			Log: ctrl.Log.WithName("controllers").WithName("ServiceMonitorWatch"),
+			Controllers: map[string]controllers.ControllerWithSource{
+				"receiver": {
+					Controller: ReceiverController,
+					Source: &thanosv1alpha1.Receiver{},
+				},
+				"thanos": {
+					Controller: ThanosController,
+					Source: &thanosv1alpha1.Thanos{},
+				},
+				"objectstore": {
+					Controller: ObjectStoreController,
+					Source: &thanosv1alpha1.ObjectStore{},
+				},
 			},
-			"thanos": {
-				Controller: ThanosController,
-				Source: &thanosv1alpha1.Thanos{},
-			},
-			"objectstore": {
-				Controller: ObjectStoreController,
-				Source: &thanosv1alpha1.ObjectStore{},
-			},
-		},
-		Client: mgr.GetClient(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "ServiceMonitorWatch")
-		os.Exit(1)
+			Client: mgr.GetClient(),
+		}).SetupWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create controller", "controller", "ServiceMonitorWatch")
+			os.Exit(1)
+		}
 	}
+
 	// +kubebuilder:scaffold:builder
 
 	setupLog.Info("starting manager")
