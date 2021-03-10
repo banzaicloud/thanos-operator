@@ -14,10 +14,13 @@
 ### ThanosEndpointSpec
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
-| certificate | string | No | - | The endpoint should use this server certificate<br> |
-| caBundle | string | No | - | CA certificate to verify client certs<br> |
+| certificate | string | No | - | The endpoint should use this server certificate (tls.crt, tls.key) in the current namespace<br> |
+| caBundle | string | No | - | Name of the secret that contains the CA certificate in ca.crt to verify client certs in the current namespace<br> |
 | stores | []string | No | - | List of statically configured store addresses<br> |
 | replicaLabels | []string | No | - | Custom replica labels if the default doesn't apply<br> |
+| metaOverrides | typeoverride.ObjectMeta | No | - | Override metadata for managed resources<br> |
+| queryOverrides | *Query | No | - | Override any of the Query parameters<br> |
+| storeEndpointOverrides | []StoreEndpointSpec | No | - | Override any of the StoreEndpoint parameters<br> |
 ### ThanosEndpointStatus
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|

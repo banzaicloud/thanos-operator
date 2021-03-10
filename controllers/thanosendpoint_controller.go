@@ -44,8 +44,8 @@ func (r *ThanosEndpointReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 	ctx := context.Background()
 	log := r.Log.WithValues("thanosendpoints", req.NamespacedName)
 
-	endpoints := &monitoringv1alpha1.ThanosEndpoint{}
-	err := r.Client.Get(ctx, req.NamespacedName, endpoints)
+	endpoint := &monitoringv1alpha1.ThanosEndpoint{}
+	err := r.Client.Get(ctx, req.NamespacedName, endpoint)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			return result, nil
@@ -53,7 +53,7 @@ func (r *ThanosEndpointReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 		return result, err
 	}
 
-	rec := thanosendpoint.NewReconciler(log, reconciler.NewReconcilerWith(r))
+	rec := thanosendpoint.NewReconciler(log, reconciler.NewReconcilerWith(r), endpoint)
 
 	reconcilers := []resources.ComponentReconciler{
 		rec.Reconcile,

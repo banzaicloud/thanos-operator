@@ -17,7 +17,6 @@ package resources
 import (
 	"fmt"
 
-	"emperror.dev/errors"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
@@ -87,25 +86,7 @@ func (t *ReceiverReconciler) GetObjectMeta(name string) metav1.ObjectMeta {
 }
 
 func (t *ReceiverReconciler) ReconcileResources(resourceList []Resource) (*reconcile.Result, error) {
-	// Generate objects from resources
-	for _, res := range resourceList {
-		o, state, err := res()
-		if err != nil {
-			return nil, errors.WrapIf(err, "failed to create desired object")
-		}
-		if o == nil {
-			return nil, errors.Errorf("Reconcile error! Resource %#v returns with nil object", res)
-		}
-		result, err := t.ReconcileResource(o, state)
-		if err != nil {
-			return nil, errors.WrapIf(err, "failed to reconcile resource")
-		}
-		if result != nil {
-			return result, nil
-		}
-	}
-
-	return nil, nil
+	return Dispatch(t.GenericResourceReconciler, resourceList)
 }
 
 func NewReceiverReconciler(receiver *v1alpha1.Receiver, genericReconciler *reconciler.GenericResourceReconciler) *ReceiverReconciler {

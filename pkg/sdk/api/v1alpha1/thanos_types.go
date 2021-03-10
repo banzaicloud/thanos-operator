@@ -95,6 +95,7 @@ type Metrics struct {
 
 type Ingress struct {
 	IngressOverrides *typeoverride.IngressNetworkingV1beta1 `json:"ingressOverrides,omitempty"`
+	// Certificate in the ingress namespace
 	Certificate      string                                 `json:"certificate,omitempty"`
 	Host             string                                 `json:"host,omitempty"`
 	Path             string                                 `json:"path,omitempty"`

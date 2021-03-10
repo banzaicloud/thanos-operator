@@ -29,6 +29,7 @@ const (
 	SidecarName       = "sidecar"
 	QueryFrontendName = "query-frontend"
 	ReceiverName      = "receiver"
+	EndpointName      = "endpoint"
 )
 
 // StoreEndpointSpec defines the desired state of StoreEndpoint
