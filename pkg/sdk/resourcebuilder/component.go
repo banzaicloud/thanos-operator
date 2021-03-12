@@ -95,6 +95,15 @@ func ResourceBuilders(parent reconciler.ResourceOwner, object interface{}) []rec
 			func() (runtime.Object, reconciler.DesiredState, error) {
 				return CRD(config, v1alpha1.GroupVersion.Group, "storeendpoints")
 			},
+			func() (runtime.Object, reconciler.DesiredState, error) {
+				return CRD(config, v1alpha1.GroupVersion.Group, "thanosendpoints")
+			},
+			func() (runtime.Object, reconciler.DesiredState, error) {
+				return CRD(config, v1alpha1.GroupVersion.Group, "thanospeers")
+			},
+			func() (runtime.Object, reconciler.DesiredState, error) {
+				return CRD(config, v1alpha1.GroupVersion.Group, "receivers")
+			},
 		)
 	}
 	return resources
