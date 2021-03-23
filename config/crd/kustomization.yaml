@@ -6,6 +6,8 @@ resources:
 - bases/monitoring.banzaicloud.io_thanos.yaml
 - bases/monitoring.banzaicloud.io_receivers.yaml
 - bases/monitoring.banzaicloud.io_storeendpoints.yaml
+- bases/monitoring.banzaicloud.io_thanosendpoints.yaml
+- bases/monitoring.banzaicloud.io_thanospeers.yaml
 # +kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:
