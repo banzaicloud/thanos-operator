@@ -43,6 +43,9 @@ type ThanosEndpointSpec struct {
 	// The endpoint should use this server certificate (tls.crt, tls.key) in the current namespace
 	Certificate string `json:"certificate,omitempty"`
 
+	// Reference the given ingressClass resource explicitly
+	IngressClassName string `json:"ingressClassName,omitempty"`
+
 	// Name of the secret that contains the CA certificate in ca.crt to verify client certs in the current namespace
 	CABundle string `json:"caBundle,omitempty"`
 

@@ -36,6 +36,8 @@ spec:
                 type: string
               certificate:
                 type: string
+              ingressClassName:
+                type: string
               metaOverrides:
                 properties:
                   annotations:

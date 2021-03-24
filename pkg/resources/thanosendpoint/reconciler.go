@@ -101,7 +101,7 @@ func (r Reconciler) Reconcile() (*reconcile.Result, error) {
 		}
 		return result, nil
 	default:
-		return result, errors.NewWithDetails("multiple ingress resources detected found for ThanosEndpoint, should be only one", endpointDetails...)
+		return result, errors.NewWithDetails("multiple ingress resources found for ThanosEndpoint, should be only one", endpointDetails...)
 	}
 }
 

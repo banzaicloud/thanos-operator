@@ -19,6 +19,7 @@ import (
 	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/typeoverride"
+	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -46,6 +47,10 @@ func (r Reconciler) query() (runtime.Object, reconciler.DesiredState, error) {
 				},
 			},
 		},
+	}
+
+	if r.endpoint.Spec.IngressClassName != "" {
+		query.Spec.Query.GRPCIngress.IngressOverrides.Spec.IngressClassName = utils.StringPointer(r.endpoint.Spec.IngressClassName)
 	}
 
 	if r.endpoint.Spec.QueryOverrides != nil {
