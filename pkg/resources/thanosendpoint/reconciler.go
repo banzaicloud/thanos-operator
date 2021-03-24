@@ -15,45 +15,102 @@
 package thanosendpoint
 
 import (
+	"context"
 	"fmt"
 
+	"emperror.dev/errors"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/go-logr/logr"
+	"k8s.io/api/networking/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 type Reconciler struct {
 	log logr.Logger
 	resourceReconciler reconciler.ResourceReconciler
+	client client.Client
 	endpoint *v1alpha1.ThanosEndpoint
 }
 
-func NewReconciler(logger logr.Logger, reconciler reconciler.ResourceReconciler, endpoint *v1alpha1.ThanosEndpoint) *Reconciler {
+func NewReconciler(logger logr.Logger, client client.Client, reconciler reconciler.ResourceReconciler, endpoint *v1alpha1.ThanosEndpoint) *Reconciler {
 	return &Reconciler{
 		log: logger,
 		resourceReconciler: reconciler,
 		endpoint: endpoint,
+		client: client,
 	}
 }
 
 func (r Reconciler) Reconcile() (*reconcile.Result, error) {
 	var resourceList []resources.Resource
+
+	endpointDetails := []interface{}{
+		"name", r.endpoint.Name,
+		"namespace", r.endpoint.Namespace,
+	}
+
 	resourceList = append(resourceList, r.query)
 	resourceList = append(resourceList, r.storeEndpoint)
-	return resources.Dispatch(r.resourceReconciler, resourceList)
+	result, err := resources.Dispatch(r.resourceReconciler, resourceList)
+	if err != nil {
+		return result, err
+	}
+
+	ctx := context.Background()
+	ingList := &v1beta1.IngressList{}
+	err = r.client.List(ctx, ingList, client.MatchingLabels{
+		"app.kubernetes.io/name": v1alpha1.QueryName,
+		"app.kubernetes.io/managed-by": r.getDescendantResourceName(),
+	})
+	if err != nil {
+		return result, errors.WrapWithDetails(err, "failed to list ingresses for ThanosEndpoint", endpointDetails...)
+	}
+
+	originalEndpointAddress := r.endpoint.Status.EndpointAddress
+
+	switch len(ingList.Items) {
+	case 0:
+		return result, nil
+	case 1:
+		ing := ingList.Items[0]
+		switch len(ing.Status.LoadBalancer.Ingress) {
+		case 0:
+			return result, nil
+		case 1:
+			addr := originalEndpointAddress
+			if ing.Status.LoadBalancer.Ingress[0].Hostname != "" {
+				addr = fmt.Sprintf("%s:443", ing.Status.LoadBalancer.Ingress[0].Hostname)
+			}
+			if ing.Status.LoadBalancer.Ingress[0].IP != "" {
+				addr = fmt.Sprintf("%s:443", ing.Status.LoadBalancer.Ingress[0].IP)
+			}
+			if originalEndpointAddress != addr {
+				r.log.Info("updating status", "endpointAddress", addr)
+				r.endpoint.Status.EndpointAddress = addr
+				if err := r.client.Status().Update(ctx, r.endpoint); err != nil {
+					return result, errors.WrapIfWithDetails(err, "failed status update for ThanosEndpoint", endpointDetails...)
+				}
+			}
+		default:
+			return result, errors.Errorf("multiple items detected for Ingress %s/%s, should be only one", ing.Namespace, ing.Name)
+		}
+		return result, nil
+	default:
+		return result, errors.NewWithDetails("multiple ingress resources detected found for ThanosEndpoint, should be only one", endpointDetails...)
+	}
 }
 
 
-func (r Reconciler) getMeta(suffix ...string) metav1.ObjectMeta {
-	nameSuffix := ""
-	if len(suffix) > 0 {
-		nameSuffix = suffix[0]
+func (r Reconciler) getDescendantMeta() metav1.ObjectMeta {
+	meta := metav1.ObjectMeta{
+		Name: r.getDescendantResourceName(),
+		Namespace: r.endpoint.Namespace,
 	}
-	meta := r.getNameMeta(r.getName(nameSuffix), "")
 	meta.OwnerReferences = []metav1.OwnerReference{
 		{
 			APIVersion: r.endpoint.APIVersion,
@@ -67,22 +124,8 @@ func (r Reconciler) getMeta(suffix ...string) metav1.ObjectMeta {
 	return meta
 }
 
-func (r Reconciler) getNameMeta(name string, namespaceOverride string) metav1.ObjectMeta {
-	namespace := r.endpoint.Namespace
-	if namespaceOverride != "" {
-		namespace = namespaceOverride
-	}
-	return metav1.ObjectMeta{
-		Name:      name,
-		Namespace: namespace,
-	}
-}
-
-func (r Reconciler) getName(suffix ...string) string {
+func (r Reconciler) getDescendantResourceName() string {
 	name := r.qualifiedName(v1alpha1.EndpointName)
-	if len(suffix) > 0 && suffix[0] != "" {
-		name = name + "-" + suffix[0]
-	}
 	return name
 }
 

@@ -24,7 +24,7 @@ import (
 
 func (r Reconciler) storeEndpoint() (runtime.Object, reconciler.DesiredState, error) {
 
-	meta := r.endpoint.Spec.MetaOverrides.Merge(r.getMeta())
+	meta := r.endpoint.Spec.MetaOverrides.Merge(r.getDescendantMeta())
 
 	storeEndpoint := &v1alpha1.StoreEndpoint{
 		ObjectMeta: meta,

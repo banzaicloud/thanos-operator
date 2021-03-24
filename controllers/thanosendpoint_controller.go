@@ -21,10 +21,15 @@ import (
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/resources/thanosendpoint"
 	"github.com/go-logr/logr"
+	"k8s.io/api/networking/v1beta1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	monitoringv1alpha1 "github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 )
@@ -53,7 +58,7 @@ func (r *ThanosEndpointReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 		return result, err
 	}
 
-	rec := thanosendpoint.NewReconciler(log, reconciler.NewReconcilerWith(r), endpoint)
+	rec := thanosendpoint.NewReconciler(log, r.Client, reconciler.NewReconcilerWith(r), endpoint)
 
 	reconcilers := []resources.ComponentReconciler{
 		rec.Reconcile,
@@ -67,5 +72,23 @@ func (r *ThanosEndpointReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&monitoringv1alpha1.ThanosEndpoint{}).
 		Owns(&monitoringv1alpha1.Thanos{}).
 		Owns(&monitoringv1alpha1.StoreEndpoint{}).
+		Watches(&source.Kind{Type: &v1beta1.Ingress{}}, &handler.EnqueueRequestsFromMapFunc{
+			ToRequests: handler.ToRequestsFunc(func(object handler.MapObject) []reconcile.Request {
+				ing := object.Object.(*v1beta1.Ingress)
+				if ing.Labels != nil {
+					if mb := ing.Labels["managed-by"]; mb != "" {
+						return []reconcile.Request{
+							{
+								NamespacedName: types.NamespacedName{
+									Name: mb,
+									Namespace: ing.Namespace,
+								},
+							},
+						}
+					}
+				}
+				return nil
+			}),
+	}).
 		Complete(r)
 }

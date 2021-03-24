@@ -70,12 +70,14 @@ EOF
 # wait for the ingress endpoint and register it as a cname in an externalname service
 
 while true; do
-  export INGRESS_ENDPOINT=$(kubectl get ingress ${PEER_ENDPOINT}-endpoint-query-grpc -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+  export INGRESS_ENDPOINT=$(kubectl get thanosendpoint ${PEER_ENDPOINT} -o jsonpath='{.status.endpointAddress}')
   [[ -n $INGRESS_ENDPOINT ]] && break
   echo -n "." && sleep 1
 done
 
-kubectl create service externalname $PEER_ENDPOINT --external-name $INGRESS_ENDPOINT
+arrIN=(${INGRESS_ENDPOINT//:/ })
+
+kubectl create service externalname $PEER_ENDPOINT --external-name ${arrIN[0]} || true
 
 # create our central query instance that will connect to our external peer endpoint through the external-name service
 cat <<EOF | kubectl apply -f-

@@ -21,6 +21,7 @@ import (
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Endpoint Address",type="string",JSONPath=".status.endpointAddress"
 
 type ThanosEndpoint struct {
 	metav1.TypeMeta   `json:",inline"`

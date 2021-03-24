@@ -16,7 +16,11 @@ spec:
     singular: thanosendpoint
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .status.endpointAddress
+      name: Endpoint Address
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         properties:

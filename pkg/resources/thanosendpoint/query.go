@@ -25,7 +25,7 @@ import (
 
 func (r Reconciler) query() (runtime.Object, reconciler.DesiredState, error) {
 
-	meta := r.endpoint.Spec.MetaOverrides.Merge(r.getMeta())
+	meta := r.endpoint.Spec.MetaOverrides.Merge(r.getDescendantMeta())
 
 	query := &v1alpha1.Thanos{
 		ObjectMeta: meta,
