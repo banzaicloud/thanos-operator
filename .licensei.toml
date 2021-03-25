@@ -19,7 +19,7 @@ ignored = [
   "github.com/uber-go/tally", # MIT
   "gopkg.in/fsnotify.v1", # BSD
   "github.com/banzaicloud/thanos-operator/pkg/sdk", # Submodule
-
+  "emperror.dev/errors", # MIT
 
   "github.com/davecgh/go-spew", # ISC license
   "github.com/oracle/oci-go-sdk", # UPL-1.0
