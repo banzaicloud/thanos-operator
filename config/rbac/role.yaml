@@ -150,6 +150,26 @@ rules:
   - patch
   - update
 - apiGroups:
+  - monitoring.banzaicloud.io
+  resources:
+  - thanosendpoints
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - monitoring.banzaicloud.io
+  resources:
+  - thanosendpoints/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - monitoring.coreos.com
   resources:
   - servicemonitors

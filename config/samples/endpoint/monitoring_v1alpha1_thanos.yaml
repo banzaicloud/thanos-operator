@@ -1,0 +1,11 @@
+apiVersion: monitoring.banzaicloud.io/v1alpha1
+kind: ThanosEndpoint
+metadata:
+  name: thanosendpoint-sample
+spec:
+  queryOverrides:
+    GRPCIngress:
+      ingressOverrides:
+        metadata:
+          annotations:
+            kubernetes.io/ingress.class: "nginx"

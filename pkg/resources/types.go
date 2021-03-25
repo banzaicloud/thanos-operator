@@ -15,6 +15,7 @@
 package resources
 
 import (
+	"emperror.dev/errors"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -26,6 +27,7 @@ const (
 	VersionLabel   = "app.kubernetes.io/version"
 	ComponentLabel = "app.kubernetes.io/component"
 	ManagedByLabel = "app.kubernetes.io/managed-by"
+	ManagedByValue = "thanos-operator"
 	StoreEndpoint  = "monitoring.banzaicloud.io/storeendpoint"
 
 	HealthCheckPath = "/-/healthy"
@@ -39,6 +41,26 @@ type ComponentReconciler func() (*reconcile.Result, error)
 type Resource func() (runtime.Object, reconciler.DesiredState, error)
 
 type Labels map[string]string
+
+func Dispatch(rr reconciler.ResourceReconciler, resourceList []Resource) (*reconcile.Result, error) {
+	for _, res := range resourceList {
+		o, state, err := res()
+		if err != nil {
+			return nil, errors.WrapIf(err, "failed to create desired object")
+		}
+		if o == nil {
+			return nil, errors.Errorf("Reconcile error! Resource %#v returns with nil object", res)
+		}
+		result, err := rr.ReconcileResource(o, state)
+		if err != nil {
+			return nil, errors.WrapIf(err, "failed to reconcile resource")
+		}
+		if result != nil {
+			return result, nil
+		}
+	}
+	return nil, nil
+}
 
 func (l Labels) Merge(labelGroups ...Labels) Labels {
 	for _, labels := range labelGroups {

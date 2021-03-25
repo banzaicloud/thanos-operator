@@ -15,11 +15,13 @@
 package v1alpha1
 
 import (
+	"github.com/banzaicloud/operator-tools/pkg/typeoverride"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Endpoint Address",type="string",JSONPath=".status.endpointAddress"
 
 type ThanosEndpoint struct {
 	metav1.TypeMeta   `json:",inline"`
@@ -38,10 +40,13 @@ type ThanosEndpointList struct {
 }
 
 type ThanosEndpointSpec struct {
-	// The endpoint should use this server certificate
+	// The endpoint should use this server certificate (tls.crt, tls.key) in the current namespace
 	Certificate string `json:"certificate,omitempty"`
 
-	// CA certificate to verify client certs
+	// Reference the given ingressClass resource explicitly
+	IngressClassName string `json:"ingressClassName,omitempty"`
+
+	// Name of the secret that contains the CA certificate in ca.crt to verify client certs in the current namespace
 	CABundle string `json:"caBundle,omitempty"`
 
 	// List of statically configured store addresses
@@ -49,6 +54,15 @@ type ThanosEndpointSpec struct {
 
 	// Custom replica labels if the default doesn't apply
 	ReplicaLabels []string `json:"replicaLabels,omitempty"`
+
+	// Override metadata for managed resources
+	MetaOverrides typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
+
+	// Override any of the Query parameters
+	QueryOverrides *Query `json:"queryOverrides,omitempty"`
+
+	// Override any of the StoreEndpoint parameters
+	StoreEndpointOverrides []StoreEndpointSpec `json:"storeEndpointOverrides,omitempty"`
 }
 
 type ThanosEndpointStatus struct {

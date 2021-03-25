@@ -25,7 +25,7 @@
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
 | ingressOverrides | *typeoverride.IngressNetworkingV1beta1 | No | - |  |
-| certificate | string | No | - |  |
+| certificate | string | No | - | Certificate in the ingress namespace<br> |
 | host | string | No | - |  |
 | path | string | No | - |  |
 ### QueryFrontend
