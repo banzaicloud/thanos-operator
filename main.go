@@ -123,6 +123,14 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "ThanosEndpoint")
 		os.Exit(1)
 	}
+	if err = (&controllers.ThanosPeerReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("ThanosPeer"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ThanosPeer")
+		os.Exit(1)
+	}
 
 	if enablePromCRDWatches {
 		if err = (&controllers.ServiceMonitorWatchReconciler{

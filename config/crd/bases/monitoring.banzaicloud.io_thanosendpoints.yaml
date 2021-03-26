@@ -51,7 +51,11 @@ spec:
                 type: object
               queryOverrides:
                 properties:
+                  GRPCClientCA:
+                    type: string
                   GRPCClientCertificate:
+                    type: string
+                  GRPCClientServerName:
                     type: string
                   GRPCIngress:
                     properties:
@@ -159,6 +163,8 @@ spec:
                       path:
                         type: string
                     type: object
+                  GRPCServerCA:
+                    type: string
                   GRPCServerCertificate:
                     type: string
                   HTTPIngress:

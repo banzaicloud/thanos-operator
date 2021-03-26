@@ -61,8 +61,11 @@
 | metrics | *Metrics | No | - |  |
 | HTTPIngress | *Ingress | No | - |  |
 | GRPCIngress | *Ingress | No | - |  |
-| GRPCClientCertificate | string | No | - |  |
-| GRPCServerCertificate | string | No | - |  |
+| GRPCClientCertificate | string | No | - | Cert and key expected under tls.crt, tls.key<br> |
+| GRPCClientCA | string | No | - | CA bundle to verify servers against, expected under ca.crt<br> |
+| GRPCClientServerName | string | No | - | Server name to verify server certificate against<br> |
+| GRPCServerCertificate | string | No | - | Cert and key expected under tls.crt, tls.key<br> |
+| GRPCServerCA | string | No | - | CA bundle to verify clients against, expected under ca.crt<br> |
 | logLevel | string | No | - |  |
 | logFormat | string | No | - |  |
 | httpAddress | string | No | - | Listen host:port for HTTP endpoints.<br> |

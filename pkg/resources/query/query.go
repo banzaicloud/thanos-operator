@@ -30,6 +30,8 @@ import (
 
 const serverCertMountPath = "/etc/tls/server"
 const clientCertMountPath = "/etc/tls/client"
+const clientCACertMountPath = "/etc/tls/client-ca"
+const serverCACertMountPath = "/etc/tls/server-ca"
 
 func New(reconciler *resources.ThanosComponentReconciler) *Query {
 	return &Query{
@@ -149,13 +151,25 @@ func (q *Query) setArgs(originArgs []string) []string {
 		args = append(args, "--grpc-client-tls-secure")
 		args = append(args, fmt.Sprintf("--grpc-client-tls-cert=%s/%s", clientCertMountPath, "tls.crt"))
 		args = append(args, fmt.Sprintf("--grpc-client-tls-key=%s/%s", clientCertMountPath, "tls.key"))
-		args = append(args, fmt.Sprintf("--grpc-client-tls-ca=%s/%s", clientCertMountPath, "ca.crt"))
-		//args = append(args, "--grpc-client-server-name=example.com") //Does it make sense to configure SNI here at all?
+		if query.GRPCClientCA != "" {
+			args = append(args, fmt.Sprintf("--grpc-client-tls-ca=%s/%s", clientCACertMountPath, "ca.crt"))
+		} else {
+			// for backward compatibility only
+			args = append(args, fmt.Sprintf("--grpc-client-tls-ca=%s/%s", clientCertMountPath, "ca.crt"))
+		}
+		if query.GRPCClientServerName != "" {
+			args = append(args, fmt.Sprintf("--grpc-client-server-name=%s", query.GRPCClientServerName))
+		}
 	}
 	if query.GRPCServerCertificate != "" {
 		args = append(args, fmt.Sprintf("--grpc-server-tls-cert=%s/%s", serverCertMountPath, "tls.crt"))
 		args = append(args, fmt.Sprintf("--grpc-server-tls-key=%s/%s", serverCertMountPath, "tls.key"))
-		args = append(args, fmt.Sprintf("--grpc-server-tls-client-ca=%s/%s", serverCertMountPath, "ca.crt"))
+		if query.GRPCServerCA != "" {
+			// for backward compatibility only
+			args = append(args, fmt.Sprintf("--grpc-server-tls-client-ca=%s/%s", serverCACertMountPath, "ca.crt"))
+		} else {
+			args = append(args, fmt.Sprintf("--grpc-server-tls-client-ca=%s/%s", serverCertMountPath, "ca.crt"))
+		}
 	}
 	// Handle special args
 	if query.QueryReplicaLabels != nil {

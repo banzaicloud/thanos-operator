@@ -30,6 +30,7 @@ const (
 	QueryFrontendName = "query-frontend"
 	ReceiverName      = "receiver"
 	EndpointName      = "endpoint"
+	PeerName          = "peer"
 )
 
 // StoreEndpointSpec defines the desired state of StoreEndpoint
