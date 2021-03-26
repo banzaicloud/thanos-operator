@@ -43,6 +43,8 @@ type ServiceMonitorWatchReconciler struct {
 	added bool
 }
 
+// +kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions,verbs=get;list;watch
+
 func (r *ServiceMonitorWatchReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
 
