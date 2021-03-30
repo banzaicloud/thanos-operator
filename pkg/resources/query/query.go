@@ -165,9 +165,9 @@ func (q *Query) setArgs(originArgs []string) []string {
 		args = append(args, fmt.Sprintf("--grpc-server-tls-cert=%s/%s", serverCertMountPath, "tls.crt"))
 		args = append(args, fmt.Sprintf("--grpc-server-tls-key=%s/%s", serverCertMountPath, "tls.key"))
 		if query.GRPCServerCA != "" {
-			// for backward compatibility only
 			args = append(args, fmt.Sprintf("--grpc-server-tls-client-ca=%s/%s", serverCACertMountPath, "ca.crt"))
 		} else {
+			// for backward compatibility only
 			args = append(args, fmt.Sprintf("--grpc-server-tls-client-ca=%s/%s", serverCertMountPath, "ca.crt"))
 		}
 	}
