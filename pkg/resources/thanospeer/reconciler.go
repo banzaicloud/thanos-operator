@@ -15,13 +15,16 @@
 package thanospeer
 
 import (
+	"context"
 	"fmt"
 
+	"emperror.dev/errors"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/go-logr/logr"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -46,17 +49,49 @@ func NewReconciler(logger logr.Logger, client client.Client, reconciler reconcil
 func (r Reconciler) Reconcile() (*reconcile.Result, error) {
 	var resourceList []resources.Resource
 
-	//endpointDetails := []interface{}{
-	//	"name", r.peer.Name,
-	//	"namespace", r.peer.Namespace,
-	//}
+	peerDetails := []interface{}{
+		"name", r.peer.Name,
+		"namespace", r.peer.Namespace,
+	}
 
+	var peerCert, peerCA string
+	peerCerts := &v1.SecretList{}
 
+	err := r.client.List(context.TODO(), peerCerts, client.MatchingLabels{
+		"monitoring.banzaicloud.io/thanospeer": r.peer.Name,
+	}, client.InNamespace(r.peer.Namespace))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to list ThanosPeer certificate secrets")
+	}
 
-	resourceList = append(resourceList, r.query)
+	switch len(peerCerts.Items) {
+	case 0:
+	case 1:
+		peerCert = peerCerts.Items[0].Name
+	default:
+		return nil, errors.NewWithDetails("more than one certs available, expecting only one", peerDetails)
+	}
+
+	peerCAs := &v1.SecretList{}
+
+	err = r.client.List(context.TODO(), peerCAs, client.MatchingLabels{
+		"monitoring.banzaicloud.io/thanospeer-ca": r.peer.Name,
+	}, client.InNamespace(r.peer.Namespace))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to list ThanosPeer CA secrets")
+	}
+
+	switch len(peerCAs.Items) {
+	case 0:
+	case 1:
+		peerCA = peerCAs.Items[0].Name
+	default:
+		return nil, errors.NewWithDetails("more than one CAs available, expecting only one", peerDetails)
+	}
+
+	resourceList = append(resourceList, r.query(peerCert, peerCA))
 	return resources.Dispatch(r.resourceReconciler, resourceList)
 }
-
 
 func (r Reconciler) getDescendantMeta() metav1.ObjectMeta {
 	meta := metav1.ObjectMeta{

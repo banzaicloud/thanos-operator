@@ -11,7 +11,7 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/cont
 
 # install minio and prometheus
 
-one-eye prometheus install --update --accept-license
+kubectl get service prometheus-operated || one-eye prometheus install --update --accept-license
 
 # start the thanos operator on demand in a separate shell
 
@@ -29,6 +29,22 @@ metadata:
   name: selfsigned
 spec:
   selfSigned: {}
+EOF
+
+# this will be the single cert for both sides
+cat <<EOF | kubectl apply -f-
+apiVersion: v1
+kind: Secret
+metadata:
+  name: peer-tls
+  labels:
+    monitoring.banzaicloud.io/thanospeer: observer
+    monitoring.banzaicloud.io/thanospeer-ca: observer
+type: kubernetes.io/tls
+data:
+  tls.crt: ""
+  tls.key: ""
+  ca.crt: ""
 EOF
 
 # this will be the single cert for both sides
@@ -86,9 +102,11 @@ kind: ThanosPeer
 metadata:
   name: observer
 spec:
-  # Add fields here
-  certificate: peer-tls
-  caBundle: peer-tls
+  # we use labels for the secrets but explicit secret references would take precedence if set
+  #certificate: peer-tls
+  #caBundle: peer-tls
   endpointAddress: $INGRESS_ENDPOINT
   peerEndpointAlias: $PEER_ENDPOINT
 EOF
+
+sleep 3
