@@ -26,13 +26,19 @@ func (r Reconciler) query() (runtime.Object, reconciler.DesiredState, error) {
 
 	meta := r.peer.Spec.MetaOverrides.Merge(r.getDescendantMeta())
 
+	serverName := meta.Name
+
+	if r.peer.Spec.PeerEndpointAlias != "" {
+		serverName = r.peer.Spec.PeerEndpointAlias
+	}
+
 	query := &v1alpha1.Thanos{
 		ObjectMeta: meta,
 		Spec: v1alpha1.ThanosSpec{
 			Query: &v1alpha1.Query{
 				GRPCClientCertificate: r.peer.Spec.Certificate,
 				GRPCClientCA: r.peer.Spec.CABundle,
-				GRPCClientServerName: r.peer.Spec.PeerEndpointAlias,
+				GRPCClientServerName: serverName,
 				Stores: []string{
 					r.peer.Spec.EndpointAddress,
 				},
