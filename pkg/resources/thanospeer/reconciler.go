@@ -51,6 +51,8 @@ func (r Reconciler) Reconcile() (*reconcile.Result, error) {
 	//	"namespace", r.peer.Namespace,
 	//}
 
+
+
 	resourceList = append(resourceList, r.query)
 	return resources.Dispatch(r.resourceReconciler, resourceList)
 }

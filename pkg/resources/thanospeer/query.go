@@ -26,7 +26,7 @@ func (r Reconciler) query() (runtime.Object, reconciler.DesiredState, error) {
 
 	meta := r.peer.Spec.MetaOverrides.Merge(r.getDescendantMeta())
 
-	serverName := meta.Name
+	serverName := r.peer.Name
 
 	if r.peer.Spec.PeerEndpointAlias != "" {
 		serverName = r.peer.Spec.PeerEndpointAlias
