@@ -54,11 +54,13 @@ func (r Reconciler) Reconcile() (*reconcile.Result, error) {
 		"namespace", r.peer.Namespace,
 	}
 
+	r.log.V(0).Info("started reconcile", peerDetails...)
+
 	var peerCert, peerCA string
 	peerCerts := &v1.SecretList{}
 
 	err := r.client.List(context.TODO(), peerCerts, client.MatchingLabels{
-		"monitoring.banzaicloud.io/thanospeer": r.peer.Name,
+		v1alpha1.PeerCertSecretLabel: r.peer.Name,
 	}, client.InNamespace(r.peer.Namespace))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to list ThanosPeer certificate secrets")
@@ -68,6 +70,7 @@ func (r Reconciler) Reconcile() (*reconcile.Result, error) {
 	case 0:
 	case 1:
 		peerCert = peerCerts.Items[0].Name
+		r.log.V(0).Info("peer cert available", append(peerDetails, "cert", peerCert)...)
 	default:
 		return nil, errors.NewWithDetails("more than one certs available, expecting only one", peerDetails)
 	}
@@ -75,7 +78,7 @@ func (r Reconciler) Reconcile() (*reconcile.Result, error) {
 	peerCAs := &v1.SecretList{}
 
 	err = r.client.List(context.TODO(), peerCAs, client.MatchingLabels{
-		"monitoring.banzaicloud.io/thanospeer-ca": r.peer.Name,
+		v1alpha1.PeerCASecretLabel: r.peer.Name,
 	}, client.InNamespace(r.peer.Namespace))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to list ThanosPeer CA secrets")
@@ -85,6 +88,7 @@ func (r Reconciler) Reconcile() (*reconcile.Result, error) {
 	case 0:
 	case 1:
 		peerCA = peerCAs.Items[0].Name
+		r.log.V(0).Info("peer ca available", append(peerDetails, "ca", peerCA)...)
 	default:
 		return nil, errors.NewWithDetails("more than one CAs available, expecting only one", peerDetails)
 	}

@@ -19,6 +19,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	PeerCertSecretLabel = "monitoring.banzaicloud.io/thanospeer"
+	PeerCASecretLabel = "monitoring.banzaicloud.io/thanospeer-ca"
+)
+
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Endpoint Address",type="string",JSONPath=".spec.endpointAddress"

@@ -21,10 +21,15 @@ import (
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/resources/thanospeer"
 	"github.com/go-logr/logr"
+	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	monitoringv1alpha1 "github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 )
@@ -49,6 +54,7 @@ func (r *ThanosPeerReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 	err := r.Client.Get(ctx, req.NamespacedName, peer)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
+			log.V(0).Info("notfound reconcile")
 			return result, nil
 		}
 		return result, err
@@ -66,5 +72,26 @@ func (r *ThanosPeerReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 func (r *ThanosPeerReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&monitoringv1alpha1.ThanosPeer{}).
-		Owns(&monitoringv1alpha1.Thanos{}).Complete(r)
+		Owns(&monitoringv1alpha1.Thanos{}).
+		Watches(&source.Kind{Type: &v1.Secret{}}, &handler.EnqueueRequestsFromMapFunc{
+			ToRequests: handler.ToRequestsFunc(func(object handler.MapObject) []reconcile.Request {
+				secret := object.Object.(*v1.Secret)
+				if secret.Labels != nil {
+					for _, i := range []string{monitoringv1alpha1.PeerCertSecretLabel, monitoringv1alpha1.PeerCASecretLabel} {
+						if peer := secret.Labels[i]; peer != "" {
+							return []reconcile.Request{
+								{
+									NamespacedName: types.NamespacedName{
+										Name:      peer,
+										Namespace: secret.Namespace,
+									},
+								},
+							}
+						}
+					}
+				}
+				return nil
+			}),
+		}).
+		Complete(r)
 }
