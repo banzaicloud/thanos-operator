@@ -101,11 +101,25 @@ func (q *Query) getVolumeMounts() []corev1.VolumeMount {
 			MountPath: clientCertMountPath,
 		})
 	}
+	if q.Thanos.Spec.Query.GRPCClientCA != "" {
+		volumeMounts = append(volumeMounts, corev1.VolumeMount{
+			Name:      "client-ca",
+			ReadOnly:  true,
+			MountPath: clientCACertMountPath,
+		})
+	}
 	if q.Thanos.Spec.Query.GRPCServerCertificate != "" {
 		volumeMounts = append(volumeMounts, corev1.VolumeMount{
 			Name:      "server-certificate",
 			ReadOnly:  true,
 			MountPath: serverCertMountPath,
+		})
+	}
+	if q.Thanos.Spec.Query.GRPCServerCA != "" {
+		volumeMounts = append(volumeMounts, corev1.VolumeMount{
+			Name:      "server-ca",
+			ReadOnly:  true,
+			MountPath: serverCACertMountPath,
 		})
 	}
 	return volumeMounts
@@ -123,12 +137,32 @@ func (q *Query) getVolumes() []corev1.Volume {
 			},
 		})
 	}
+	if q.Thanos.Spec.Query.GRPCClientCA != "" {
+		volumes = append(volumes, corev1.Volume{
+			Name: "client-ca",
+			VolumeSource: corev1.VolumeSource{
+				Secret: &corev1.SecretVolumeSource{
+					SecretName: q.Thanos.Spec.Query.GRPCClientCA,
+				},
+			},
+		})
+	}
 	if q.Thanos.Spec.Query.GRPCServerCertificate != "" {
 		volumes = append(volumes, corev1.Volume{
 			Name: "server-certificate",
 			VolumeSource: corev1.VolumeSource{
 				Secret: &corev1.SecretVolumeSource{
 					SecretName: q.Thanos.Spec.Query.GRPCServerCertificate,
+				},
+			},
+		})
+	}
+	if q.Thanos.Spec.Query.GRPCServerCA != "" {
+		volumes = append(volumes, corev1.Volume{
+			Name: "server-ca",
+			VolumeSource: corev1.VolumeSource{
+				Secret: &corev1.SecretVolumeSource{
+					SecretName: q.Thanos.Spec.Query.GRPCServerCA,
 				},
 			},
 		})

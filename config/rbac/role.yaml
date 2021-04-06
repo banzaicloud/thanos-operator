@@ -31,6 +31,10 @@ rules:
   - patch
   - update
   - watch
+- resources:
+  - secrets
+  verbs:
+  - list
 - apiGroups:
   - apiextensions.k8s.io
   resources:
@@ -173,6 +177,26 @@ rules:
   - monitoring.banzaicloud.io
   resources:
   - thanosendpoints/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - monitoring.banzaicloud.io
+  resources:
+  - thanospeers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - monitoring.banzaicloud.io
+  resources:
+  - thanospeers/status
   verbs:
   - get
   - patch

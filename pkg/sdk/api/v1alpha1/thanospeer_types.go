@@ -14,10 +14,20 @@
 
 package v1alpha1
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import (
+	"github.com/banzaicloud/operator-tools/pkg/typeoverride"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
+const (
+	PeerCertSecretLabel = "monitoring.banzaicloud.io/thanospeer"
+	PeerCASecretLabel = "monitoring.banzaicloud.io/thanospeer-ca"
+)
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Endpoint Address",type="string",JSONPath=".spec.endpointAddress"
+// +kubebuilder:printcolumn:name="Alias",type="string",JSONPath=".spec.peerEndpointAlias"
 
 type ThanosPeer struct {
 	metav1.TypeMeta   `json:",inline"`
@@ -45,15 +55,23 @@ type ThanosPeerSpec struct {
 	// or a k8s service with a manually crafted k8s endpoint if EndpointAddress doesn't have a host but only an IP.
 	PeerEndpointAlias string `json:"peerEndpointAlias,omitempty"`
 
-	// CA certificate to verify the server cert
+	// The peer query should use this client certificate (tls.crt, tls.key) in the current namespace
+	Certificate string `json:"certificate,omitempty"`
+
+	// Name of the secret that contains the CA certificate in ca.crt to verify client certs in the current namespace
 	CABundle string `json:"caBundle,omitempty"`
 
 	// Custom replica labels if the default doesn't apply
 	ReplicaLabels []string `json:"replicaLabels,omitempty"`
+
+	// Override metadata for managed resources
+	MetaOverrides typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
+
+	// Override any of the Query parameters
+	QueryOverrides *Query `json:"queryOverrides,omitempty"`
 }
 
 type ThanosPeerStatus struct {
-
 }
 
 func init() {
