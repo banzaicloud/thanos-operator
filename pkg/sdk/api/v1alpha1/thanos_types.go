@@ -96,9 +96,9 @@ type Metrics struct {
 type Ingress struct {
 	IngressOverrides *typeoverride.IngressNetworkingV1beta1 `json:"ingressOverrides,omitempty"`
 	// Certificate in the ingress namespace
-	Certificate      string                                 `json:"certificate,omitempty"`
-	Host             string                                 `json:"host,omitempty"`
-	Path             string                                 `json:"path,omitempty"`
+	Certificate string `json:"certificate,omitempty"`
+	Host        string `json:"host,omitempty"`
+	Path        string `json:"path,omitempty"`
 }
 
 type QueryFrontend struct {
@@ -143,16 +143,24 @@ type QueryFrontend struct {
 }
 
 type Query struct {
-	MetaOverrides         typeoverride.ObjectMeta  `json:"metaOverrides,omitempty"`
-	DeploymentOverrides   *typeoverride.Deployment `json:"deploymentOverrides,omitempty"`
-	ServiceOverrides      *typeoverride.Service    `json:"serviceOverrides,omitempty"`
-	Metrics               *Metrics                 `json:"metrics,omitempty"`
-	HTTPIngress           *Ingress                 `json:"HTTPIngress,omitempty"`
-	GRPCIngress           *Ingress                 `json:"GRPCIngress,omitempty"`
-	GRPCClientCertificate string                   `json:"GRPCClientCertificate,omitempty"`
-	GRPCServerCertificate string                   `json:"GRPCServerCertificate,omitempty"`
-	LogLevel              string                   `json:"logLevel,omitempty" thanos:"--log.level=%s"`
-	LogFormat             string                   `json:"logFormat,omitempty" thanos:"--log.format=%s"`
+	MetaOverrides       typeoverride.ObjectMeta  `json:"metaOverrides,omitempty"`
+	DeploymentOverrides *typeoverride.Deployment `json:"deploymentOverrides,omitempty"`
+	ServiceOverrides    *typeoverride.Service    `json:"serviceOverrides,omitempty"`
+	Metrics             *Metrics                 `json:"metrics,omitempty"`
+	HTTPIngress         *Ingress                 `json:"HTTPIngress,omitempty"`
+	GRPCIngress         *Ingress                 `json:"GRPCIngress,omitempty"`
+	// Cert and key expected under tls.crt, tls.key
+	GRPCClientCertificate string `json:"GRPCClientCertificate,omitempty"`
+	// CA bundle to verify servers against, expected under ca.crt
+	GRPCClientCA string `json:"GRPCClientCA,omitempty"`
+	// Server name to verify server certificate against
+	GRPCClientServerName string `json:"GRPCClientServerName,omitempty"`
+	// Cert and key expected under tls.crt, tls.key
+	GRPCServerCertificate string `json:"GRPCServerCertificate,omitempty"`
+	// CA bundle to verify clients against, expected under ca.crt
+	GRPCServerCA string `json:"GRPCServerCA,omitempty"`
+	LogLevel     string `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat    string `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Listen host:port for HTTP endpoints.
 	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
 	// Time to wait after an interrupt received for HTTP Server.
