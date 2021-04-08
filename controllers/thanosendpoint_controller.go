@@ -16,6 +16,7 @@ package controllers
 
 import (
 	"context"
+	"strings"
 
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
@@ -76,11 +77,11 @@ func (r *ThanosEndpointReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			ToRequests: handler.ToRequestsFunc(func(object handler.MapObject) []reconcile.Request {
 				ing := object.Object.(*v1beta1.Ingress)
 				if ing.Labels != nil {
-					if mb := ing.Labels["managed-by"]; mb != "" {
+					if mb := ing.Labels[resources.ManagedByLabel]; mb != "" {
 						return []reconcile.Request{
 							{
 								NamespacedName: types.NamespacedName{
-									Name: mb,
+									Name: strings.TrimSuffix(mb, "-endpoint"),
 									Namespace: ing.Namespace,
 								},
 							},
