@@ -30,10 +30,14 @@ rules:
   - patch
   - update
   - watch
-- resources:
+- apiGroups:
+  - ""
+  resources:
   - secrets
   verbs:
+  - get
   - list
+  - watch
 - apiGroups:
   - apiextensions.k8s.io
   resources:
