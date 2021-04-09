@@ -184,11 +184,11 @@ func Operator(parent reconciler.ResourceOwner, config ComponentConfig) (runtime.
 							Resources: corev1.ResourceRequirements{
 								Limits: corev1.ResourceList{
 									corev1.ResourceCPU:    resource.MustParse("200m"),
-									corev1.ResourceMemory: resource.MustParse("200Mi"),
+									corev1.ResourceMemory: resource.MustParse("256Mi"),
 								},
 								Requests: corev1.ResourceList{
 									corev1.ResourceCPU:    resource.MustParse("100m"),
-									corev1.ResourceMemory: resource.MustParse("100Mi"),
+									corev1.ResourceMemory: resource.MustParse("128Mi"),
 								},
 							},
 						}),
