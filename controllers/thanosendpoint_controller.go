@@ -81,7 +81,7 @@ func (r *ThanosEndpointReconciler) SetupWithManager(mgr ctrl.Manager) error {
 						return []reconcile.Request{
 							{
 								NamespacedName: types.NamespacedName{
-									Name: strings.TrimSuffix(mb, "-endpoint"),
+									Name:      strings.TrimSuffix(mb, "-endpoint"),
 									Namespace: ing.Namespace,
 								},
 							},
@@ -90,6 +90,6 @@ func (r *ThanosEndpointReconciler) SetupWithManager(mgr ctrl.Manager) error {
 				}
 				return nil
 			}),
-	}).
+		}).
 		Complete(r)
 }

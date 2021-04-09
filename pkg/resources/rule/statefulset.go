@@ -90,7 +90,6 @@ func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, e
 			},
 		}
 
-
 		statefulset.Spec.Template.Spec.Containers[0].Args = r.setArgs(statefulset.Spec.Template.Spec.Containers[0].Args)
 
 		if r.Thanos.Spec.Rule.DataVolume != nil {

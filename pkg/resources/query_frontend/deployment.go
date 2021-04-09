@@ -70,7 +70,7 @@ func (q *QueryFrontend) deployment() (runtime.Object, reconciler.DesiredState, e
 		// Set up args
 		deployment.Spec.Template.Spec.Containers[0].Args = q.setArgs(deployment.Spec.Template.Spec.Containers[0].Args)
 
-		if  queryFrontend.DeploymentOverrides != nil {
+		if queryFrontend.DeploymentOverrides != nil {
 			if err := merge.Merge(deployment, queryFrontend.DeploymentOverrides); err != nil {
 				return deployment, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
 			}

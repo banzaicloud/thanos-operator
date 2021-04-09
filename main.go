@@ -28,7 +28,6 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
-
 	// +kubebuilder:scaffold:imports
 )
 
@@ -138,15 +137,15 @@ func main() {
 			Controllers: map[string]controllers.ControllerWithSource{
 				"receiver": {
 					Controller: ReceiverController,
-					Source: &thanosv1alpha1.Receiver{},
+					Source:     &thanosv1alpha1.Receiver{},
 				},
 				"thanos": {
 					Controller: ThanosController,
-					Source: &thanosv1alpha1.Thanos{},
+					Source:     &thanosv1alpha1.Thanos{},
 				},
 				"objectstore": {
 					Controller: ObjectStoreController,
-					Source: &thanosv1alpha1.ObjectStore{},
+					Source:     &thanosv1alpha1.ObjectStore{},
 				},
 			},
 			Client: mgr.GetClient(),
