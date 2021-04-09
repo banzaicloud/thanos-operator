@@ -67,7 +67,7 @@
 
 1. Install prometheus-operator with the Thanos sidecar
     ```
-    helm install prometheus-operator --namespace monitor prometheus-community/kube-prometheus-stack -f thanos-sidecar.yaml --set manageCrds=false
+    helm install prometheus-operator --namespace monitor prometheus-community/kube-prometheus-stack -f thanos-sidecar.yaml
     ```
 
 1. Add the operator chart repository.
@@ -77,7 +77,7 @@
     ```
 1. Install the Thanos Operator
     ```bash
-    helm install thanos-operator --namespace monitor banzaicloud-stable/thanos-operator --set manageCrds=false
+    helm install thanos-operator --namespace monitor banzaicloud-stable/thanos-operator
    ```
    
  ## Install the Thanos Operator with the One Eye CLI
