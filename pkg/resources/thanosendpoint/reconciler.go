@@ -31,18 +31,18 @@ import (
 )
 
 type Reconciler struct {
-	log logr.Logger
+	log                logr.Logger
 	resourceReconciler reconciler.ResourceReconciler
-	client client.Client
-	endpoint *v1alpha1.ThanosEndpoint
+	client             client.Client
+	endpoint           *v1alpha1.ThanosEndpoint
 }
 
 func NewReconciler(logger logr.Logger, client client.Client, reconciler reconciler.ResourceReconciler, endpoint *v1alpha1.ThanosEndpoint) *Reconciler {
 	return &Reconciler{
-		log: logger,
+		log:                logger,
 		resourceReconciler: reconciler,
-		endpoint: endpoint,
-		client: client,
+		endpoint:           endpoint,
+		client:             client,
 	}
 }
 
@@ -64,7 +64,7 @@ func (r Reconciler) Reconcile() (*reconcile.Result, error) {
 	ctx := context.Background()
 	ingList := &v1beta1.IngressList{}
 	err = r.client.List(ctx, ingList, client.MatchingLabels{
-		"app.kubernetes.io/name": v1alpha1.QueryName,
+		"app.kubernetes.io/name":       v1alpha1.QueryName,
 		"app.kubernetes.io/managed-by": r.getDescendantResourceName(),
 	})
 	if err != nil {
@@ -105,10 +105,9 @@ func (r Reconciler) Reconcile() (*reconcile.Result, error) {
 	}
 }
 
-
 func (r Reconciler) getDescendantMeta() metav1.ObjectMeta {
 	meta := metav1.ObjectMeta{
-		Name: r.getDescendantResourceName(),
+		Name:      r.getDescendantResourceName(),
 		Namespace: r.endpoint.Namespace,
 	}
 	meta.OwnerReferences = []metav1.OwnerReference{
@@ -135,7 +134,7 @@ func (r Reconciler) qualifiedName(name string) string {
 
 func (r Reconciler) getLabels() resources.Labels {
 	return resources.Labels{
-		resources.NameLabel:     v1alpha1.EndpointName,
+		resources.NameLabel:      v1alpha1.EndpointName,
 		resources.InstanceLabel:  r.endpoint.Name,
 		resources.ManagedByLabel: resources.ManagedByValue,
 	}

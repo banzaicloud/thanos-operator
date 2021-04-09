@@ -47,8 +47,8 @@ func (r Reconciler) query(peerCert, peerCA string) resources.Resource {
 			Spec: v1alpha1.ThanosSpec{
 				Query: &v1alpha1.Query{
 					GRPCClientCertificate: cert,
-					GRPCClientCA: ca,
-					GRPCClientServerName: serverName,
+					GRPCClientCA:          ca,
+					GRPCClientServerName:  serverName,
 					Stores: []string{
 						r.peer.Spec.EndpointAddress,
 					},

@@ -21,7 +21,7 @@ import (
 
 const (
 	PeerCertSecretLabel = "monitoring.banzaicloud.io/thanospeer"
-	PeerCASecretLabel = "monitoring.banzaicloud.io/thanospeer-ca"
+	PeerCASecretLabel   = "monitoring.banzaicloud.io/thanospeer-ca"
 )
 
 // +kubebuilder:object:root=true

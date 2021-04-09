@@ -31,18 +31,18 @@ import (
 )
 
 type Reconciler struct {
-	log logr.Logger
+	log                logr.Logger
 	resourceReconciler reconciler.ResourceReconciler
-	client client.Client
-	peer *v1alpha1.ThanosPeer
+	client             client.Client
+	peer               *v1alpha1.ThanosPeer
 }
 
 func NewReconciler(logger logr.Logger, client client.Client, reconciler reconciler.ResourceReconciler, peer *v1alpha1.ThanosPeer) *Reconciler {
 	return &Reconciler{
-		log: logger,
+		log:                logger,
 		resourceReconciler: reconciler,
-		peer: peer,
-		client: client,
+		peer:               peer,
+		client:             client,
 	}
 }
 
@@ -99,7 +99,7 @@ func (r Reconciler) Reconcile() (*reconcile.Result, error) {
 
 func (r Reconciler) getDescendantMeta() metav1.ObjectMeta {
 	meta := metav1.ObjectMeta{
-		Name: r.getDescendantResourceName(),
+		Name:      r.getDescendantResourceName(),
 		Namespace: r.peer.Namespace,
 	}
 	meta.OwnerReferences = []metav1.OwnerReference{
@@ -126,7 +126,7 @@ func (r Reconciler) qualifiedName(name string) string {
 
 func (r Reconciler) getLabels() resources.Labels {
 	return resources.Labels{
-		resources.NameLabel:     v1alpha1.PeerName,
+		resources.NameLabel:      v1alpha1.PeerName,
 		resources.InstanceLabel:  r.peer.Name,
 		resources.ManagedByLabel: resources.ManagedByValue,
 	}

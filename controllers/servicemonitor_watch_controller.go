@@ -33,14 +33,14 @@ import (
 
 type ControllerWithSource struct {
 	Controller controller.Controller
-	Source runtime.Object
+	Source     runtime.Object
 }
 
 type ServiceMonitorWatchReconciler struct {
-	Log logr.Logger
+	Log         logr.Logger
 	Controllers map[string]ControllerWithSource
-	Client client.Client
-	added bool
+	Client      client.Client
+	added       bool
 }
 
 // +kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions,verbs=get;list;watch
