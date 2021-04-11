@@ -45,8 +45,11 @@ To verify that the installation was successful, complete the following steps.
 1. Check the CRDs. You should see the following three new CRDs.
     ```bash
     $  kubectl get crd
-    NAME                                    CREATED AT
-    objectstores.monitoring.banzaicloud.io      2020-02-07T21:48:20Z
-    storeendpoints.monitoring.banzaicloud.io    2020-02-07T21:48:20Z
-    thanos.monitoring.banzaicloud.io            2020-02-07T21:48:20Z
+    NAME                                                  CREATED AT
+    objectstores.monitoring.banzaicloud.io                2021-04-11T08:38:26Z
+    receivers.monitoring.banzaicloud.io                   2021-04-11T08:38:26Z
+    storeendpoints.monitoring.banzaicloud.io              2021-04-11T08:38:26Z
+    thanos.monitoring.banzaicloud.io                      2021-04-11T08:38:26Z
+    thanosendpoints.monitoring.banzaicloud.io             2021-04-11T08:38:27Z
+    thanospeers.monitoring.banzaicloud.io                 2021-04-11T08:38:27Z
     ```
