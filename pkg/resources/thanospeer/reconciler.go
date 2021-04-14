@@ -47,7 +47,7 @@ func NewReconciler(logger logr.Logger, client client.Client, reconciler reconcil
 }
 
 func (r Reconciler) Reconcile() (*reconcile.Result, error) {
-	var resourceList []resources.Resource
+	ctx := context.Background()
 
 	peerDetails := []interface{}{
 		"name", r.peer.Name,
@@ -59,11 +59,11 @@ func (r Reconciler) Reconcile() (*reconcile.Result, error) {
 	var peerCert, peerCA string
 	peerCerts := &v1.SecretList{}
 
-	err := r.client.List(context.TODO(), peerCerts, client.MatchingLabels{
+	err := r.client.List(ctx, peerCerts, client.MatchingLabels{
 		v1alpha1.PeerCertSecretLabel: r.peer.Name,
 	}, client.InNamespace(r.peer.Namespace))
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to list ThanosPeer certificate secrets")
+		return nil, errors.WrapIfWithDetails(err, "failed to list ThanosPeer certificate secrets", peerDetails...)
 	}
 
 	switch len(peerCerts.Items) {
@@ -72,16 +72,16 @@ func (r Reconciler) Reconcile() (*reconcile.Result, error) {
 		peerCert = peerCerts.Items[0].Name
 		r.log.V(0).Info("peer cert available", append(peerDetails, "cert", peerCert)...)
 	default:
-		return nil, errors.NewWithDetails("more than one certs available, expecting only one", peerDetails)
+		return nil, errors.NewWithDetails("more than one certs available, expecting only one", peerDetails...)
 	}
 
 	peerCAs := &v1.SecretList{}
 
-	err = r.client.List(context.TODO(), peerCAs, client.MatchingLabels{
+	err = r.client.List(ctx, peerCAs, client.MatchingLabels{
 		v1alpha1.PeerCASecretLabel: r.peer.Name,
 	}, client.InNamespace(r.peer.Namespace))
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to list ThanosPeer CA secrets")
+		return nil, errors.WrapIfWithDetails(err, "failed to list ThanosPeer CA secrets", peerDetails...)
 	}
 
 	switch len(peerCAs.Items) {
@@ -90,11 +90,48 @@ func (r Reconciler) Reconcile() (*reconcile.Result, error) {
 		peerCA = peerCAs.Items[0].Name
 		r.log.V(0).Info("peer ca available", append(peerDetails, "ca", peerCA)...)
 	default:
-		return nil, errors.NewWithDetails("more than one CAs available, expecting only one", peerDetails)
+		return nil, errors.NewWithDetails("more than one CAs available, expecting only one", peerDetails...)
 	}
 
-	resourceList = append(resourceList, r.query(peerCert, peerCA))
-	return resources.Dispatch(r.resourceReconciler, resourceList)
+	resourceList := []resources.Resource{
+		r.query(peerCert, peerCA),
+	}
+	result, err := resources.Dispatch(r.resourceReconciler, resourceList)
+	if err != nil {
+		return result, err
+	}
+
+	var svcs v1.ServiceList
+	svcLabels := client.MatchingLabels{
+		resources.ManagedByLabel: r.getDescendantResourceName(),
+		resources.NameLabel:      v1alpha1.QueryName,
+	}
+	if err := r.client.List(ctx, &svcs, svcLabels); err != nil {
+		return result, errors.WrapIfWithDetails(err, "listing services for ThanosPeer query", peerDetails...)
+	}
+	switch len(svcs.Items) {
+	case 0:
+	case 1:
+		svc := &svcs.Items[0]
+
+		var httpPort int32
+		for _, port := range svc.Spec.Ports {
+			if port.Name == "http" {
+				httpPort = port.Port
+				break
+			}
+		}
+
+		r.peer.Status.QueryHTTPServiceURL = fmt.Sprintf("http://%s.%s.svc:%d", svc.Name, svc.Namespace, httpPort)
+
+		if err := r.client.Status().Update(ctx, r.peer); err != nil {
+			return result, errors.WrapIfWithDetails(err, "updating ThanosPeer resource status", peerDetails...)
+		}
+	default:
+		return result, errors.NewWithDetails("multiple service resources found for ThanosPeer query, should be only one", peerDetails...)
+	}
+
+	return result, nil
 }
 
 func (r Reconciler) getDescendantMeta() metav1.ObjectMeta {
