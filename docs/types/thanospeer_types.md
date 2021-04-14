@@ -24,3 +24,4 @@
 ### ThanosPeerStatus
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
+| queryHTTPServiceURL | string | No | - | The peer query is available over HTTP on this internal service URL<br> |

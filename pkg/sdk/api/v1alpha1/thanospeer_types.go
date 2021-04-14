@@ -72,6 +72,8 @@ type ThanosPeerSpec struct {
 }
 
 type ThanosPeerStatus struct {
+	// The peer query is available over HTTP on this internal service URL
+	QueryHTTPServiceURL string `json:"queryHTTPServiceURL,omitempty"`
 }
 
 func init() {

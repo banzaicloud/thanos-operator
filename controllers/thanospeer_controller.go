@@ -16,6 +16,7 @@ package controllers
 
 import (
 	"context"
+	"strings"
 
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
@@ -87,6 +88,26 @@ func (r *ThanosPeerReconciler) SetupWithManager(mgr ctrl.Manager) error {
 									},
 								},
 							}
+						}
+					}
+				}
+				return nil
+			}),
+		}).
+		Watches(&source.Kind{Type: &v1.Service{}}, &handler.EnqueueRequestsFromMapFunc{
+			ToRequests: handler.ToRequestsFunc(func(object handler.MapObject) []reconcile.Request {
+				service := object.Object.(*v1.Service)
+				const peerNameSuffix = "-" + monitoringv1alpha1.PeerName
+				if service != nil {
+					managedBy, name := service.Labels[resources.ManagedByLabel], service.Labels[resources.NameLabel]
+					if name == monitoringv1alpha1.QueryName && strings.HasSuffix(managedBy, peerNameSuffix) {
+						return []reconcile.Request{
+							{
+								NamespacedName: types.NamespacedName{
+									Name:      strings.TrimSuffix(managedBy, peerNameSuffix),
+									Namespace: service.Namespace,
+								},
+							},
 						}
 					}
 				}
