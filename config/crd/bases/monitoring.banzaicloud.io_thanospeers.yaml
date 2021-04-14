@@ -3332,6 +3332,9 @@ spec:
             - endpointAddress
             type: object
           status:
+            properties:
+              queryHTTPServiceURL:
+                type: string
             type: object
         type: object
     served: true
