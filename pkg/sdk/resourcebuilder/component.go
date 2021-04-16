@@ -38,7 +38,7 @@ import (
 )
 
 const (
-	Image            = "banzaicloud/thanos-operator:0.2.0"
+	Image            = "banzaicloud/thanos-operator:0.2.1"
 	defaultNamespace = "thanos-system"
 )
 
