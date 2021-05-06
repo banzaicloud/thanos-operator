@@ -29,9 +29,11 @@ import (
 // ObjectStoreSpec defines the desired state of ObjectStore
 type ObjectStoreSpec struct {
 	// Config
-	Config    secret.Secret `json:"config"`
-	Compactor *Compactor    `json:"compactor,omitempty"`
-	BucketWeb *BucketWeb    `json:"bucketWeb,omitempty"`
+	Config secret.Secret `json:"config"`
+	// See [Compactor](#compactor)
+	Compactor *Compactor `json:"compactor,omitempty"`
+	// See [BucketWeb](#bucketweb)
+	BucketWeb *BucketWeb `json:"bucketWeb,omitempty"`
 }
 
 var DefaultCompactor = &Compactor{
@@ -54,10 +56,13 @@ var DefaultCompactor = &Compactor{
 }
 
 type Compactor struct {
-	MetaOverrides       *typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
+	// See [ObjectMeta override](../overrides/override/#objectmeta)
+	MetaOverrides *typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
+	// See [Deployment override](../overrides/override/#deployment)
 	DeploymentOverrides *typeoverride.Deployment `json:"deploymentOverrides,omitempty"`
-	ServiceOverrides    *typeoverride.Service    `json:"serviceOverrides,omitempty"`
-	Metrics             *Metrics                 `json:"metrics,omitempty"`
+	// See [Service override](../overrides/override/#service)
+	ServiceOverrides *typeoverride.Service `json:"serviceOverrides,omitempty"`
+	Metrics          *Metrics              `json:"metrics,omitempty"`
 	// Listen host:port for HTTP endpoints.
 	HTTPAddress string `json:"httpAddress,omitempty"`
 	// Time to wait after an interrupt received for HTTP Server.
@@ -102,11 +107,14 @@ var DefaultBucketWeb = &BucketWeb{
 }
 
 type BucketWeb struct {
-	MetaOverrides       *typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
+	// See [ObjectMeta override](../overrides/override/#objectmeta)
+	MetaOverrides *typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
+	// See [Deployment override](../overrides/override/#deployment)
 	DeploymentOverrides *typeoverride.Deployment `json:"deploymentOverrides,omitempty"`
-	ServiceOverrides    *typeoverride.Service    `json:"serviceOverrides,omitempty"`
-	Metrics             *Metrics                 `json:"metrics,omitempty"`
-	HTTPIngress         *Ingress                 `json:"HTTPIngress,omitempty"`
+	// See [Service override](../overrides/override/#service)
+	ServiceOverrides *typeoverride.Service `json:"serviceOverrides,omitempty"`
+	Metrics          *Metrics              `json:"metrics,omitempty"`
+	HTTPIngress      *Ingress              `json:"HTTPIngress,omitempty"`
 	// Listen host:port for HTTP endpoints.
 	HTTPAddress string `json:"httpAddress,omitempty"`
 	// Time to wait after an interrupt received for HTTP Server.
