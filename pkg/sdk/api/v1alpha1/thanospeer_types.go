@@ -33,7 +33,9 @@ type ThanosPeer struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   ThanosPeerSpec   `json:"spec,omitempty"`
+	// See [ThanosPeerSpec](#thanospeerspec)
+	Spec ThanosPeerSpec `json:"spec,omitempty"`
+	// See [ThanosPeerStatus](#thanospeerstatus)
 	Status ThanosPeerStatus `json:"status,omitempty"`
 }
 
@@ -64,10 +66,10 @@ type ThanosPeerSpec struct {
 	// Custom replica labels if the default doesn't apply
 	ReplicaLabels []string `json:"replicaLabels,omitempty"`
 
-	// Override metadata for managed resources
+	// [Override metadata](../overrides/override/#objectmeta) for managed resources
 	MetaOverrides typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
 
-	// Override any of the Query parameters
+	// Override any of the [Query parameters](../thanos_types/#query)
 	QueryOverrides *Query `json:"queryOverrides,omitempty"`
 }
 
