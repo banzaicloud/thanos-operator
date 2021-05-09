@@ -34,7 +34,7 @@ Open source, highly available Prometheus setup with long term storage capabiliti
 
 
 ## Architecture
-<p align="center"><img src="docs/img/Thanos-single-cluster.png" ></p>
+<p align="center"><img src="docs/img/thanos-single-cluster2.png" ></p>
 
 ## Feature highlights
 
