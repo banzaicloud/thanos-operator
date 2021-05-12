@@ -3,8 +3,8 @@
 |---|---|---|---|---|
 |  | metav1.TypeMeta | Yes | - |  |
 | metadata | metav1.ObjectMeta | No | - |  |
-| spec | ThanosPeerSpec | No | - |  |
-| status | ThanosPeerStatus | No | - |  |
+| spec | ThanosPeerSpec | No | - | See [ThanosPeerSpec](#thanospeerspec)<br> |
+| status | ThanosPeerStatus | No | - | See [ThanosPeerStatus](#thanospeerstatus)<br> |
 ### ThanosPeerList
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
@@ -19,8 +19,8 @@
 | certificate | string | No | - | The peer query should use this client certificate (tls.crt, tls.key) in the current namespace<br> |
 | caBundle | string | No | - | Name of the secret that contains the CA certificate in ca.crt to verify client certs in the current namespace<br> |
 | replicaLabels | []string | No | - | Custom replica labels if the default doesn't apply<br> |
-| metaOverrides | typeoverride.ObjectMeta | No | - | Override metadata for managed resources<br> |
-| queryOverrides | *Query | No | - | Override any of the Query parameters<br> |
+| metaOverrides | typeoverride.ObjectMeta | No | - | [Override metadata](../overrides/override/#objectmeta) for managed resources<br> |
+| queryOverrides | *Query | No | - | Override any of the [Query parameters](../thanos_types/#query)<br> |
 ### ThanosPeerStatus
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|

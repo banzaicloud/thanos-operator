@@ -3,10 +3,10 @@
 
 | Variable Name | Type | Required | Default | Description |
 |---|---|---|---|---|
-| metaOverrides | *typeoverride.ObjectMeta | No | - |  |
-| serviceOverrides | *typeoverride.Service | No | - |  |
+| metaOverrides | *typeoverride.ObjectMeta | No | - | See [ObjectMeta override](../overrides/override/#objectmeta)<br> |
+| serviceOverrides | *typeoverride.Service | No | - | See [Service override](../overrides/override/#service)<br> |
 | url | string | No | - |  |
-| selector | *KubernetesSelector | No | - |  |
+| selector | *KubernetesSelector | No | - | See [KubernetesSelector](#kubernetesselector)<br> |
 | config | secret.Secret | No | - |  |
 | thanos | string | Yes | - |  |
 | ingress | *Ingress | No | - |  |
@@ -30,8 +30,8 @@
 |---|---|---|---|---|
 |  | metav1.TypeMeta | Yes | - |  |
 | metadata | metav1.ObjectMeta | No | - |  |
-| spec | StoreEndpointSpec | No | - |  |
-| status | StoreEndpointStatus | No | - |  |
+| spec | StoreEndpointSpec | No | - | See [StoreEndpointSpec](#storeendpointspec)<br> |
+| status | StoreEndpointStatus | No | - | See [StoreEndpointStatus](#storeendpointstatus)<br> |
 ### StoreEndpointList
 #### StoreEndpointList contains a list of StoreEndpoint
 

@@ -94,6 +94,7 @@ type Metrics struct {
 }
 
 type Ingress struct {
+	// See [Ingress override](../overrides/override/#ingressnetworkingv1beta1)
 	IngressOverrides *typeoverride.IngressNetworkingV1beta1 `json:"ingressOverrides,omitempty"`
 	// Certificate in the ingress namespace
 	Certificate string `json:"certificate,omitempty"`
@@ -102,13 +103,16 @@ type Ingress struct {
 }
 
 type QueryFrontend struct {
-	MetaOverrides       *typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
+	// See [ObjectMeta override](../overrides/override/#objectmeta)
+	MetaOverrides *typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
+	// See [Deployment override](../overrides/override/#deployment)
 	DeploymentOverrides *typeoverride.Deployment `json:"deploymentOverrides,omitempty"`
-	ServiceOverrides    *typeoverride.Service    `json:"serviceOverrides,omitempty"`
-	Metrics             *Metrics                 `json:"metrics,omitempty"`
-	HTTPIngress         *Ingress                 `json:"HTTPIngress,omitempty"`
-	LogLevel            string                   `json:"logLevel,omitempty" thanos:"--log.level=%s"`
-	LogFormat           string                   `json:"logFormat,omitempty" thanos:"--log.format=%s"`
+	// See [Service override](../overrides/override/#service)
+	ServiceOverrides *typeoverride.Service `json:"serviceOverrides,omitempty"`
+	Metrics          *Metrics              `json:"metrics,omitempty"`
+	HTTPIngress      *Ingress              `json:"HTTPIngress,omitempty"`
+	LogLevel         string                `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat        string                `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Split queries by an interval and execute in parallel, 0 disables it.
 	QueryRangeSplit string `json:"queryRangeSplit,omitempty" thanos:"--query-range.split-interval=%s"`
 	// Maximum number of retries for a single request; beyond this, the downstream error is returned.
@@ -143,12 +147,15 @@ type QueryFrontend struct {
 }
 
 type Query struct {
-	MetaOverrides       typeoverride.ObjectMeta  `json:"metaOverrides,omitempty"`
+	// See [ObjectMeta override](../overrides/override/#objectmeta)
+	MetaOverrides typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
+	// See [Deployment override](../overrides/override/#deployment)
 	DeploymentOverrides *typeoverride.Deployment `json:"deploymentOverrides,omitempty"`
-	ServiceOverrides    *typeoverride.Service    `json:"serviceOverrides,omitempty"`
-	Metrics             *Metrics                 `json:"metrics,omitempty"`
-	HTTPIngress         *Ingress                 `json:"HTTPIngress,omitempty"`
-	GRPCIngress         *Ingress                 `json:"GRPCIngress,omitempty"`
+	// See [Service override](../overrides/override/#service)
+	ServiceOverrides *typeoverride.Service `json:"serviceOverrides,omitempty"`
+	Metrics          *Metrics              `json:"metrics,omitempty"`
+	HTTPIngress      *Ingress              `json:"HTTPIngress,omitempty"`
+	GRPCIngress      *Ingress              `json:"GRPCIngress,omitempty"`
 	// Cert and key expected under tls.crt, tls.key
 	GRPCClientCertificate string `json:"GRPCClientCertificate,omitempty"`
 	// CA bundle to verify servers against, expected under ca.crt
@@ -231,13 +238,16 @@ type TimeRange struct {
 }
 
 type StoreGateway struct {
-	MetaOverrides         *typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
-	DeploymentOverrides   *typeoverride.Deployment `json:"deploymentOverrides,omitempty"`
-	ServiceOverrides      *typeoverride.Service    `json:"serviceOverride,omitempty"`
-	Metrics               *Metrics                 `json:"metrics,omitempty"`
-	GRPCServerCertificate string                   `json:"GRPCServerCertificate,omitempty"`
-	LogLevel              string                   `json:"logLevel,omitempty" thanos:"--log.level=%s"`
-	LogFormat             string                   `json:"logFormat,omitempty" thanos:"--log.format=%s"`
+	// See [ObjectMeta override](../overrides/override/#objectmeta)
+	MetaOverrides *typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
+	// See [Deployment override](../overrides/override/#deployment)
+	DeploymentOverrides *typeoverride.Deployment `json:"deploymentOverrides,omitempty"`
+	// See [Service override](../overrides/override/#service)
+	ServiceOverrides      *typeoverride.Service `json:"serviceOverride,omitempty"`
+	Metrics               *Metrics              `json:"metrics,omitempty"`
+	GRPCServerCertificate string                `json:"GRPCServerCertificate,omitempty"`
+	LogLevel              string                `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat             string                `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Listen host:port for HTTP endpoints.
 	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
 	// Time to wait after an interrupt received for HTTP Server.
@@ -308,14 +318,17 @@ type StoreGateway struct {
 }
 
 type Rule struct {
-	MetaOverrides        *typeoverride.ObjectMeta  `json:"metaOverrides,omitempty"`
+	// See [ObjectMeta override](../overrides/override/#objectmeta)
+	MetaOverrides *typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
+	// See [StatefulSet override](../overrides/override/#statefulset)
 	StatefulsetOverrides *typeoverride.StatefulSet `json:"statefulsetOverrides,omitempty"`
-	ServiceOverrides     *typeoverride.Service     `json:"serviceOverrides,omitempty"`
-	Metrics              *Metrics                  `json:"metrics,omitempty"`
-	HTTPIngress          *Ingress                  `json:"HTTPIngress,omitempty"`
-	GRPCIngress          *Ingress                  `json:"GRPCIngress,omitempty"`
-	LogLevel             string                    `json:"logLevel,omitempty" thanos:"--log.level=%s"`
-	LogFormat            string                    `json:"logFormat,omitempty" thanos:"--log.format=%s"`
+	// See [Service override](../overrides/override/#service)
+	ServiceOverrides *typeoverride.Service `json:"serviceOverrides,omitempty"`
+	Metrics          *Metrics              `json:"metrics,omitempty"`
+	HTTPIngress      *Ingress              `json:"HTTPIngress,omitempty"`
+	GRPCIngress      *Ingress              `json:"GRPCIngress,omitempty"`
+	LogLevel         string                `json:"logLevel,omitempty" thanos:"--log.level=%s"`
+	LogFormat        string                `json:"logFormat,omitempty" thanos:"--log.format=%s"`
 	// Listen host:port for HTTP endpoints.
 	HttpAddress string `json:"httpAddress,omitempty" thanos:"--http-address=%s"`
 	// Time to wait after an interrupt received for HTTP Server.

@@ -13,9 +13,9 @@ Replicas are the number of instances in this receiver group
 | tenants | []string | No | - |  |
 | config | secret.Secret | Yes | - |  |
 | replicas | int32 | No | - |  |
-| metaOverrides | *typeoverride.ObjectMeta | No | - |  |
-| statefulSetOverrides | *typeoverride.StatefulSet | No | - |  |
-| serviceOverrides | *typeoverride.Service | No | - |  |
+| metaOverrides | *typeoverride.ObjectMeta | No | - | See [ObjectMeta override](../overrides/override/#objectmeta)<br> |
+| statefulSetOverrides | *typeoverride.StatefulSet | No | - | See [StatefulSet override](../overrides/override/#statefulset)<br> |
+| serviceOverrides | *typeoverride.Service | No | - | See [Service override](../overrides/override/#service)<br> |
 | httpIngress | *Ingress | No | - |  |
 | httpServerCertificate | string | No | - | Secret name for HTTP Server certificate (Kubernetes TLS secret type)<br> |
 | httpClientCertificate | string | No | - | Secret name for HTTP Client certificate (Kubernetes TLS secret type)<br> |
