@@ -35,13 +35,16 @@ const (
 
 // StoreEndpointSpec defines the desired state of StoreEndpoint
 type StoreEndpointSpec struct {
-	MetaOverrides    *typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
-	ServiceOverrides *typeoverride.Service    `json:"serviceOverrides,omitempty"`
-	URL              string                   `json:"url,omitempty"`
-	Selector         *KubernetesSelector      `json:"selector,omitempty"`
-	Config           secret.Secret            `json:"config,omitempty"`
-	Thanos           string                   `json:"thanos"`
-	Ingress          *Ingress                 `json:"ingress,omitempty"`
+	// See [ObjectMeta override](../overrides/override/#objectmeta)
+	MetaOverrides *typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
+	// See [Service override](../overrides/override/#service)
+	ServiceOverrides *typeoverride.Service `json:"serviceOverrides,omitempty"`
+	URL              string                `json:"url,omitempty"`
+	// See [KubernetesSelector](#kubernetesselector)
+	Selector *KubernetesSelector `json:"selector,omitempty"`
+	Config   secret.Secret       `json:"config,omitempty"`
+	Thanos   string              `json:"thanos"`
+	Ingress  *Ingress            `json:"ingress,omitempty"`
 }
 
 type KubernetesSelector struct {
@@ -65,7 +68,9 @@ type StoreEndpoint struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   StoreEndpointSpec   `json:"spec,omitempty"`
+	// See [StoreEndpointSpec](#storeendpointspec)
+	Spec StoreEndpointSpec `json:"spec,omitempty"`
+	// See [StoreEndpointStatus](#storeendpointstatus)
 	Status StoreEndpointStatus `json:"status,omitempty"`
 }
 

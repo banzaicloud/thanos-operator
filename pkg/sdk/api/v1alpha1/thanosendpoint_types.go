@@ -27,7 +27,9 @@ type ThanosEndpoint struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   ThanosEndpointSpec   `json:"spec,omitempty"`
+	// See [ThanosEndpointSpec](#thanosendpointspec)
+	Spec ThanosEndpointSpec `json:"spec,omitempty"`
+	// See [ThanosEndpointStatus](#thanosendpointstatus)
 	Status ThanosEndpointStatus `json:"status,omitempty"`
 }
 
@@ -55,13 +57,13 @@ type ThanosEndpointSpec struct {
 	// Custom replica labels if the default doesn't apply
 	ReplicaLabels []string `json:"replicaLabels,omitempty"`
 
-	// Override metadata for managed resources
+	// [Override metadata](../overrides/override/#objectmeta) for managed resources
 	MetaOverrides typeoverride.ObjectMeta `json:"metaOverrides,omitempty"`
 
-	// Override any of the Query parameters
+	// Override any of the [Query parameters](../thanos_types/#query)
 	QueryOverrides *Query `json:"queryOverrides,omitempty"`
 
-	// Override any of the StoreEndpoint parameters
+	// Override any of the [StoreEndpoint parameters](../storeendpoint_types/)
 	StoreEndpointOverrides []StoreEndpointSpec `json:"storeEndpointOverrides,omitempty"`
 }
 
