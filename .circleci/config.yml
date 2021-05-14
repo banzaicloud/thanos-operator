@@ -202,6 +202,16 @@ jobs:
 #          image: <<parameters.image>>
 #          tag: latest
 
+  trigger-docs-update:
+    docker:
+      - image: cimg/base:stable
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Trigger
+          command: scripts/trigger-docs-update.sh "${CIRCLE_TAG}"
+
 workflows:
   version: 2
   build:
