@@ -42,7 +42,7 @@ To verify that the installation was successful, complete the following steps.
     NAME                                        READY   STATUS    RESTARTS   AGE
     thanos-operator-7df8485bf6-gf5gk   1/1     Running   0          13s
     ```
-1. Check the CRDs. You should see the following three new CRDs.
+1. Check the CRDs. You should see the following six new CRDs.
     ```bash
     $  kubectl get crd
     NAME                                                  CREATED AT
