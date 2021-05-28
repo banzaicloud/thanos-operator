@@ -51,12 +51,11 @@ type ThanosReconciler struct {
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=thanos,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=thanos/status,verbs=get;update;patch
 
-func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
+func (r *ThanosReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("thanos", req.NamespacedName)
 
 	thanos := &v1alpha1.Thanos{}
-	err := r.Client.Get(context.TODO(), req.NamespacedName, thanos)
+	err := r.Client.Get(ctx, req.NamespacedName, thanos)
 	if err != nil {
 		// Object not found, return.  Created objects are automatically garbage collected.
 		// For additional cleanup logic use finalizers.
@@ -125,32 +124,31 @@ func (r *ThanosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 }
 
 func (r *ThanosReconciler) SetupWithManager(mgr ctrl.Manager) (controller.Controller, error) {
-	requestMapper := &handler.EnqueueRequestsFromMapFunc{
-		ToRequests: handler.ToRequestsFunc(func(mapObject handler.MapObject) []reconcile.Request {
-			object, err := meta.Accessor(mapObject.Object)
+	requestMapper := handler.EnqueueRequestsFromMapFunc(func(mapObject client.Object) []reconcile.Request {
+		object, err := meta.Accessor(mapObject)
+		if err != nil {
+			r.Log.Error(err, "unable to access object")
+			return nil
+		}
+		if o, ok := object.(*v1alpha1.StoreEndpoint); ok {
+			thanos := &v1alpha1.Thanos{}
+			err = mgr.GetClient().Get(context.TODO(), types.NamespacedName{Name: o.Spec.Thanos, Namespace: o.Namespace}, thanos)
 			if err != nil {
-				r.Log.Error(err, "unable to access object")
+				r.Log.Error(err, fmt.Sprintf("failed to get thanos resources %q for endpoint %q", o.Spec.Thanos, o.Name))
 				return nil
 			}
-			if o, ok := object.(*v1alpha1.StoreEndpoint); ok {
-				thanos := &v1alpha1.Thanos{}
-				err = mgr.GetClient().Get(context.TODO(), types.NamespacedName{Name: o.Spec.Thanos, Namespace: o.Namespace}, thanos)
-				if err != nil {
-					r.Log.Error(err, fmt.Sprintf("failed to get thanos resources %q for endpoint %q", o.Spec.Thanos, o.Name))
-					return nil
-				}
-				return []reconcile.Request{
-					{
-						NamespacedName: types.NamespacedName{
-							Namespace: thanos.Namespace,
-							Name:      thanos.Name,
-						},
+			return []reconcile.Request{
+				{
+					NamespacedName: types.NamespacedName{
+						Namespace: thanos.Namespace,
+						Name:      thanos.Name,
 					},
-				}
+				},
 			}
-			return nil
-		}),
-	}
+		}
+		return nil
+	})
+
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.Thanos{}).
 		Watches(&source.Kind{Type: &v1alpha1.StoreEndpoint{}}, requestMapper).

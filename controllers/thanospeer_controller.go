@@ -46,9 +46,8 @@ type ThanosPeerReconciler struct {
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=thanospeers/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups="",resources=secrets,verbs=list;get;watch
 
-func (r *ThanosPeerReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
+func (r *ThanosPeerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	result := ctrl.Result{}
-	ctx := context.Background()
 	log := r.Log.WithValues("thanospeers", req.NamespacedName)
 
 	peer := &monitoringv1alpha1.ThanosPeer{}
@@ -61,7 +60,7 @@ func (r *ThanosPeerReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 		return result, err
 	}
 
-	rec := thanospeer.NewReconciler(log, r.Client, reconciler.NewReconcilerWith(r), peer)
+	rec := thanospeer.NewReconciler(log, r.Client, reconciler.NewReconcilerWith(r.Client), peer)
 
 	reconcilers := []resources.ComponentReconciler{
 		rec.Reconcile,
@@ -74,9 +73,9 @@ func (r *ThanosPeerReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&monitoringv1alpha1.ThanosPeer{}).
 		Owns(&monitoringv1alpha1.Thanos{}).
-		Watches(&source.Kind{Type: &v1.Secret{}}, &handler.EnqueueRequestsFromMapFunc{
-			ToRequests: handler.ToRequestsFunc(func(object handler.MapObject) []reconcile.Request {
-				secret := object.Object.(*v1.Secret)
+		Watches(&source.Kind{Type: &v1.Secret{}}, handler.EnqueueRequestsFromMapFunc(
+			func(object client.Object) []reconcile.Request {
+				secret := object.(*v1.Secret)
 				if secret.Labels != nil {
 					for _, i := range []string{monitoringv1alpha1.PeerCertSecretLabel, monitoringv1alpha1.PeerCASecretLabel} {
 						if peer := secret.Labels[i]; peer != "" {
@@ -92,11 +91,10 @@ func (r *ThanosPeerReconciler) SetupWithManager(mgr ctrl.Manager) error {
 					}
 				}
 				return nil
-			}),
-		}).
-		Watches(&source.Kind{Type: &v1.Service{}}, &handler.EnqueueRequestsFromMapFunc{
-			ToRequests: handler.ToRequestsFunc(func(object handler.MapObject) []reconcile.Request {
-				service := object.Object.(*v1.Service)
+			})).
+		Watches(&source.Kind{Type: &v1.Service{}}, handler.EnqueueRequestsFromMapFunc(
+			func(object client.Object) []reconcile.Request {
+				service := object.(*v1.Service)
 				const peerNameSuffix = "-" + monitoringv1alpha1.PeerName
 				if service != nil {
 					managedBy, name := service.Labels[resources.ManagedByLabel], service.Labels[resources.NameLabel]
@@ -112,7 +110,6 @@ func (r *ThanosPeerReconciler) SetupWithManager(mgr ctrl.Manager) error {
 					}
 				}
 				return nil
-			}),
-		}).
+			})).
 		Complete(r)
 }

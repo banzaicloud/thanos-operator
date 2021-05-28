@@ -45,9 +45,8 @@ type ThanosEndpointReconciler struct {
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=thanosendpoints,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=thanosendpoints/status,verbs=get;update;patch
 
-func (r *ThanosEndpointReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
+func (r *ThanosEndpointReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	result := ctrl.Result{}
-	ctx := context.Background()
 	log := r.Log.WithValues("thanosendpoints", req.NamespacedName)
 
 	endpoint := &monitoringv1alpha1.ThanosEndpoint{}
@@ -59,7 +58,7 @@ func (r *ThanosEndpointReconciler) Reconcile(req ctrl.Request) (ctrl.Result, err
 		return result, err
 	}
 
-	rec := thanosendpoint.NewReconciler(log, r.Client, reconciler.NewReconcilerWith(r), endpoint)
+	rec := thanosendpoint.NewReconciler(log, r.Client, reconciler.NewReconcilerWith(r.Client), endpoint)
 
 	reconcilers := []resources.ComponentReconciler{
 		rec.Reconcile,
@@ -73,9 +72,8 @@ func (r *ThanosEndpointReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&monitoringv1alpha1.ThanosEndpoint{}).
 		Owns(&monitoringv1alpha1.Thanos{}).
 		Owns(&monitoringv1alpha1.StoreEndpoint{}).
-		Watches(&source.Kind{Type: &v1beta1.Ingress{}}, &handler.EnqueueRequestsFromMapFunc{
-			ToRequests: handler.ToRequestsFunc(func(object handler.MapObject) []reconcile.Request {
-				ing := object.Object.(*v1beta1.Ingress)
+		Watches(&source.Kind{Type: &v1beta1.Ingress{}}, handler.EnqueueRequestsFromMapFunc(func(object client.Object) []reconcile.Request {
+				ing := object.(*v1beta1.Ingress)
 				if ing.Labels != nil {
 					if mb := ing.Labels[resources.ManagedByLabel]; mb != "" {
 						return []reconcile.Request{
@@ -89,7 +87,6 @@ func (r *ThanosEndpointReconciler) SetupWithManager(mgr ctrl.Manager) error {
 					}
 				}
 				return nil
-			}),
-		}).
+			})).
 		Complete(r)
 }

@@ -40,12 +40,12 @@ type StoreEndpointReconciler struct {
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=storeendpoints,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=storeendpoints/status,verbs=get;update;patch
 
-func (r *StoreEndpointReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
+func (r *StoreEndpointReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	result := ctrl.Result{}
 	log := r.Log.WithValues("storeendpoint", req.NamespacedName)
 
 	endpoints := &v1alpha1.StoreEndpointList{}
-	err := r.Client.List(context.TODO(), endpoints)
+	err := r.Client.List(ctx, endpoints)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			return result, nil

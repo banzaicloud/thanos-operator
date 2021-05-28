@@ -45,9 +45,7 @@ type ServiceMonitorWatchReconciler struct {
 
 // +kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions,verbs=get;list;watch
 
-func (r *ServiceMonitorWatchReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx := context.Background()
-
+func (r *ServiceMonitorWatchReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	crd := &v1.CustomResourceDefinition{}
 	err := r.Client.Get(ctx, req.NamespacedName, crd)
 	if err != nil {

@@ -3020,8 +3020,6 @@ spec:
                                                     type: object
                                                 type: object
                                               type: array
-                                          required:
-                                          - sources
                                           type: object
                                         quobyte:
                                           properties:
@@ -3232,8 +3230,15 @@ spec:
                         type: object
                       spec:
                         properties:
+                          allocateLoadBalancerNodePorts:
+                            type: boolean
                           clusterIP:
                             type: string
+                          clusterIPs:
+                            items:
+                              type: string
+                            type: array
+                            x-kubernetes-list-type: atomic
                           externalIPs:
                             items:
                               type: string
@@ -3245,7 +3250,12 @@ spec:
                           healthCheckNodePort:
                             format: int32
                             type: integer
-                          ipFamily:
+                          ipFamilies:
+                            items:
+                              type: string
+                            type: array
+                            x-kubernetes-list-type: atomic
+                          ipFamilyPolicy:
                             type: string
                           loadBalancerIP:
                             type: string
