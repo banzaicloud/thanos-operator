@@ -73,20 +73,20 @@ func (r *ThanosEndpointReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(&monitoringv1alpha1.Thanos{}).
 		Owns(&monitoringv1alpha1.StoreEndpoint{}).
 		Watches(&source.Kind{Type: &v1beta1.Ingress{}}, handler.EnqueueRequestsFromMapFunc(func(object client.Object) []reconcile.Request {
-				ing := object.(*v1beta1.Ingress)
-				if ing.Labels != nil {
-					if mb := ing.Labels[resources.ManagedByLabel]; mb != "" {
-						return []reconcile.Request{
-							{
-								NamespacedName: types.NamespacedName{
-									Name:      strings.TrimSuffix(mb, "-endpoint"),
-									Namespace: ing.Namespace,
-								},
+			ing := object.(*v1beta1.Ingress)
+			if ing.Labels != nil {
+				if mb := ing.Labels[resources.ManagedByLabel]; mb != "" {
+					return []reconcile.Request{
+						{
+							NamespacedName: types.NamespacedName{
+								Name:      strings.TrimSuffix(mb, "-endpoint"),
+								Namespace: ing.Namespace,
 							},
-						}
+						},
 					}
 				}
-				return nil
-			})).
+			}
+			return nil
+		})).
 		Complete(r)
 }
