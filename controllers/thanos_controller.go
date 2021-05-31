@@ -30,7 +30,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1beta1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -124,16 +123,10 @@ func (r *ThanosReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 }
 
 func (r *ThanosReconciler) SetupWithManager(mgr ctrl.Manager) (controller.Controller, error) {
-	requestMapper := handler.EnqueueRequestsFromMapFunc(func(mapObject client.Object) []reconcile.Request {
-		object, err := meta.Accessor(mapObject)
-		if err != nil {
-			r.Log.Error(err, "unable to access object")
-			return nil
-		}
+	requestMapper := handler.EnqueueRequestsFromMapFunc(func(object client.Object) []reconcile.Request {
 		if o, ok := object.(*v1alpha1.StoreEndpoint); ok {
 			thanos := &v1alpha1.Thanos{}
-			err = mgr.GetClient().Get(context.TODO(), types.NamespacedName{Name: o.Spec.Thanos, Namespace: o.Namespace}, thanos)
-			if err != nil {
+			if err := mgr.GetClient().Get(context.TODO(), types.NamespacedName{Name: o.Spec.Thanos, Namespace: o.Namespace}, thanos); err != nil {
 				r.Log.Error(err, fmt.Sprintf("failed to get thanos resources %q for endpoint %q", o.Spec.Thanos, o.Name))
 				return nil
 			}
@@ -153,6 +146,7 @@ func (r *ThanosReconciler) SetupWithManager(mgr ctrl.Manager) (controller.Contro
 		For(&v1alpha1.Thanos{}).
 		Watches(&source.Kind{Type: &v1alpha1.StoreEndpoint{}}, requestMapper).
 		Owns(&appsv1.Deployment{}).
+		Owns(&appsv1.StatefulSet{}).
 		Owns(&corev1.Service{}).
 		Owns(&netv1.Ingress{}).
 		Owns(&appsv1.StatefulSet{}).
