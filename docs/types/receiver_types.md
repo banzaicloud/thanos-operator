@@ -1,67 +1,243 @@
-### ReceiverSpec
-| Variable Name | Type | Required | Default | Description |
-|---|---|---|---|---|
-| receiverGroups | []ReceiverGroup | No | - |  |
-### ReceiverGroup
-#### ReceiverGroup defines a Receiver group
+## ReceiverSpec
+
+### receiverGroups ([]ReceiverGroup, optional) {#receiverspec-receivergroups}
+
+Default: -
+
+
+## ReceiverGroup
+
+ReceiverGroup defines a Receiver group
 Tenants are the Hard tenants of the receiver group
 Replicas are the number of instances in this receiver group
 
-| Variable Name | Type | Required | Default | Description |
-|---|---|---|---|---|
-| name | string | Yes | - |  |
-| tenants | []string | No | - |  |
-| config | secret.Secret | Yes | - |  |
-| replicas | int32 | No | - |  |
-| metaOverrides | *typeoverride.ObjectMeta | No | - | See [ObjectMeta override](../overrides/override/#objectmeta)<br> |
-| statefulSetOverrides | *typeoverride.StatefulSet | No | - | See [StatefulSet override](../overrides/override/#statefulset)<br> |
-| serviceOverrides | *typeoverride.Service | No | - | See [Service override](../overrides/override/#service)<br> |
-| httpIngress | *Ingress | No | - |  |
-| httpServerCertificate | string | No | - | Secret name for HTTP Server certificate (Kubernetes TLS secret type)<br> |
-| httpClientCertificate | string | No | - | Secret name for HTTP Client certificate (Kubernetes TLS secret type)<br> |
-| grpcIngress | *Ingress | No | - |  |
-| htpcClientCertificate | string | No | - | Secret name for GRPC Server certificate (Kubernetes TLS secret type)<br> |
-| grpcServerCertificate | string | No | - | Secret name for GRPC Client certificate (Kubernetes TLS secret type)<br> |
-| remoteWriteClientServerName | string | No | - | Server name to verify the hostname on the returned gRPC certificates. See https://tools.ietf.org/html/rfc4366#section-3.1<br> |
-| metrics | *Metrics | No | - |  |
-| httpAddress | string | No | - | Listen host:port for HTTP endpoints.<br> |
-| httpGracePeriod | metav1.Duration | No | - | Time to wait after an interrupt received for HTTP Server.<br> |
-| grpcAddress | string | No | - | Listen ip:port address for gRPC endpoints<br> |
-| grpcGracePeriod | string | No | - | Time to wait after an interrupt received for GRPC Server.<br> |
-| remoteWriteAddress | string | No | - | Address to listen on for remote write requests.<br> |
-| labels | map[string]string | No | - | External labels to announce. This flag will be removed in the future when handling multiple tsdb instances is added.<br> |
-| dataVolume | *volume.KubernetesVolume | No | - | Kubernetes volume abstraction refers to different types of volumes to be mounted to pods: emptyDir, hostPath, pvc.<br> |
-| tsdbPath | string | No | - |  |
-| tsdbRetention | string | No | - | How long to retain raw samples on local storage. 0d - disables this retention.<br> |
-| tsdbMinBlockDuration | string | No | - | The --tsdb.min-block-duration and --tsdb.max-block-duration must be set to equal values to disable local compaction<br>on order to use Thanos sidecar upload. Leave local compaction on if sidecar just exposes StoreAPI and your retention is normal.<br> |
-| tsdbMaxBlockDuration | string | No | - |  |
-| receiveHashringsFileRefreshInterval | string | No | - | Refresh interval to re-read the hashring configuration file. (used as a fallback)<br> |
-| receiveTenantHeader | string | No | - | HTTP header to determine tenant for write requests.<br> |
-| receiveDefaultTenantId | string | No | - | Default tenant ID to use when none is provided via a header.<br> |
-| receiveTenantLabelName | string | No | - | Label name through which the tenant will be announced.<br> |
-| receiveReplicaHeader | string | No | - | HTTP header specifying the replica number of a write request.<br> |
-| receiveReplicationFactor | int | No | - | How many times to replicate incoming write requests.<br> |
-| tsdbWalCompression | *bool | No | - | Compress the tsdb WAL.<br> |
-| tsdbNoLockfile | *bool | No | - | Do not create lockfile in TSDB data directory. In any case, the lockfiles will be deleted on next startup.<br> |
-### ReceiverStatus
-#### ObjectStoreStatus defines the observed state of ObjectStore
+### name (string, required) {#receivergroup-name}
 
-| Variable Name | Type | Required | Default | Description |
-|---|---|---|---|---|
-### Receiver
-#### Receiver is the Schema for the receiver cluster
+Default: -
 
-| Variable Name | Type | Required | Default | Description |
-|---|---|---|---|---|
-|  | metav1.TypeMeta | Yes | - |  |
-| metadata | metav1.ObjectMeta | No | - |  |
-| spec | ReceiverSpec | No | - |  |
-| status | ReceiverStatus | No | - |  |
-### ReceiverList
-#### ObjectStoreList contains a list of ObjectStore
+### tenants ([]string, optional) {#receivergroup-tenants}
 
-| Variable Name | Type | Required | Default | Description |
-|---|---|---|---|---|
-|  | metav1.TypeMeta | Yes | - |  |
-| metadata | metav1.ListMeta | No | - |  |
-| items | []Receiver | Yes | - |  |
+Default: -
+
+### config (secret.Secret, required) {#receivergroup-config}
+
+Default: -
+
+### replicas (int32, optional) {#receivergroup-replicas}
+
+Default: -
+
+### metaOverrides (*typeoverride.ObjectMeta, optional) {#receivergroup-metaoverrides}
+
+See [ObjectMeta override](../overrides/override/#objectmeta)<br>
+
+Default: -
+
+### statefulSetOverrides (*typeoverride.StatefulSet, optional) {#receivergroup-statefulsetoverrides}
+
+See [StatefulSet override](../overrides/override/#statefulset)<br>
+
+Default: -
+
+### serviceOverrides (*typeoverride.Service, optional) {#receivergroup-serviceoverrides}
+
+See [Service override](../overrides/override/#service)<br>
+
+Default: -
+
+### httpIngress (*Ingress, optional) {#receivergroup-httpingress}
+
+Default: -
+
+### httpServerCertificate (string, optional) {#receivergroup-httpservercertificate}
+
+Secret name for HTTP Server certificate (Kubernetes TLS secret type)<br>
+
+Default: -
+
+### httpClientCertificate (string, optional) {#receivergroup-httpclientcertificate}
+
+Secret name for HTTP Client certificate (Kubernetes TLS secret type)<br>
+
+Default: -
+
+### grpcIngress (*Ingress, optional) {#receivergroup-grpcingress}
+
+Default: -
+
+### htpcClientCertificate (string, optional) {#receivergroup-htpcclientcertificate}
+
+Secret name for GRPC Server certificate (Kubernetes TLS secret type)<br>
+
+Default: -
+
+### grpcServerCertificate (string, optional) {#receivergroup-grpcservercertificate}
+
+Secret name for GRPC Client certificate (Kubernetes TLS secret type)<br>
+
+Default: -
+
+### remoteWriteClientServerName (string, optional) {#receivergroup-remotewriteclientservername}
+
+Server name to verify the hostname on the returned gRPC certificates. See https://tools.ietf.org/html/rfc4366#section-3.1<br>
+
+Default: -
+
+### metrics (*Metrics, optional) {#receivergroup-metrics}
+
+Default: -
+
+### httpAddress (string, optional) {#receivergroup-httpaddress}
+
+Listen host:port for HTTP endpoints.<br>
+
+Default: -
+
+### httpGracePeriod (metav1.Duration, optional) {#receivergroup-httpgraceperiod}
+
+Time to wait after an interrupt received for HTTP Server.<br>
+
+Default: -
+
+### grpcAddress (string, optional) {#receivergroup-grpcaddress}
+
+Listen ip:port address for gRPC endpoints<br>
+
+Default: -
+
+### grpcGracePeriod (string, optional) {#receivergroup-grpcgraceperiod}
+
+Time to wait after an interrupt received for GRPC Server.<br>
+
+Default: -
+
+### remoteWriteAddress (string, optional) {#receivergroup-remotewriteaddress}
+
+Address to listen on for remote write requests.<br>
+
+Default: -
+
+### labels (map[string]string, optional) {#receivergroup-labels}
+
+External labels to announce. This flag will be removed in the future when handling multiple tsdb instances is added.<br>
+
+Default: -
+
+### dataVolume (*volume.KubernetesVolume, optional) {#receivergroup-datavolume}
+
+Kubernetes volume abstraction refers to different types of volumes to be mounted to pods: emptyDir, hostPath, pvc.<br>
+
+Default: -
+
+### tsdbPath (string, optional) {#receivergroup-tsdbpath}
+
+Default: -
+
+### tsdbRetention (string, optional) {#receivergroup-tsdbretention}
+
+How long to retain raw samples on local storage. 0d - disables this retention.<br>
+
+Default: -
+
+### tsdbMinBlockDuration (string, optional) {#receivergroup-tsdbminblockduration}
+
+The --tsdb.min-block-duration and --tsdb.max-block-duration must be set to equal values to disable local compaction<br>on order to use Thanos sidecar upload. Leave local compaction on if sidecar just exposes StoreAPI and your retention is normal.<br>
+
+Default: -
+
+### tsdbMaxBlockDuration (string, optional) {#receivergroup-tsdbmaxblockduration}
+
+Default: -
+
+### receiveHashringsFileRefreshInterval (string, optional) {#receivergroup-receivehashringsfilerefreshinterval}
+
+Refresh interval to re-read the hashring configuration file. (used as a fallback)<br>
+
+Default: -
+
+### receiveTenantHeader (string, optional) {#receivergroup-receivetenantheader}
+
+HTTP header to determine tenant for write requests.<br>
+
+Default: -
+
+### receiveDefaultTenantId (string, optional) {#receivergroup-receivedefaulttenantid}
+
+Default tenant ID to use when none is provided via a header.<br>
+
+Default: -
+
+### receiveTenantLabelName (string, optional) {#receivergroup-receivetenantlabelname}
+
+Label name through which the tenant will be announced.<br>
+
+Default: -
+
+### receiveReplicaHeader (string, optional) {#receivergroup-receivereplicaheader}
+
+HTTP header specifying the replica number of a write request.<br>
+
+Default: -
+
+### receiveReplicationFactor (int, optional) {#receivergroup-receivereplicationfactor}
+
+How many times to replicate incoming write requests.<br>
+
+Default: -
+
+### tsdbWalCompression (*bool, optional) {#receivergroup-tsdbwalcompression}
+
+Compress the tsdb WAL.<br>
+
+Default: -
+
+### tsdbNoLockfile (*bool, optional) {#receivergroup-tsdbnolockfile}
+
+Do not create lockfile in TSDB data directory. In any case, the lockfiles will be deleted on next startup.<br>
+
+Default: -
+
+
+## ReceiverStatus
+
+ObjectStoreStatus defines the observed state of ObjectStore
+
+
+## Receiver
+
+Receiver is the Schema for the receiver cluster
+
+###  (metav1.TypeMeta, required) {#receiver-}
+
+Default: -
+
+### metadata (metav1.ObjectMeta, optional) {#receiver-metadata}
+
+Default: -
+
+### spec (ReceiverSpec, optional) {#receiver-spec}
+
+Default: -
+
+### status (ReceiverStatus, optional) {#receiver-status}
+
+Default: -
+
+
+## ReceiverList
+
+ObjectStoreList contains a list of ObjectStore
+
+###  (metav1.TypeMeta, required) {#receiverlist-}
+
+Default: -
+
+### metadata (metav1.ListMeta, optional) {#receiverlist-metadata}
+
+Default: -
+
+### items ([]Receiver, required) {#receiverlist-items}
+
+Default: -
+
+

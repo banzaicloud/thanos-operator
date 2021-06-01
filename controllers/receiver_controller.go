@@ -44,9 +44,8 @@ type ReceiverReconciler struct {
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=receivers,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=receivers/status,verbs=get;update;patch
 
-func (r *ReceiverReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
+func (r *ReceiverReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	result := ctrl.Result{}
-	ctx := context.Background()
 	log := r.Log.WithValues("receivers", req.NamespacedName)
 
 	receivers := &monitoringv1alpha1.Receiver{}

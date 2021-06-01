@@ -44,9 +44,8 @@ type ObjectStoreReconciler struct {
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=objectstores,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=objectstores/status,verbs=get;update;patch
 
-func (r *ObjectStoreReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
+func (r *ObjectStoreReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	result := ctrl.Result{}
-	ctx := context.Background()
 	log := r.Log.WithValues("objectstore", req.NamespacedName)
 
 	store := &monitoringv1alpha1.ObjectStore{}
