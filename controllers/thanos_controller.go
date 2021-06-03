@@ -49,6 +49,7 @@ type ThanosReconciler struct {
 
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=thanos,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=thanos/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=*
 
 func (r *ThanosReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("thanos", req.NamespacedName)
