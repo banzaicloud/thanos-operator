@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: banzaicloud/thanos-operator
+  repository: ghcr.io/banzaicloud/thanos-operator
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart version.
   tag: ""
