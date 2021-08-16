@@ -16,6 +16,8 @@ package query
 
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
+	"github.com/banzaicloud/operator-tools/pkg/utils"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -35,6 +37,16 @@ func (q *Query) grafanaDatasource() (runtime.Object, reconciler.DesiredState, er
 
 	grafanaDatasource.SetName(q.getName("grafanadatasource"))
 	grafanaDatasource.SetNamespace(q.Thanos.Namespace)
+
+	grafanaDatasource.SetOwnerReferences([]metav1.OwnerReference{
+		{
+			APIVersion: q.Thanos.APIVersion,
+			Kind:       q.Thanos.Kind,
+			Name:       q.Thanos.Name,
+			UID:        q.Thanos.UID,
+			Controller: utils.BoolPointer(true),
+		},
+	})
 
 	grafanaDatasource.SetLabels(q.GetCommonLabels())
 
