@@ -38,7 +38,7 @@ import (
 )
 
 const (
-	Image            = "ghcr.io/banzaicloud/thanos-operator:0.3.1"
+	Image            = "ghcr.io/banzaicloud/thanos-operator:0.3.2"
 	defaultNamespace = "thanos-system"
 )
 
