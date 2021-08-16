@@ -217,6 +217,8 @@ type Query struct {
 	//	If a Store doesn't send any data in this specified duration then a Store will be ignored
 	//	and partial data will be returned if it's enabled. 0 disables timeout.
 	StoreResponseTimeout metav1.Duration `json:"storeResponseTimeout,omitempty" thanos:"--store.response-timeout=%s"`
+	// create Grafana data source
+	GrafanaDatasource bool `json:"grafanaDatasource,omitempty"`
 }
 
 type ThanosDiscovery struct {

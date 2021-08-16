@@ -3153,6 +3153,8 @@ spec:
                             type: object
                         type: object
                     type: object
+                  grafanaDatasource:
+                    type: boolean
                   grpcAddress:
                     type: string
                   grpcGracePeriod:

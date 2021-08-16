@@ -382,6 +382,12 @@ If a Store doesn't send any data in this specified duration then a Store will be
 
 Default: -
 
+### grafanaDatasource (bool, optional) {#query-grafanadatasource}
+
+create Grafana data source<br>
+
+Default: -
+
 
 ## ThanosDiscovery
 
