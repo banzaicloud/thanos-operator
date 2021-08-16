@@ -57,6 +57,7 @@ func (q *Query) Reconcile() (*reconcile.Result, error) {
 			q.serviceMonitor,
 			q.ingressHTTP,
 			q.ingressGRPC,
+			q.grafanaDatasource,
 		})
 }
 
