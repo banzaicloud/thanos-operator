@@ -35,7 +35,7 @@ func (q *Query) grafanaDatasource() (runtime.Object, reconciler.DesiredState, er
 	grafanaDatasource.SetAPIVersion("integreatly.org/v1alpha1")
 	grafanaDatasource.SetKind("GrafanaDataSource")
 
-	grafanaDatasource.SetName(q.getName("grafanadatasource"))
+	grafanaDatasource.SetName(q.getName())
 	grafanaDatasource.SetNamespace(q.Thanos.Namespace)
 
 	grafanaDatasource.SetOwnerReferences([]metav1.OwnerReference{
@@ -56,13 +56,13 @@ func (q *Query) grafanaDatasource() (runtime.Object, reconciler.DesiredState, er
 				"access":    "proxy",
 				"editable":  true,
 				"isDefault": false,
-				"name":      q.getName("grafanadatasource"),
+				"name":      q.getName(),
 				"type":      "prometheus",
 				"url":       q.GetHTTPServiceURL(),
 				"version":   1,
 			},
 		},
-		"name": q.getName("grafanadatasource"),
+		"name": q.getName(),
 	}
 
 	return &grafanaDatasource, state, nil
