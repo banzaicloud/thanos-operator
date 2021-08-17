@@ -44,6 +44,7 @@ type ThanosEndpointReconciler struct {
 
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=thanosendpoints,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=thanosendpoints/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=integreatly.org,resources=grafanadatasources,verbs=get;list;watch;create;update;patch;delete
 
 func (r *ThanosEndpointReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	result := ctrl.Result{}
