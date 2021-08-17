@@ -92,6 +92,18 @@ rules:
   - update
   - watch
 - apiGroups:
+  - integreatly.org
+  resources:
+  - grafanadatasources
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - monitoring.banzaicloud.io
   resources:
   - objectstores
