@@ -63,8 +63,8 @@ func main() {
 	flag.BoolVar(&enablePromCRDWatches, "enable-prom-crd-watches", true, "Enable dynamic watches of Prometheus CRDs")
 	flag.StringVar(&leaderElectionId, "leader-election-id", "", "The ID of the leader election")
 	flag.StringVar(&leaderElectionNamespace, "leader-election-ns", "", "The NS  of the leader election")
-	flag.StringVar(&flagThanosImage, "thanos-image", "", "Overrides the default Grafana image")
-	flag.StringVar(&flagThanosImageTag, "thanos-image-tag", "", "Overrides the default Grafana image tag")
+	flag.StringVar(&flagThanosImage, "thanos-image", "", "Overrides the default Thanos image")
+	flag.StringVar(&flagThanosImageTag, "thanos-image-tag", "", "Overrides the default Thanos image tag")
 	flag.Parse()
 
 	ctrl.SetLogger(utils.Log)
