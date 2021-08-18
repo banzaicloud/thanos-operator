@@ -28,6 +28,8 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+
+	thanosconfig "github.com/banzaicloud/thanos-operator/controllers/config"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -52,6 +54,8 @@ func main() {
 	var enableLeaderElection, enablePromCRDWatches bool
 	var leaderElectionId string
 	var leaderElectionNamespace string
+	var flagThanosImage string
+	var flagThanosImageTag string
 
 	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
@@ -59,6 +63,8 @@ func main() {
 	flag.BoolVar(&enablePromCRDWatches, "enable-prom-crd-watches", true, "Enable dynamic watches of Prometheus CRDs")
 	flag.StringVar(&leaderElectionId, "leader-election-id", "", "The ID of the leader election")
 	flag.StringVar(&leaderElectionNamespace, "leader-election-ns", "", "The NS  of the leader election")
+	flag.StringVar(&flagThanosImage, "thanos-image", "", "Overrides the default Grafana image")
+	flag.StringVar(&flagThanosImageTag, "thanos-image-tag", "", "Overrides the default Grafana image tag")
 	flag.Parse()
 
 	ctrl.SetLogger(utils.Log)
@@ -79,6 +85,11 @@ func main() {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
+
+	controllerConfig := thanosconfig.GetControllerConfig()
+	controllerConfig.init()
+	controllerConfig.AddConfigItem("ThanosImage", flagThanosImage)
+	controllerConfig.AddConfigItem("ThanosImageTag", flagThanosImageTag)
 
 	var ThanosController, ObjectStoreController, ReceiverController controller.Controller
 
