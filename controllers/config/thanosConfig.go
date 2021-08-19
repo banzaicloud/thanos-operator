@@ -2,15 +2,11 @@ package config
 
 import (
 	"sync"
-
-	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 )
 
 type ControllerConfig struct {
 	*sync.Mutex
-	Values     map[string]interface{}
-	//ThanosImage string
-	//ThanosImageTag string
+	Values map[string]interface{}
 }
 
 var instance *ControllerConfig
@@ -19,8 +15,8 @@ var once sync.Once
 func GetControllerConfig() *ControllerConfig {
 	once.Do(func() {
 		instance = &ControllerConfig{
-			Mutex:      &sync.Mutex{},
-			Values:     map[string]interface{}{},
+			Mutex:  &sync.Mutex{},
+			Values: map[string]interface{}{},
 		}
 	})
 	return instance
@@ -34,9 +30,9 @@ func (c *ControllerConfig) AddConfigItem(key string, value interface{}) {
 	}
 }
 
-func (c *ControllerConfig) GetConfigItem(key string, defaultValue interface{}) interface{} {
+func (c *ControllerConfig) GetConfigString(key string, defaultValue string) string {
 	if c.HasConfigItem(key) {
-		return c.Values[key]
+		return c.Values[key].(string)
 	}
 	return defaultValue
 }
@@ -46,9 +42,4 @@ func (c *ControllerConfig) HasConfigItem(key string) bool {
 	defer c.Unlock()
 	_, ok := c.Values[key]
 	return ok
-}
-
-func (c *ControllerConfig) init(){
-	c.Values["ThanosImage"] = v1alpha1.ThanosImageRepository
-	c.Values["ThanosImageTag"] = v1alpha1.ThanosImageTag
 }

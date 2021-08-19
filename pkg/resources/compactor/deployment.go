@@ -23,6 +23,7 @@ import (
 	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/utils"
+	thanosconfig "github.com/banzaicloud/thanos-operator/controllers/config"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -33,7 +34,7 @@ import (
 
 func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error) {
 	meta := c.getMeta()
-
+	cfg := thanosconfig.GetControllerConfig()
 	if c.ObjectStore.Spec.Compactor != nil {
 		compactor := c.ObjectStore.Spec.Compactor
 
@@ -50,7 +51,7 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 						Containers: []corev1.Container{
 							{
 								Name:  Name,
-								Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
+								Image: fmt.Sprintf("%s:%s", cfg.GetConfigString("ThanosImage", v1alpha1.ThanosImageRepository), cfg.GetConfigString("ThanosImageTag", v1alpha1.ThanosImageTag)),
 								Args: []string{
 									"compact",
 									"--log.level=info",

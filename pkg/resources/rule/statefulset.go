@@ -21,6 +21,7 @@ import (
 	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/utils"
+	thanosconfig "github.com/banzaicloud/thanos-operator/controllers/config"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -30,6 +31,7 @@ import (
 )
 
 func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, error) {
+	cfg := thanosconfig.GetControllerConfig()
 	if r.Thanos.Spec.Rule != nil {
 		rule := r.Thanos.Spec.Rule
 		statefulset := &appsv1.StatefulSet{
@@ -45,7 +47,7 @@ func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, e
 						Containers: []corev1.Container{
 							{
 								Name:  "rule",
-								Image: fmt.Sprintf("%s:%s", v1alpha1.ThanosImageRepository, v1alpha1.ThanosImageTag),
+								Image: fmt.Sprintf("%s:%s", cfg.GetConfigString("ThanosImage", v1alpha1.ThanosImageRepository), cfg.GetConfigString("ThanosImageTag", v1alpha1.ThanosImageTag)),
 								Args: []string{
 									"rule",
 									fmt.Sprintf("--objstore.config-file=/etc/config/%s", r.StoreEndpoint.Spec.Config.MountFrom.SecretKeyRef.Key),

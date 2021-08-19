@@ -87,7 +87,6 @@ func main() {
 	}
 
 	controllerConfig := thanosconfig.GetControllerConfig()
-	controllerConfig.init()
 	controllerConfig.AddConfigItem("ThanosImage", flagThanosImage)
 	controllerConfig.AddConfigItem("ThanosImageTag", flagThanosImageTag)
 
