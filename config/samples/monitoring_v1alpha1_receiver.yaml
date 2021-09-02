@@ -39,3 +39,19 @@ spec:
       metrics:
         serviceMonitor: true
       httpIngress: {}
+---
+apiVersion: monitoring.banzaicloud.io/v1alpha1
+kind: Thanos
+metadata:
+  name: receiver-sample-query
+spec:
+  query:
+    metrics:
+      serviceMonitor: true
+    stores:
+    - "dnssrv+_grpc._tcp.receiver-sample-receiver-soft-tenant"
+    - "dnssrv+_grpc._tcp.receiver-sample-receiver-tenant-a"
+    queryReplicaLabel:
+    - replica
+    - receive_replica
+    grafanaDatasource: true
