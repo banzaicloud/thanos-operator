@@ -1,19 +1,8 @@
-prometheusOperator:
-  image:
-    tag: v0.46.0
-  prometheusConfigReloaderImage:
-    tag: v0.46.0
-
 prometheus:
-  prometheusSpec:
-    image:
-      tag: v2.25.0
-
     remoteWrite:
       - url: http://receiver-sample-receiver:10908/api/v1/receive
         headers:
           THANOS-TENANT: tenant-a
-
       - url: http://receiver-sample-receiver:10908/api/v1/receive
         headers:
           THANOS-TENANT: tenant-b
