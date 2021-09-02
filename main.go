@@ -16,18 +16,23 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 
-	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/controllers"
 	thanosv1alpha1 "github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	prometheus "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
+	"github.com/spf13/cast"
+	"go.uber.org/zap/zapcore"
 	apiextensions "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+
 	// +kubebuilder:scaffold:imports
 )
 
@@ -52,6 +57,7 @@ func main() {
 	var enableLeaderElection, enablePromCRDWatches bool
 	var leaderElectionId string
 	var leaderElectionNamespace string
+	var logLevel int
 
 	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
@@ -59,9 +65,29 @@ func main() {
 	flag.BoolVar(&enablePromCRDWatches, "enable-prom-crd-watches", true, "Enable dynamic watches of Prometheus CRDs")
 	flag.StringVar(&leaderElectionId, "leader-election-id", "", "The ID of the leader election")
 	flag.StringVar(&leaderElectionNamespace, "leader-election-ns", "", "The NS  of the leader election")
+	flag.IntVar(&logLevel, "verbosity", 1, "Log verbosity level")
 	flag.Parse()
 
-	ctrl.SetLogger(utils.Log)
+	zapLog := zap.New(zap.JSONEncoder(func(config *zapcore.EncoderConfig) {
+		config.EncodeTime = zapcore.ISO8601TimeEncoder
+		config.EncodeLevel = func(level zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
+			if level < -1 {
+				enc.AppendString("trace")
+			} else {
+				enc.AppendString(level.String())
+			}
+		}
+	}), zap.Level(zapcore.Level(-logLevel)), zap.RawZapOpts())
+
+	ctrl.SetLogger(zapLog)
+
+	klogFlags := flag.NewFlagSet("klog", flag.ExitOnError)
+	klog.InitFlags(klogFlags)
+	err := klogFlags.Set("v", cast.ToString(logLevel))
+	if err != nil {
+		fmt.Printf("%s - failed to set log level for klog, moving on.\n", err)
+	}
+	klog.SetLogger(zapLog)
 
 	if leaderElectionId == "" {
 		leaderElectionId = DefaultLeaderElectionID
