@@ -21,7 +21,7 @@ import (
 
 const (
 	ThanosImageRepository = "quay.io/thanos/thanos"
-	ThanosImageTag        = "v0.19.0-rc.0"
+	ThanosImageTag        = "v0.22.0"
 )
 
 var DefaultQueryFrontend = QueryFrontend{
