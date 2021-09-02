@@ -28,7 +28,7 @@ import (
 
 type ReceiverReconciler struct {
 	*v1alpha1.Receiver
-	*reconciler.GenericResourceReconciler
+	reconciler.ResourceReconciler
 }
 
 func (t *ReceiverReconciler) GetCheck(port int32, path string) *corev1.Probe {
@@ -86,12 +86,12 @@ func (t *ReceiverReconciler) GetObjectMeta(name string) metav1.ObjectMeta {
 }
 
 func (t *ReceiverReconciler) ReconcileResources(resourceList []Resource) (*reconcile.Result, error) {
-	return Dispatch(t.GenericResourceReconciler, resourceList)
+	return Dispatch(t.ResourceReconciler, resourceList)
 }
 
-func NewReceiverReconciler(receiver *v1alpha1.Receiver, genericReconciler *reconciler.GenericResourceReconciler) *ReceiverReconciler {
+func NewReceiverReconciler(receiver *v1alpha1.Receiver, genericReconciler reconciler.ResourceReconciler) *ReceiverReconciler {
 	return &ReceiverReconciler{
 		Receiver:                  receiver,
-		GenericResourceReconciler: genericReconciler,
+		ResourceReconciler: genericReconciler,
 	}
 }

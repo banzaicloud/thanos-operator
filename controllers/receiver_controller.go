@@ -56,7 +56,7 @@ func (r *ReceiverReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		}
 		return result, err
 	}
-	receiverReconciler := resources.NewReceiverReconciler(receivers, reconciler.NewGenericReconciler(r.Client, log, reconciler.ReconcilerOpts{}))
+	receiverReconciler := resources.NewReceiverReconciler(receivers, reconciler.NewReconcilerWith(r.Client, reconciler.WithLog(log)))
 
 	reconcilers := []resources.ComponentReconciler{
 		receiver.New(receiverReconciler).Reconcile,
