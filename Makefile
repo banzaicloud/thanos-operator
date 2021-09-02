@@ -148,14 +148,12 @@ check: check-diff lint license-check test
 install-minio:
 	helm repo add minio https://helm.min.io/
 	helm repo update
-	helm upgrade --install minio minio/minio --set accessKey=myaccesskey,secretKey=mysecretkey,defaultBucket.enabled=true,resources.requests.memory=256Mi
+	helm upgrade --install minio minio/minio --set accessKey=myaccesskey,secretKey=mysecretkey,defaultBucket.enabled=true,resources.requests.memory=256Mi,persistence.size=5Gi
 	kubectl get secret thanos || kubectl create secret generic thanos --from-file=object-store.yaml=hack/object-store.yaml
 
 install-prometheus:
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 	helm repo update
-	# TODO: we need to pre-install the v0.46.0 version of the Prometheus CRD since that is the version where the headers feature got added:
-	kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.46.0/example/prometheus-operator-crd/monitoring.coreos.com_prometheuses.yaml
 	helm upgrade --install prometheus prometheus-community/kube-prometheus-stack -f hack/thanos-remote-write.yaml
 
 install-thanos: install-minio install-prometheus
