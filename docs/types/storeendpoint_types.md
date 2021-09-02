@@ -4,13 +4,13 @@ StoreEndpointSpec defines the desired state of StoreEndpoint
 
 ### metaOverrides (*typeoverride.ObjectMeta, optional) {#storeendpointspec-metaoverrides}
 
-See [ObjectMeta override](../overrides/override/#objectmeta)<br>
+See [ObjectMeta override](../overrides/override/#objectmeta) 
 
 Default: -
 
 ### serviceOverrides (*typeoverride.Service, optional) {#storeendpointspec-serviceoverrides}
 
-See [Service override](../overrides/override/#service)<br>
+See [Service override](../overrides/override/#service) 
 
 Default: -
 
@@ -20,7 +20,7 @@ Default: -
 
 ### selector (*KubernetesSelector, optional) {#storeendpointspec-selector}
 
-See [KubernetesSelector](#kubernetesselector)<br>
+See [KubernetesSelector](#kubernetesselector) 
 
 Default: -
 
@@ -79,13 +79,13 @@ Default: -
 
 ### spec (StoreEndpointSpec, optional) {#storeendpoint-spec}
 
-See [StoreEndpointSpec](#storeendpointspec)<br>
+See [StoreEndpointSpec](#storeendpointspec) 
 
 Default: -
 
 ### status (StoreEndpointStatus, optional) {#storeendpoint-status}
 
-See [StoreEndpointStatus](#storeendpointstatus)<br>
+See [StoreEndpointStatus](#storeendpointstatus) 
 
 Default: -
 
