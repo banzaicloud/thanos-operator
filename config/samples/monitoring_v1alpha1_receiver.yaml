@@ -4,7 +4,9 @@ metadata:
   name: receiver-sample
 spec:
   receiverGroups:
-    - name: soft-tenant
+    - name: tenant-a
+      replicas: 2
+      tenants: ["tenant-a"]
       config:
         mountFrom:
           secretKeyRef:
@@ -20,10 +22,7 @@ spec:
                 storage: 1Gi
       metrics:
         serviceMonitor: true
-      httpIngress: {}
-    - name: tenant-a
-      replicas: 2
-      tenants: ["tenant-a"]
+    - name: soft-tenant
       config:
         mountFrom:
           secretKeyRef:
