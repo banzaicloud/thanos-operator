@@ -138,7 +138,7 @@ type QueryFrontend struct {
 	// Compress HTTP responses.
 	QueryFrontendCompressResponses *bool `json:"queryFrontendCompressResponses,omitempty" thanos:"--query-frontend.compress-responses"`
 	// 	Log queries that are slower than the specified duration. Set to 0 to disable. Set to < 0 to enable on all queries.
-	QueryFrontendLogQueriesLongerThan int `json:"queryFrontendLogQueriesLongerThan,omitempty" thanos:"--query-frontend.log_queries_longer_than=%d"`
+	QueryFrontendLogQueriesLongerThan int `json:"queryFrontendLogQueriesLongerThan,omitempty" thanos:"--query-frontend.log-queries-longer-than=%d"`
 	// 	Request Logging for logging the start and end of requests. LogFinishCall is enabled by default.
 	//	LogFinishCall : Logs the finish call of the requests.
 	//	LogStartAndFinishCall : Logs the start and finish call of the requests.
