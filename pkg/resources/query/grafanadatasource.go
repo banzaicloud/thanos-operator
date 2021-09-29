@@ -27,7 +27,7 @@ type strIfMap = map[string]interface{}
 func (q *Query) grafanaDatasource() (runtime.Object, reconciler.DesiredState, error) {
 
 	state := reconciler.StateAbsent
-	if q.Thanos.Spec.Query.GrafanaDatasource {
+	if q.Thanos.Spec.Query != nil && q.Thanos.Spec.Query.GrafanaDatasource {
 		state = reconciler.StatePresent
 	}
 
