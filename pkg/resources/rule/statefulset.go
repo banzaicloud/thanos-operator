@@ -123,9 +123,11 @@ func (r *ruleInstance) statefulset() (runtime.Object, reconciler.DesiredState, e
 		}
 
 		if rule.StatefulsetOverrides != nil {
-			if err := merge.Merge(statefulset, rule.StatefulsetOverrides); err != nil {
-				return statefulset, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+			merged := &appsv1.StatefulSet{}
+			if err := merge.Merge(statefulset, rule.StatefulsetOverrides, merged); err != nil {
+				return nil, nil, errors.WrapIf(err, "unable to merge overrides to base object")
 			}
+			statefulset = merged
 		}
 
 		return statefulset, reconciler.StatePresent, nil

@@ -18,6 +18,7 @@ import (
 	"emperror.dev/errors"
 	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
+	"github.com/banzaicloud/thanos-operator/pkg/resources/common"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -73,13 +74,15 @@ func (e *endpointService) sidecarService() (runtime.Object, reconciler.DesiredSt
 			},
 		}
 		if e.Spec.ServiceOverrides != nil {
-			err := merge.Merge(service, e.Spec.ServiceOverrides)
+			merged := &corev1.Service{}
+			err := merge.Merge(service, e.Spec.ServiceOverrides, merged)
 			if err != nil {
-				return service, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+				return nil, nil, errors.WrapIf(err, "unable to merge overrides to base object")
 			}
+			service = merged
 		}
 
-		return service, reconciler.StatePresent, nil
+		return service, common.ServiceUpdateHook(service), nil
 	}
 	delete := &corev1.Service{
 		ObjectMeta: e.getMeta(),

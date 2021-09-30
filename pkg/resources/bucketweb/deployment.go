@@ -106,9 +106,11 @@ func (b *BucketWeb) deployment() (runtime.Object, reconciler.DesiredState, error
 		deployment.Spec.Template.Spec.Containers[0].Args = containerArgs
 
 		if bucketWeb.DeploymentOverrides != nil {
-			if err := merge.Merge(deployment, bucketWeb.DeploymentOverrides); err != nil {
-				return deployment, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to deployment base object")
+			merged := &appsv1.Deployment{}
+			if err := merge.Merge(deployment, bucketWeb.DeploymentOverrides, merged); err != nil {
+				return nil, nil, errors.WrapIf(err, "unable to merge overrides to deployment base object")
 			}
+			deployment = merged
 		}
 
 		return deployment, reconciler.StatePresent, nil

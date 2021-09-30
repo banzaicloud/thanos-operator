@@ -63,10 +63,12 @@ func (r *ruleInstance) ingressHTTP() (runtime.Object, reconciler.DesiredState, e
 			}
 		}
 		if ruleIngress.IngressOverrides != nil {
-			err := merge.Merge(ingress, ruleIngress.IngressOverrides)
+			merged := &netv1.Ingress{}
+			err := merge.Merge(ingress, ruleIngress.IngressOverrides, merged)
 			if err != nil {
 				return ingress, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
 			}
+			return merged, reconciler.StatePresent, nil
 		}
 		return ingress, reconciler.StatePresent, nil
 	}
@@ -112,10 +114,12 @@ func (r *ruleInstance) ingressGRPC() (runtime.Object, reconciler.DesiredState, e
 			}
 		}
 		if ruleIngress.IngressOverrides != nil {
-			err := merge.Merge(ingress, ruleIngress.IngressOverrides)
+			merged := &netv1.Ingress{}
+			err := merge.Merge(ingress, ruleIngress.IngressOverrides, merged)
 			if err != nil {
-				return ingress, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+				return nil, nil, errors.WrapIf(err, "unable to merge overrides to base object")
 			}
+			ingress = merged
 		}
 		return ingress, reconciler.StatePresent, nil
 	}

@@ -19,6 +19,7 @@ import (
 	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
+	"github.com/banzaicloud/thanos-operator/pkg/resources/common"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -43,20 +44,15 @@ func (c *Compactor) service() (runtime.Object, reconciler.DesiredState, error) {
 		}
 
 		if compactor.ServiceOverrides != nil {
-			err := merge.Merge(service, compactor.ServiceOverrides)
+			merged := &corev1.Service{}
+			err := merge.Merge(service, compactor.ServiceOverrides, merged)
 			if err != nil {
-				return service, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to service base")
+				return nil, nil, errors.WrapIf(err, "unable to merge overrides to service base")
 			}
+			service = merged
 		}
 
-		return service, reconciler.DesiredStateHook(func(current runtime.Object) error {
-			if s, ok := current.(*corev1.Service); ok {
-				service.Spec.ClusterIP = s.Spec.ClusterIP
-			} else {
-				return errors.Errorf("failed to cast service object %+v", current)
-			}
-			return nil
-		}), nil
+		return service, common.ServiceUpdateHook(service), nil
 	}
 
 	return &corev1.Service{

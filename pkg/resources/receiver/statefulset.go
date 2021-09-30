@@ -160,9 +160,11 @@ func (r *receiverInstance) statefulset() (runtime.Object, reconciler.DesiredStat
 		}
 
 		if r.receiverGroup.StatefulSetOverrides != nil {
-			if err := merge.Merge(statefulset, r.receiverGroup.StatefulSetOverrides); err != nil {
-				return statefulset, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+			merged := &appsv1.StatefulSet{}
+			if err := merge.Merge(statefulset, r.receiverGroup.StatefulSetOverrides, merged); err != nil {
+				return nil, nil, errors.WrapIf(err, "unable to merge overrides to base object")
 			}
+			statefulset = merged
 		}
 
 		return statefulset, reconciler.StatePresent, nil

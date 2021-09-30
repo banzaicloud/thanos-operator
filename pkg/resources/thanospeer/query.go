@@ -57,9 +57,11 @@ func (r Reconciler) query(peerCert, peerCA string) resources.Resource {
 		}
 
 		if r.peer.Spec.QueryOverrides != nil {
-			if err := merge.Merge(query.Spec.Query, r.peer.Spec.QueryOverrides); err != nil {
+			merged := &v1alpha1.Query{}
+			if err := merge.Merge(query.Spec.Query, r.peer.Spec.QueryOverrides, merged); err != nil {
 				return nil, nil, errors.WrapIf(err, "failed to merge overrides to base query resource")
 			}
+			query.Spec.Query = merged
 		}
 
 		return query, reconciler.StatePresent, nil

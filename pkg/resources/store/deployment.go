@@ -82,9 +82,11 @@ func (s *storeInstance) deployment() (runtime.Object, reconciler.DesiredState, e
 		deployment.Spec.Template.Spec.Containers[0].Args = s.setArgs(deployment.Spec.Template.Spec.Containers[0].Args)
 
 		if storeGateway.DeploymentOverrides != nil {
-			if err := merge.Merge(deployment, storeGateway.DeploymentOverrides); err != nil {
-				return deployment, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+			merged := &appsv1.Deployment{}
+			if err := merge.Merge(deployment, storeGateway.DeploymentOverrides, merged); err != nil {
+				return nil, nil, errors.WrapIf(err, "unable to merge overrides to base object")
 			}
+			deployment = merged
 		}
 
 		return deployment, reconciler.StatePresent, nil

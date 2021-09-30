@@ -126,9 +126,11 @@ func (c *Compactor) deployment() (runtime.Object, reconciler.DesiredState, error
 		}
 
 		if compactor.DeploymentOverrides != nil {
-			if err := merge.Merge(deployment, compactor.DeploymentOverrides); err != nil {
-				return deployment, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to deployment base object")
+			merged := &appsv1.Deployment{}
+			if err := merge.Merge(deployment, compactor.DeploymentOverrides, merged); err != nil {
+				return nil, nil, errors.WrapIf(err, "unable to merge overrides to deployment base object")
 			}
+			deployment = merged
 		}
 
 		return deployment, reconciler.StatePresent, nil

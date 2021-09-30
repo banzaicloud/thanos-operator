@@ -35,9 +35,11 @@ func (r Reconciler) storeEndpoint() (runtime.Object, reconciler.DesiredState, er
 	}
 
 	if r.endpoint.Spec.StoreEndpointOverrides != nil {
-		if err := merge.Merge(storeEndpoint.Spec, r.endpoint.Spec.StoreEndpointOverrides); err != nil {
+		merged := &v1alpha1.StoreEndpointSpec{}
+		if err := merge.Merge(storeEndpoint.Spec, r.endpoint.Spec.StoreEndpointOverrides, merged); err != nil {
 			return nil, nil, errors.Wrap(err, "failed to merge storeendpoint overrides")
 		}
+		storeEndpoint.Spec = *merged
 	}
 
 	return storeEndpoint, reconciler.StatePresent, nil

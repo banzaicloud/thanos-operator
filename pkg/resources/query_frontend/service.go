@@ -47,10 +47,12 @@ func (q *QueryFrontend) service() (runtime.Object, reconciler.DesiredState, erro
 		}
 
 		if queryFrontend.ServiceOverrides != nil {
-			err := merge.Merge(queryService, queryFrontend.ServiceOverrides)
+			merged := &corev1.Service{}
+			err := merge.Merge(queryService, queryFrontend.ServiceOverrides, merged)
 			if err != nil {
-				return queryService, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+				return nil, nil, errors.WrapIf(err, "unable to merge overrides to base object")
 			}
+			queryService = merged
 		}
 
 		return queryService, reconciler.StatePresent, nil

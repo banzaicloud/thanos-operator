@@ -19,6 +19,7 @@ import (
 	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
+	"github.com/banzaicloud/thanos-operator/pkg/resources/common"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -65,12 +66,14 @@ func (r *receiverInstance) service() (runtime.Object, reconciler.DesiredState, e
 			},
 		}
 		if receiver.ServiceOverrides != nil {
-			err := merge.Merge(service, receiver.ServiceOverrides)
+			merged := &corev1.Service{}
+			err := merge.Merge(service, receiver.ServiceOverrides, merged)
 			if err != nil {
-				return service, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+				return nil, nil, errors.WrapIf(err, "unable to merge overrides to base object")
 			}
+			service = merged
 		}
-		return service, reconciler.StatePresent, nil
+		return service, common.ServiceUpdateHook(service), nil
 	}
 	delete := &corev1.Service{
 		ObjectMeta: r.getMeta(r.receiverGroup.Name),

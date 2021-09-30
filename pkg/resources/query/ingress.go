@@ -62,10 +62,12 @@ func (q *Query) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
 		}
 
 		if q.Thanos.Spec.Query.HTTPIngress.IngressOverrides != nil {
-			err := merge.Merge(ingress, q.Thanos.Spec.Query.HTTPIngress.IngressOverrides)
+			merged := &netv1.Ingress{}
+			err := merge.Merge(ingress, q.Thanos.Spec.Query.HTTPIngress.IngressOverrides, merged)
 			if err != nil {
-				return ingress, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+				return nil, nil, errors.WrapIf(err, "unable to merge overrides to base object")
 			}
+			ingress = merged
 		}
 
 		return ingress, reconciler.StatePresent, nil
@@ -115,10 +117,12 @@ func (q *Query) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
 		}
 
 		if q.Thanos.Spec.Query.GRPCIngress.IngressOverrides != nil {
-			err := merge.Merge(ingress, q.Thanos.Spec.Query.GRPCIngress.IngressOverrides)
+			merged := &netv1.Ingress{}
+			err := merge.Merge(ingress, q.Thanos.Spec.Query.GRPCIngress.IngressOverrides, merged)
 			if err != nil {
 				return ingress, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
 			}
+			return merged, reconciler.StatePresent, nil
 		}
 
 		return ingress, reconciler.StatePresent, nil

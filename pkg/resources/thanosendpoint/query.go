@@ -54,9 +54,11 @@ func (r Reconciler) query() (runtime.Object, reconciler.DesiredState, error) {
 	}
 
 	if r.endpoint.Spec.QueryOverrides != nil {
-		if err := merge.Merge(query.Spec.Query, r.endpoint.Spec.QueryOverrides); err != nil {
+		merged := &v1alpha1.Query{}
+		if err := merge.Merge(query.Spec.Query, r.endpoint.Spec.QueryOverrides, merged); err != nil {
 			return nil, nil, errors.WrapIf(err, "failed to merge overrides to base query resource")
 		}
+		query.Spec.Query = merged
 	}
 
 	return query, reconciler.StatePresent, nil

@@ -19,6 +19,7 @@ import (
 	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
+	"github.com/banzaicloud/thanos-operator/pkg/resources/common"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -55,20 +56,15 @@ func (q *Query) service() (runtime.Object, reconciler.DesiredState, error) {
 		}
 
 		if q.Thanos.Spec.Query.ServiceOverrides != nil {
-			err := merge.Merge(queryService, q.Thanos.Spec.Query.ServiceOverrides)
+			merged := &corev1.Service{}
+			err := merge.Merge(queryService, q.Thanos.Spec.Query.ServiceOverrides, merged)
 			if err != nil {
-				return queryService, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+				return nil, nil, errors.WrapIf(err, "unable to merge overrides to base object")
 			}
+			queryService = merged
 		}
 
-		return queryService, reconciler.DesiredStateHook(func(current runtime.Object) error {
-			if s, ok := current.(*corev1.Service); ok {
-				queryService.Spec.ClusterIP = s.Spec.ClusterIP
-			} else {
-				return errors.Errorf("failed to cast service object %+v", current)
-			}
-			return nil
-		}), nil
+		return queryService, common.ServiceUpdateHook(queryService), nil
 	}
 	delete := &corev1.Service{
 		ObjectMeta: q.getMeta(q.getName()),
