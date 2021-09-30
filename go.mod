@@ -6,7 +6,7 @@ require (
 	emperror.dev/errors v0.8.0
 	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/Masterminds/semver v1.5.0
-	github.com/banzaicloud/operator-tools v0.25.2-0.20210930080738-380f28d0e8ae
+	github.com/banzaicloud/operator-tools v0.25.2
 	github.com/banzaicloud/thanos-operator/pkg/sdk v0.0.0
 	github.com/go-logr/logr v0.4.0
 	github.com/imdario/mergo v0.3.12
