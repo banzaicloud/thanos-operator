@@ -11,6 +11,8 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
+LINTER_FLAGS ?= --timeout=2m
+
 GOLANGCI_VERSION = 1.35.2
 KUBEBUILDER_VERSION = 2.3.1
 export KUBEBUILDER_ASSETS := $(PWD)/bin
@@ -37,8 +39,8 @@ bin/golangci-lint-$(GOLANGCI_VERSION):
 
 .PHONY: lint
 lint: bin/golangci-lint ## Run linter
-	bin/golangci-lint run
-	cd pkg/sdk && ../../bin/golangci-lint run
+	bin/golangci-lint run ${LINTER_FLAGS}
+	cd pkg/sdk && ../../bin/golangci-lint run ${LINTER_FLAGS}
 
 # Run tests
 test: fmt vet genall lint bin/kubebuilder
