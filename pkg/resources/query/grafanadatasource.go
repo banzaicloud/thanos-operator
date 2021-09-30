@@ -26,17 +26,17 @@ type strIfMap = map[string]interface{}
 
 func (q *Query) grafanaDatasource() (runtime.Object, reconciler.DesiredState, error) {
 
-	state := reconciler.StateAbsent
-	if q.Thanos.Spec.Query != nil && q.Thanos.Spec.Query.GrafanaDatasource {
-		state = reconciler.StatePresent
-	}
-
 	grafanaDatasource := unstructured.Unstructured{}
 	grafanaDatasource.SetAPIVersion("integreatly.org/v1alpha1")
 	grafanaDatasource.SetKind("GrafanaDataSource")
 
 	grafanaDatasource.SetName(q.getName())
 	grafanaDatasource.SetNamespace(q.Thanos.Namespace)
+
+	state := reconciler.StatePresent
+	if q.Thanos.Spec.Query == nil || !q.Thanos.Spec.Query.GrafanaDatasource {
+		return &grafanaDatasource, reconciler.StateAbsent, nil
+	}
 
 	grafanaDatasource.SetOwnerReferences([]metav1.OwnerReference{
 		{
