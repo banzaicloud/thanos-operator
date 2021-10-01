@@ -232,12 +232,16 @@ spec:
                       healthCheckNodePort:
                         format: int32
                         type: integer
+                      internalTrafficPolicy:
+                        type: string
                       ipFamilies:
                         items:
                           type: string
                         type: array
                         x-kubernetes-list-type: atomic
                       ipFamilyPolicy:
+                        type: string
+                      loadBalancerClass:
                         type: string
                       loadBalancerIP:
                         type: string

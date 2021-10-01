@@ -1,0 +1,20 @@
+apiVersion: monitoring.banzaicloud.io/v1alpha1
+kind: Thanos
+metadata:
+  name: thanos-sample
+spec:
+  query:
+    deploymentOverrides:
+      spec:
+        template:
+          spec:
+            containers:
+              - name: store
+                image: quay.io/thanos/thanos:v0.22.0
+                volumeMounts:
+                  - mountPath: /data
+                    name: pv-storage
+            volumes:
+              - name: pv-storage
+                persistentVolumeClaim:
+                  claimName: storegateway-pvc

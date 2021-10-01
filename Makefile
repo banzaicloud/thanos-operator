@@ -123,8 +123,8 @@ bin/kubebuilder: bin/kubebuilder_$(KUBEBUILDER_VERSION)
 	@ln -sf kubebuilder_$(KUBEBUILDER_VERSION)/etcd bin/etcd
 	@ln -sf kubebuilder_$(KUBEBUILDER_VERSION)/kubectl bin/kubectl
 
-check-diff:
-	go mod tidy
+.PHONY: check-diff
+check-diff: tidy
 	$(MAKE) genall
 	git diff --exit-code
 
@@ -160,3 +160,6 @@ install-prometheus:
 
 install-thanos: install-minio install-prometheus
 	kubectl apply -f config/samples/
+
+tidy: ## Run `go mod tidy` against all modules
+	find . -iname "go.mod" | xargs -L1 sh -c 'cd $$(dirname $$0); go mod tidy'
