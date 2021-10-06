@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	emperror.dev/errors v0.8.0
-	github.com/banzaicloud/operator-tools v0.25.2
+	github.com/banzaicloud/operator-tools v0.25.4
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
 	k8s.io/api v0.21.3
 	k8s.io/apiextensions-apiserver v0.21.3
