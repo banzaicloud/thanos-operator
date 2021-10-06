@@ -21,7 +21,6 @@ import (
 	"emperror.dev/errors"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/types"
-	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/static/gen/crds"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/static/gen/rbac"
@@ -45,21 +44,13 @@ const (
 // +kubebuilder:object:generate=true
 
 type ComponentConfig struct {
+	types.EnabledComponent
 	Namespace             string                    `json:"namespace,omitempty"`
-	Enabled               *bool                     `json:"enabled,omitempty"`
 	MetaOverrides         *types.MetaBase           `json:"metaOverrides,omitempty"`
 	WorkloadMetaOverrides *types.MetaBase           `json:"workloadMetaOverrides,omitempty"`
 	WorkloadOverrides     *types.PodSpecBase        `json:"workloadOverrides,omitempty"`
 	ContainerOverrides    *types.ContainerBase      `json:"containerOverrides,omitempty"`
 	DeploymentOverrides   *types.DeploymentSpecBase `json:"deploymentOverrides,omitempty"`
-}
-
-func (c *ComponentConfig) IsEnabled() bool {
-	return utils.PointerToBool(c.Enabled)
-}
-
-func (c *ComponentConfig) IsSkipped() bool {
-	return c.Enabled == nil
 }
 
 func (c *ComponentConfig) build(parent reconciler.ResourceOwner, fn func(reconciler.ResourceOwner, ComponentConfig) (runtime.Object, reconciler.DesiredState, error)) reconciler.ResourceBuilder {
