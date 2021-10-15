@@ -44,13 +44,13 @@ const (
 // +kubebuilder:object:generate=true
 
 type ComponentConfig struct {
-	types.EnabledComponent
-	Namespace             string                    `json:"namespace,omitempty"`
-	MetaOverrides         *types.MetaBase           `json:"metaOverrides,omitempty"`
-	WorkloadMetaOverrides *types.MetaBase           `json:"workloadMetaOverrides,omitempty"`
-	WorkloadOverrides     *types.PodSpecBase        `json:"workloadOverrides,omitempty"`
-	ContainerOverrides    *types.ContainerBase      `json:"containerOverrides,omitempty"`
-	DeploymentOverrides   *types.DeploymentSpecBase `json:"deploymentOverrides,omitempty"`
+	types.EnabledComponent `json:",inline"`
+	Namespace              string                    `json:"namespace,omitempty"`
+	MetaOverrides          *types.MetaBase           `json:"metaOverrides,omitempty"`
+	WorkloadMetaOverrides  *types.MetaBase           `json:"workloadMetaOverrides,omitempty"`
+	WorkloadOverrides      *types.PodSpecBase        `json:"workloadOverrides,omitempty"`
+	ContainerOverrides     *types.ContainerBase      `json:"containerOverrides,omitempty"`
+	DeploymentOverrides    *types.DeploymentSpecBase `json:"deploymentOverrides,omitempty"`
 }
 
 func (c *ComponentConfig) build(parent reconciler.ResourceOwner, fn func(reconciler.ResourceOwner, ComponentConfig) (runtime.Object, reconciler.DesiredState, error)) reconciler.ResourceBuilder {
