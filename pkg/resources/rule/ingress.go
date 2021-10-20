@@ -19,9 +19,8 @@ import (
 	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	corev1 "k8s.io/api/core/v1"
-	netv1 "k8s.io/api/networking/v1beta1"
+	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func (r *ruleInstance) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
@@ -43,8 +42,12 @@ func (r *ruleInstance) ingressHTTP() (runtime.Object, reconciler.DesiredState, e
 										Path:     ruleIngress.Path,
 										PathType: &pathType,
 										Backend: netv1.IngressBackend{
-											ServiceName: r.getName(),
-											ServicePort: intstr.FromString("http"),
+											Service: &netv1.IngressServiceBackend{
+												Name: r.getName(),
+												Port: netv1.ServiceBackendPort{
+													Name: "http",
+												},
+											},
 										},
 									},
 								},
@@ -92,8 +95,12 @@ func (r *ruleInstance) ingressGRPC() (runtime.Object, reconciler.DesiredState, e
 									{
 										Path: ruleIngress.Path,
 										Backend: netv1.IngressBackend{
-											ServiceName: r.getName(),
-											ServicePort: intstr.FromString("grpc"),
+											Service: &netv1.IngressServiceBackend{
+												Name: r.getName(),
+												Port: netv1.ServiceBackendPort{
+													Name: "grpc",
+												},
+											},
 										},
 									},
 								},

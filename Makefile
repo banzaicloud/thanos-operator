@@ -45,7 +45,7 @@ lint: bin/golangci-lint ## Run linter
 # Run tests
 test: fmt vet genall lint bin/kubebuilder
 	go test ./... -coverprofile cover.out
-	cd pkg/sdk go test ./... -coverprofile cover-sdk.out
+	cd pkg/sdk && go test ./... -coverprofile cover-sdk.out
 
 # Build manager binary
 manager: generate fmt vet

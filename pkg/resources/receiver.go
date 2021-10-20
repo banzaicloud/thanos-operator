@@ -91,7 +91,7 @@ func (t *ReceiverReconciler) ReconcileResources(resourceList []Resource) (*recon
 
 func NewReceiverReconciler(receiver *v1alpha1.Receiver, genericReconciler reconciler.ResourceReconciler) *ReceiverReconciler {
 	return &ReceiverReconciler{
-		Receiver:                  receiver,
+		Receiver:           receiver,
 		ResourceReconciler: genericReconciler,
 	}
 }

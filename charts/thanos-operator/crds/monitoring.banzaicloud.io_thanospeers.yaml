@@ -1157,6 +1157,8 @@ spec:
                                                   type: string
                                                 gmsaCredentialSpecName:
                                                   type: string
+                                                hostProcess:
+                                                  type: boolean
                                                 runAsUserName:
                                                   type: string
                                               type: object
@@ -1732,6 +1734,8 @@ spec:
                                                   type: string
                                                 gmsaCredentialSpecName:
                                                   type: string
+                                                hostProcess:
+                                                  type: boolean
                                                 runAsUserName:
                                                   type: string
                                               type: object
@@ -2315,6 +2319,8 @@ spec:
                                                   type: string
                                                 gmsaCredentialSpecName:
                                                   type: string
+                                                hostProcess:
+                                                  type: boolean
                                                 runAsUserName:
                                                   type: string
                                               type: object
@@ -2529,6 +2535,8 @@ spec:
                                             type: string
                                           gmsaCredentialSpecName:
                                             type: string
+                                          hostProcess:
+                                            type: boolean
                                           runAsUserName:
                                             type: string
                                         type: object
@@ -2799,6 +2807,18 @@ spec:
                                                         type: string
                                                       type: array
                                                     dataSource:
+                                                      properties:
+                                                        apiGroup:
+                                                          type: string
+                                                        kind:
+                                                          type: string
+                                                        name:
+                                                          type: string
+                                                      required:
+                                                      - kind
+                                                      - name
+                                                      type: object
+                                                    dataSourceRef:
                                                       properties:
                                                         apiGroup:
                                                           type: string
@@ -3421,6 +3441,7 @@ spec:
                             additionalProperties:
                               type: string
                             type: object
+                            x-kubernetes-map-type: atomic
                           sessionAffinity:
                             type: string
                           sessionAffinityConfig:
@@ -3432,10 +3453,6 @@ spec:
                                     type: integer
                                 type: object
                             type: object
-                          topologyKeys:
-                            items:
-                              type: string
-                            type: array
                           type:
                             type: string
                         type: object
