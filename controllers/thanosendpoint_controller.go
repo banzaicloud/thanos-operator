@@ -22,7 +22,7 @@ import (
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/resources/thanosendpoint"
 	"github.com/go-logr/logr"
-	"k8s.io/api/networking/v1beta1"
+	netv1 "k8s.io/api/networking/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -73,8 +73,8 @@ func (r *ThanosEndpointReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&monitoringv1alpha1.ThanosEndpoint{}).
 		Owns(&monitoringv1alpha1.Thanos{}).
 		Owns(&monitoringv1alpha1.StoreEndpoint{}).
-		Watches(&source.Kind{Type: &v1beta1.Ingress{}}, handler.EnqueueRequestsFromMapFunc(func(object client.Object) []reconcile.Request {
-			ing := object.(*v1beta1.Ingress)
+		Watches(&source.Kind{Type: &netv1.Ingress{}}, handler.EnqueueRequestsFromMapFunc(func(object client.Object) []reconcile.Request {
+			ing := object.(*netv1.Ingress)
 			if ing.Labels != nil {
 				if mb := ing.Labels[resources.ManagedByLabel]; mb != "" {
 					return []reconcile.Request{

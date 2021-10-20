@@ -18,9 +18,8 @@ import (
 	"emperror.dev/errors"
 	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
-	netv1 "k8s.io/api/networking/v1beta1"
+	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
 func (b *BucketWeb) ingress() (runtime.Object, reconciler.DesiredState, error) {
@@ -43,8 +42,12 @@ func (b *BucketWeb) ingress() (runtime.Object, reconciler.DesiredState, error) {
 										Path:     bucketWebIngress.Path,
 										PathType: &pathType,
 										Backend: netv1.IngressBackend{
-											ServiceName: b.getName(),
-											ServicePort: intstr.FromString("http"),
+											Service: &netv1.IngressServiceBackend{
+												Name: b.getName(),
+												Port: netv1.ServiceBackendPort{
+													Name: "http",
+												},
+											},
 										},
 									},
 								},

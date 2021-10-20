@@ -24,7 +24,7 @@ import (
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/go-logr/logr"
-	"k8s.io/api/networking/v1beta1"
+	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -62,7 +62,7 @@ func (r Reconciler) Reconcile() (*reconcile.Result, error) {
 	}
 
 	ctx := context.Background()
-	ingList := &v1beta1.IngressList{}
+	ingList := &netv1.IngressList{}
 	err = r.client.List(ctx, ingList, client.MatchingLabels{
 		"app.kubernetes.io/name":       v1alpha1.QueryName,
 		"app.kubernetes.io/managed-by": r.getDescendantResourceName(),
