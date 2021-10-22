@@ -213,25 +213,6 @@ workflows:
               only: /.*/
             branches:
               only: /.*/
-#      - e2e-test:
-#          requires:
-#            - build
-      - docker/publish:
-          name: Publish docker image from branches
-          executor:
-            name: docker/machine
-            dlc: true
-          context: dockerhub
-          deploy: true
-          image: banzaicloud/thanos-operator
-          tag: ${CIRCLE_BRANCH//\//-}
-          requires:
-            - build
-          filters:
-            branches:
-              ignore: master
-            tags:
-              ignore: /.*/
       - docker/publish:
           name: Publish latest docker image from master
           executor:
