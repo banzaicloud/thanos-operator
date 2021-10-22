@@ -22,7 +22,7 @@ jobs:
       - run:
           name: Check
           command: |
-            make check
+            make check-circle
 
   e2e-test:
     machine:
@@ -207,7 +207,6 @@ workflows:
   build:
     jobs:
       - build:
-          context: Default
           filters:
             tags:
               only: /.*/
