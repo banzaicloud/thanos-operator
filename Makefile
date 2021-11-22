@@ -17,7 +17,9 @@ GOLANGCI_LINT_VERSION := v1.42.1
 
 KUBEBUILDER_VERSION = 2.3.1
 export KUBEBUILDER_ASSETS := ${BIN}
-LICENSEI_VERSION = 0.2.0
+
+LICENSEI := ${BIN}/licensei
+LICENSEI_VERSION = v0.4.0
 
 all: manager
 
@@ -107,21 +109,14 @@ check-diff: tidy
 	$(MAKE) genall
 	git diff --exit-code
 
-bin/licensei: bin/licensei-$(LICENSEI_VERSION)
-	@ln -sf licensei-$(LICENSEI_VERSION) bin/licensei
-bin/licensei-$(LICENSEI_VERSION):
-	@mkdir -p bin
-	curl -sfL https://git.io/licensei | bash -s v$(LICENSEI_VERSION)
-	@mv bin/licensei $@
-
 .PHONY: license-check
-license-check: bin/licensei ## Run license check
-	bin/licensei header
-	bin/licensei check
+license-check: ${LICENSEI} .licensei.cache
+	${LICENSEI} header
+	${LICENSEI} check
 
 .PHONY: license-cache
-license-cache: bin/licensei ## Generate license cache
-	bin/licensei cache
+license-cache: ${LICENSEI} ## Generate license cache
+	${LICENSEI} cache
 
 .PHONY: check
 check: check-diff lint license-check test
@@ -161,6 +156,21 @@ ${GOLANGCI_LINT}_${GOLANGCI_LINT_VERSION}: IMPORT_PATH := github.com/golangci/go
 ${GOLANGCI_LINT}_${GOLANGCI_LINT_VERSION}: VERSION := ${GOLANGCI_LINT_VERSION}
 ${GOLANGCI_LINT}_${GOLANGCI_LINT_VERSION}: | ${BIN}
 	${go_install_binary}
+
+${LICENSEI}: ${LICENSEI}_${LICENSEI_VERSION} | ${BIN}
+	ln -sf $(notdir $<) $@
+
+${LICENSEI}_${LICENSEI_VERSION}: IMPORT_PATH := github.com/goph/licensei/cmd/licensei
+${LICENSEI}_${LICENSEI_VERSION}: VERSION := ${LICENSEI_VERSION}
+${LICENSEI}_${LICENSEI_VERSION}: | ${BIN}
+	${go_install_binary}
+
+.licensei.cache: ${LICENSEI}
+ifndef GITHUB_TOKEN
+	@>&2 echo "WARNING: building licensei cache without Github token, rate limiting might occur."
+	@>&2 echo "(Hint: If too many licenses are missing, try specifying a Github token via the environment variable GITHUB_TOKEN.)"
+endif
+	${LICENSEI} cache
 
 ${BIN}:
 	mkdir -p ${BIN}
