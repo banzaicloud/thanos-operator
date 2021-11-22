@@ -4,8 +4,6 @@ IMG ?= controller:latest
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true,preserveUnknownFields=false,maxDescLen=0"
 
-LINTER_FLAGS ?= --timeout=2m
-
 GOLANGCI_VERSION = 1.35.2
 KUBEBUILDER_VERSION = 2.3.1
 export KUBEBUILDER_ASSETS := $(PWD)/bin

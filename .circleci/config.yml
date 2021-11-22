@@ -21,6 +21,8 @@ jobs:
       - checkout
       - run:
           name: Check
+          environment:
+            LINTER_FLAGS: --timeout=2m
           command: |
             make check-circle
 
