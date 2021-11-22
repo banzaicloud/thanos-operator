@@ -4,6 +4,9 @@ IMG ?= controller:latest
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true,preserveUnknownFields=false,maxDescLen=0"
 
+OS = $(shell go env GOOS)
+ARCH = $(shell go env GOARCH)
+
 GOLANGCI_VERSION = 1.35.2
 KUBEBUILDER_VERSION = 2.3.1
 export KUBEBUILDER_ASSETS := $(PWD)/bin
@@ -11,8 +14,6 @@ LICENSEI_VERSION = 0.2.0
 
 CONTROLLER_GEN_VERSION = v0.5.0
 CONTROLLER_GEN = $(PWD)/bin/controller-gen
-
-OS = $(shell uname | tr A-Z a-z)
 
 all: manager
 
