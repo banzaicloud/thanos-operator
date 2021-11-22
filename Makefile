@@ -12,7 +12,9 @@ BIN := ${PWD}/bin
 CONTROLLER_GEN := ${BIN}/controller-gen
 CONTROLLER_GEN_VERSION = v0.5.0
 
-GOLANGCI_VERSION = 1.35.2
+GOLANGCI_LINT := ${BIN}/golangci-lint
+GOLANGCI_LINT_VERSION := v1.42.1
+
 KUBEBUILDER_VERSION = 2.3.1
 export KUBEBUILDER_ASSETS := ${BIN}
 LICENSEI_VERSION = 0.2.0
@@ -24,17 +26,10 @@ all: manager
 docs:
 	go run cmd/docs.go
 
-bin/golangci-lint: bin/golangci-lint-$(GOLANGCI_VERSION)
-	@ln -sf golangci-lint-$(GOLANGCI_VERSION) bin/golangci-lint
-bin/golangci-lint-$(GOLANGCI_VERSION):
-	@mkdir -p bin
-	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | BINARY=golangci-lint bash -s -- v$(GOLANGCI_VERSION)
-	@mv bin/golangci-lint $@
-
 .PHONY: lint
-lint: bin/golangci-lint ## Run linter
-	bin/golangci-lint run ${LINTER_FLAGS}
-	cd pkg/sdk && ../../bin/golangci-lint run ${LINTER_FLAGS}
+lint: ${GOLANGCI_LINT} ## Run linter
+	${GOLANGCI_LINT} run ${LINTER_FLAGS}
+	cd pkg/sdk && ${GOLANGCI_LINT} run ${LINTER_FLAGS}
 
 # Run tests
 test: fmt vet genall lint bin/kubebuilder
@@ -157,6 +152,14 @@ ${CONTROLLER_GEN}: ${CONTROLLER_GEN}_${CONTROLLER_GEN_VERSION} | ${BIN}
 ${CONTROLLER_GEN}_${CONTROLLER_GEN_VERSION}: IMPORT_PATH := sigs.k8s.io/controller-tools/cmd/controller-gen
 ${CONTROLLER_GEN}_${CONTROLLER_GEN_VERSION}: VERSION := ${CONTROLLER_GEN_VERSION}
 ${CONTROLLER_GEN}_${CONTROLLER_GEN_VERSION}: | ${BIN}
+	${go_install_binary}
+
+${GOLANGCI_LINT}: ${GOLANGCI_LINT}_${GOLANGCI_LINT_VERSION} | ${BIN}
+	ln -sf $(notdir $<) $@
+
+${GOLANGCI_LINT}_${GOLANGCI_LINT_VERSION}: IMPORT_PATH := github.com/golangci/golangci-lint/cmd/golangci-lint
+${GOLANGCI_LINT}_${GOLANGCI_LINT_VERSION}: VERSION := ${GOLANGCI_LINT_VERSION}
+${GOLANGCI_LINT}_${GOLANGCI_LINT_VERSION}: | ${BIN}
 	${go_install_binary}
 
 ${BIN}:
