@@ -7,13 +7,15 @@ CRD_OPTIONS ?= "crd:trivialVersions=true,preserveUnknownFields=false,maxDescLen=
 OS = $(shell go env GOOS)
 ARCH = $(shell go env GOARCH)
 
+BIN := ${PWD}/bin
+
+CONTROLLER_GEN := ${BIN}/controller-gen
+CONTROLLER_GEN_VERSION = v0.5.0
+
 GOLANGCI_VERSION = 1.35.2
 KUBEBUILDER_VERSION = 2.3.1
-export KUBEBUILDER_ASSETS := $(PWD)/bin
+export KUBEBUILDER_ASSETS := ${BIN}
 LICENSEI_VERSION = 0.2.0
-
-CONTROLLER_GEN_VERSION = v0.5.0
-CONTROLLER_GEN = $(PWD)/bin/controller-gen
 
 all: manager
 
@@ -61,9 +63,9 @@ deploy: manifests
 	kustomize build config/default | kubectl apply -f -
 
 # Generate manifests e.g. CRD, RBAC etc.
-manifests: bin/controller-gen
-	cd pkg/sdk && $(CONTROLLER_GEN) $(CRD_OPTIONS) webhook paths="./..." output:crd:artifacts:config=../../config/crd/bases output:webhook:artifacts:config=../../config/webhook
-	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role paths="./controllers/..." output:rbac:artifacts:config=./config/rbac
+manifests: ${CONTROLLER_GEN}
+	cd pkg/sdk && ${CONTROLLER_GEN} $(CRD_OPTIONS) webhook paths="./..." output:crd:artifacts:config=../../config/crd/bases output:webhook:artifacts:config=../../config/webhook
+	${CONTROLLER_GEN} $(CRD_OPTIONS) rbac:roleName=manager-role paths="./controllers/..." output:rbac:artifacts:config=./config/rbac
 	cp config/crd/bases/* charts/thanos-operator/crds/
 	cat config/rbac/role.yaml |sed 's|^  name: manager-role|  name: {{ include "thanos-operator.fullname" . }}|g' |sed '/creationTimestamp: null/d' | cat > charts/thanos-operator/templates/role.yaml
 
@@ -78,8 +80,8 @@ vet:
 	cd pkg/sdk && go vet ./...
 
 # Generate code
-generate: bin/controller-gen
-	cd pkg/sdk && $(CONTROLLER_GEN) object:headerFile=./../../hack/boilerplate.go.txt paths="./..."
+generate: ${CONTROLLER_GEN}
+	cd pkg/sdk && ${CONTROLLER_GEN} object:headerFile=./../../hack/boilerplate.go.txt paths="./..."
 
 genall: generate manifests docs
 	go generate ./...
@@ -92,16 +94,6 @@ docker-build: test
 # Push the docker image
 docker-push:
 	docker push $(IMG)
-
-bin/controller-gen:
-	@ if ! test -x bin/controller-gen; then \
-		set -ex ;\
-		CONTROLLER_GEN_TMP_DIR=$$(mktemp -d) ;\
-		cd $$CONTROLLER_GEN_TMP_DIR ;\
-		go mod init tmp ;\
-		GOBIN=$(PWD)/bin go get sigs.k8s.io/controller-tools/cmd/controller-gen@${CONTROLLER_GEN_VERSION} ;\
-		rm -rf $$CONTROLLER_GEN_TMP_DIR ;\
-	fi
 
 # .PHONY: bin/kubebuilder_$(KUBEBUILDER_VERSION)
 bin/kubebuilder_$(KUBEBUILDER_VERSION):
@@ -158,3 +150,20 @@ install-thanos: install-minio install-prometheus
 
 tidy: ## Run `go mod tidy` against all modules
 	find . -iname "go.mod" | xargs -L1 sh -c 'cd $$(dirname $$0); go mod tidy'
+
+${CONTROLLER_GEN}: ${CONTROLLER_GEN}_${CONTROLLER_GEN_VERSION} | ${BIN}
+	ln -sf $(notdir $<) $@
+
+${CONTROLLER_GEN}_${CONTROLLER_GEN_VERSION}: IMPORT_PATH := sigs.k8s.io/controller-tools/cmd/controller-gen
+${CONTROLLER_GEN}_${CONTROLLER_GEN_VERSION}: VERSION := ${CONTROLLER_GEN_VERSION}
+${CONTROLLER_GEN}_${CONTROLLER_GEN_VERSION}: | ${BIN}
+	${go_install_binary}
+
+${BIN}:
+	mkdir -p ${BIN}
+
+define go_install_binary
+find ${BIN} -name '$(notdir ${IMPORT_PATH})_*' -exec rm {} +
+GOBIN=${BIN} go install ${IMPORT_PATH}@${VERSION}
+mv ${BIN}/$(notdir ${IMPORT_PATH}) ${BIN}/$(notdir ${IMPORT_PATH})_${VERSION}
+endef
