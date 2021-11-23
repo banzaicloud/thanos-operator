@@ -18,8 +18,7 @@ import (
 	"context"
 
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
-	"github.com/banzaicloud/thanos-operator/pkg/resources"
-	"github.com/banzaicloud/thanos-operator/pkg/resources/receiver"
+	monitoringv1alpha1 "github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/go-logr/logr"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -30,7 +29,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
-	monitoringv1alpha1 "github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
+	"github.com/banzaicloud/thanos-operator/pkg/resources"
+	"github.com/banzaicloud/thanos-operator/pkg/resources/receiver"
 )
 
 // ReceiverReconciler reconciles a Receiver object
