@@ -62,8 +62,8 @@ func main() {
 	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
 		"Enable leader election for controller manager. Enabling this will ensure there is only one active controller manager.")
 	flag.BoolVar(&enablePromCRDWatches, "enable-prom-crd-watches", true, "Enable dynamic watches of Prometheus CRDs")
-	flag.StringVar(&leaderElectionId, "leader-election-id", "", "The ID of the leader election")
-	flag.StringVar(&leaderElectionNamespace, "leader-election-ns", "", "The NS  of the leader election")
+	flag.StringVar(&leaderElectionId, "leader-election-id", DefaultLeaderElectionID, "The ID of the leader election")
+	flag.StringVar(&leaderElectionNamespace, "leader-election-ns", "", "The NS of the leader election")
 	flag.IntVar(&logLevel, "verbosity", 1, "Log verbosity level")
 	flag.Parse()
 
@@ -87,10 +87,6 @@ func main() {
 		fmt.Printf("%s - failed to set log level for klog, moving on.\n", err)
 	}
 	klog.SetLogger(zapLog)
-
-	if leaderElectionId == "" {
-		leaderElectionId = DefaultLeaderElectionID
-	}
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                  scheme,
