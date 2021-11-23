@@ -27,90 +27,11 @@ LICENSEI_VERSION = v0.4.0
 
 SETUP_ENVTEST := ${BIN}/setup-envtest
 
+## =============
+## ==  Rules  ==
+## =============
+
 all: manager
-
-# Generate docs
-.PHONY: docs
-docs:
-	go run cmd/docs.go
-
-.PHONY: lint
-lint: ${GOLANGCI_LINT} ## Run linter
-	${GOLANGCI_LINT} run ${LINTER_FLAGS}
-	cd pkg/sdk && ${GOLANGCI_LINT} run ${LINTER_FLAGS}
-
-# Run tests
-test: fmt vet genall lint ${ENVTEST_BINARY_ASSETS} ${KUBEBUILDER}
-	ENVTEST_BINARY_ASSETS=${ENVTEST_BINARY_ASSETS} go test ./... -coverprofile cover.out
-	cd pkg/sdk && go test ./... -coverprofile cover-sdk.out
-
-# Build manager binary
-manager: generate fmt vet
-	go build -o bin/manager main.go
-
-# Run against the configured Kubernetes cluster in ~/.kube/config
-run: generate install
-	go run ./main.go
-
-# Install CRDs into a cluster
-install: manifests
-	kustomize build config/crd | kubectl apply -f -
-
-# Uninstall CRDs from a cluster
-uninstall: manifests
-	kustomize build config/crd | kubectl delete -f -
-
-# Deploy controller in the configured Kubernetes cluster in ~/.kube/config
-deploy: manifests
-	cd config/manager && kustomize edit set image controller=$(IMG)
-	kustomize build config/default | kubectl apply -f -
-
-# Generate manifests e.g. CRD, RBAC etc.
-manifests: ${CONTROLLER_GEN}
-	cd pkg/sdk && ${CONTROLLER_GEN} $(CRD_OPTIONS) webhook paths="./..." output:crd:artifacts:config=../../config/crd/bases output:webhook:artifacts:config=../../config/webhook
-	${CONTROLLER_GEN} $(CRD_OPTIONS) rbac:roleName=manager-role paths="./controllers/..." output:rbac:artifacts:config=./config/rbac
-	cp config/crd/bases/* charts/thanos-operator/crds/
-	cat config/rbac/role.yaml |sed 's|^  name: manager-role|  name: {{ include "thanos-operator.fullname" . }}|g' |sed '/creationTimestamp: null/d' | cat > charts/thanos-operator/templates/role.yaml
-
-# Run go fmt against code
-fmt:
-	go fmt ./...
-	cd pkg/sdk && go fmt ./...
-
-# Run go vet against code
-vet:
-	go vet ./...
-	cd pkg/sdk && go vet ./...
-
-# Generate code
-generate: ${CONTROLLER_GEN}
-	cd pkg/sdk && ${CONTROLLER_GEN} object:headerFile=./../../hack/boilerplate.go.txt paths="./..."
-
-genall: generate manifests docs
-	go generate ./...
-	cd pkg/sdk && go generate ./...
-
-# Build the docker image
-docker-build: test
-	docker build . -t $(IMG)
-
-# Push the docker image
-docker-push:
-	docker push $(IMG)
-
-.PHONY: check-diff
-check-diff: tidy
-	$(MAKE) genall
-	git diff --exit-code
-
-.PHONY: license-check
-license-check: ${LICENSEI} .licensei.cache
-	${LICENSEI} header
-	${LICENSEI} check
-
-.PHONY: license-cache
-license-cache: ${LICENSEI} ## Generate license cache
-	${LICENSEI} cache
 
 .PHONY: check
 check: check-diff lint license-check test
@@ -118,22 +39,120 @@ check: check-diff lint license-check test
 .PHONY: check-circle
 check-circle: check-diff lint test
 
+.PHONY: check-diff
+check-diff: tidy
+	$(MAKE) genall
+	git diff --exit-code
+
+.PHONY: deploy
+deploy: manifests ## Deploy controller in the configured Kubernetes cluster in ~/.kube/config
+	cd config/manager && kustomize edit set image controller=$(IMG)
+	kustomize build config/default | kubectl apply -f -
+
+.PHONY: docker-build
+docker-build: test ## Build the docker image
+	docker build . -t $(IMG)
+
+.PHONY: docker-push
+docker-push: ## Push the docker image
+	docker push $(IMG)
+
+.PHONY: docs
+docs: ## Generate docs
+	go run cmd/docs.go
+
+.PHONY: fmt
+fmt: ## Run go fmt against code
+	go fmt ./...
+	cd pkg/sdk && go fmt ./...
+
+.PHONY: genall
+genall: generate manifests docs
+	go generate ./...
+	cd pkg/sdk && go generate ./...
+
+.PHONY: generate
+generate: ${CONTROLLER_GEN} ## Generate code
+	cd pkg/sdk && ${CONTROLLER_GEN} object:headerFile=./../../hack/boilerplate.go.txt paths="./..."
+
+.PHONY: help
+help: ## Show this help message
+	@grep -h -E '^[a-zA-Z0-9%_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' | sort
+
+.PHONY: install
+install: manifests ## Install CRDs into a cluster
+	kustomize build config/crd | kubectl apply -f -
+
+.PHONY: install-minio
 install-minio:
 	helm repo add minio https://helm.min.io/
 	helm repo update
 	helm upgrade --install minio minio/minio --set accessKey=myaccesskey,secretKey=mysecretkey,defaultBucket.enabled=true,resources.requests.memory=256Mi,persistence.size=5Gi
 	kubectl get secret thanos || kubectl create secret generic thanos --from-file=object-store.yaml=hack/object-store.yaml
 
+.PHONY: install-prometheus
 install-prometheus:
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 	helm repo update
 	helm upgrade --install prometheus prometheus-community/kube-prometheus-stack -f hack/thanos-remote-write.yaml
 
+.PHONY: install-thanos
 install-thanos: install-minio install-prometheus
 	kubectl apply -f config/samples/
 
+.PHONY: license-cache
+license-cache: ${LICENSEI} ## Generate license cache
+	${LICENSEI} cache
+
+.PHONY: license-check
+license-check: ${LICENSEI} .licensei.cache ## Check licenses
+	${LICENSEI} header
+	${LICENSEI} check
+
+.PHONY: lint
+lint: ${GOLANGCI_LINT} ## Run linter
+	${GOLANGCI_LINT} run ${LINTER_FLAGS}
+	cd pkg/sdk && ${GOLANGCI_LINT} run ${LINTER_FLAGS}
+
+.PHONY: list-all
+list-all: ## List all make targets
+	@${MAKE} -pRrn : -f $(MAKEFILE_LIST) 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | sort
+
+.PHONY: manager
+manager: fmt generate vet ## Build manager binary
+	go build -o bin/manager main.go
+
+.PHONY: manifests
+manifests: ${CONTROLLER_GEN} # Generate manifests e.g. CRD, RBAC etc.
+	cd pkg/sdk && ${CONTROLLER_GEN} $(CRD_OPTIONS) webhook paths="./..." output:crd:artifacts:config=../../config/crd/bases output:webhook:artifacts:config=../../config/webhook
+	${CONTROLLER_GEN} $(CRD_OPTIONS) rbac:roleName=manager-role paths="./controllers/..." output:rbac:artifacts:config=./config/rbac
+	cp config/crd/bases/* charts/thanos-operator/crds/
+	cat config/rbac/role.yaml |sed 's|^  name: manager-role|  name: {{ include "thanos-operator.fullname" . }}|g' |sed '/creationTimestamp: null/d' | cat > charts/thanos-operator/templates/role.yaml
+
+.PHONY: run
+run: generate install ## Run against the configured Kubernetes cluster in ~/.kube/config
+	go run ./main.go
+
+.PHONY: test
+test: fmt genall lint vet ${ENVTEST_BINARY_ASSETS} ${KUBEBUILDER} ## Run tests
+	ENVTEST_BINARY_ASSETS=${ENVTEST_BINARY_ASSETS} go test ./... -coverprofile cover.out
+	cd pkg/sdk && go test ./... -coverprofile cover-sdk.out
+
 tidy: ## Run `go mod tidy` against all modules
 	find . -iname "go.mod" | xargs -L1 sh -c 'cd $$(dirname $$0); go mod tidy'
+
+.PHONY: uninstall
+uninstall: manifests ## Uninstall CRDs from a cluster
+	kustomize build config/crd | kubectl delete -f -
+
+.PHONY: vet
+vet: ## Run go vet against code
+	go vet ./...
+	cd pkg/sdk && go vet ./...
+
+## =========================
+## ==  Tool dependencies  ==
+## =========================
 
 ${CONTROLLER_GEN}: ${CONTROLLER_GEN}_${CONTROLLER_GEN_VERSION} | ${BIN}
 	ln -sf $(notdir $<) $@
