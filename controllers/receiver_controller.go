@@ -35,7 +35,7 @@ import (
 
 // ReceiverReconciler reconciles a Receiver object
 type ReceiverReconciler struct {
-	client.Client
+	Client client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
 }

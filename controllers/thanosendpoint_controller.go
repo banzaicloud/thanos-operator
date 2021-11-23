@@ -37,7 +37,7 @@ import (
 
 // ThanosEndpointReconciler reconciles a ThanosEndpoint object
 type ThanosEndpointReconciler struct {
-	client.Client
+	Client client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
 }

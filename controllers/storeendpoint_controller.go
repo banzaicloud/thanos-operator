@@ -32,7 +32,7 @@ import (
 
 // StoreEndpointReconciler reconciles a StoreEndpoint object
 type StoreEndpointReconciler struct {
-	client.Client
+	Client client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
 }

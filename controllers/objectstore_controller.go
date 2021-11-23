@@ -36,7 +36,7 @@ import (
 
 // ObjectStoreReconciler reconciles a ObjectStore object
 type ObjectStoreReconciler struct {
-	client.Client
+	Client client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
 }
