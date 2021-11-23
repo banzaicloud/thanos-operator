@@ -23,7 +23,6 @@ import (
 	"github.com/go-logr/logr"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	v1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -71,6 +70,6 @@ func (r *ReceiverReconciler) SetupWithManager(mgr ctrl.Manager) (controller.Cont
 		Owns(&corev1.Service{}).
 		Owns(&netv1.Ingress{}).
 		Owns(&appsv1.StatefulSet{}).
-		Owns(&v1.ConfigMap{}).
+		Owns(&corev1.ConfigMap{}).
 		Build(r)
 }
