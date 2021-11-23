@@ -12,14 +12,20 @@ BIN := ${PWD}/bin
 CONTROLLER_GEN := ${BIN}/controller-gen
 CONTROLLER_GEN_VERSION = v0.5.0
 
+ENVTEST_BIN_DIR := ${BIN}/envtest
+ENVTEST_K8S_VERSION := 1.21.4
+ENVTEST_BINARY_ASSETS := ${ENVTEST_BIN_DIR}/bin
+
 GOLANGCI_LINT := ${BIN}/golangci-lint
 GOLANGCI_LINT_VERSION := v1.42.1
 
-KUBEBUILDER_VERSION = 2.3.1
-export KUBEBUILDER_ASSETS := ${BIN}
+KUBEBUILDER := ${BIN}/kubebuilder
+KUBEBUILDER_VERSION = v3.1.0
 
 LICENSEI := ${BIN}/licensei
 LICENSEI_VERSION = v0.4.0
+
+SETUP_ENVTEST := ${BIN}/setup-envtest
 
 all: manager
 
@@ -34,8 +40,8 @@ lint: ${GOLANGCI_LINT} ## Run linter
 	cd pkg/sdk && ${GOLANGCI_LINT} run ${LINTER_FLAGS}
 
 # Run tests
-test: fmt vet genall lint bin/kubebuilder
-	go test ./... -coverprofile cover.out
+test: fmt vet genall lint ${ENVTEST_BINARY_ASSETS} ${KUBEBUILDER}
+	ENVTEST_BINARY_ASSETS=${ENVTEST_BINARY_ASSETS} go test ./... -coverprofile cover.out
 	cd pkg/sdk && go test ./... -coverprofile cover-sdk.out
 
 # Build manager binary
@@ -92,18 +98,6 @@ docker-build: test
 docker-push:
 	docker push $(IMG)
 
-# .PHONY: bin/kubebuilder_$(KUBEBUILDER_VERSION)
-bin/kubebuilder_$(KUBEBUILDER_VERSION):
-	@mkdir -p bin
-	curl -L https://github.com/kubernetes-sigs/kubebuilder/releases/download/v$(KUBEBUILDER_VERSION)/kubebuilder_$(KUBEBUILDER_VERSION)_$(OS)_amd64.tar.gz | tar xvz -C bin
-	@ln -sf kubebuilder_$(KUBEBUILDER_VERSION)_$(OS)_amd64/bin bin/kubebuilder_$(KUBEBUILDER_VERSION)
-
-bin/kubebuilder: bin/kubebuilder_$(KUBEBUILDER_VERSION)
-	@ln -sf kubebuilder_$(KUBEBUILDER_VERSION)/kubebuilder bin/kubebuilder
-	@ln -sf kubebuilder_$(KUBEBUILDER_VERSION)/kube-apiserver bin/kube-apiserver
-	@ln -sf kubebuilder_$(KUBEBUILDER_VERSION)/etcd bin/etcd
-	@ln -sf kubebuilder_$(KUBEBUILDER_VERSION)/kubectl bin/kubectl
-
 .PHONY: check-diff
 check-diff: tidy
 	$(MAKE) genall
@@ -149,6 +143,12 @@ ${CONTROLLER_GEN}_${CONTROLLER_GEN_VERSION}: VERSION := ${CONTROLLER_GEN_VERSION
 ${CONTROLLER_GEN}_${CONTROLLER_GEN_VERSION}: | ${BIN}
 	${go_install_binary}
 
+${ENVTEST_BINARY_ASSETS}: ${ENVTEST_BINARY_ASSETS}_${ENVTEST_K8S_VERSION}
+	ln -sf $(notdir $<) $@
+
+${ENVTEST_BINARY_ASSETS}_${ENVTEST_K8S_VERSION}: | ${SETUP_ENVTEST} ${ENVTEST_BIN_DIR}
+	ln -sf $$(${SETUP_ENVTEST} --bin-dir ${ENVTEST_BIN_DIR} use ${ENVTEST_K8S_VERSION} -p path) $@
+
 ${GOLANGCI_LINT}: ${GOLANGCI_LINT}_${GOLANGCI_LINT_VERSION} | ${BIN}
 	ln -sf $(notdir $<) $@
 
@@ -156,6 +156,13 @@ ${GOLANGCI_LINT}_${GOLANGCI_LINT_VERSION}: IMPORT_PATH := github.com/golangci/go
 ${GOLANGCI_LINT}_${GOLANGCI_LINT_VERSION}: VERSION := ${GOLANGCI_LINT_VERSION}
 ${GOLANGCI_LINT}_${GOLANGCI_LINT_VERSION}: | ${BIN}
 	${go_install_binary}
+
+${KUBEBUILDER}: ${KUBEBUILDER}_$(KUBEBUILDER_VERSION) | ${BIN}
+	ln -sf $(notdir $<) $@
+
+${KUBEBUILDER}_$(KUBEBUILDER_VERSION): | ${BIN}
+	curl -sL https://github.com/kubernetes-sigs/kubebuilder/releases/download/${KUBEBUILDER_VERSION}/kubebuilder_${OS}_${ARCH} -o $@
+	chmod +x $@
 
 ${LICENSEI}: ${LICENSEI}_${LICENSEI_VERSION} | ${BIN}
 	ln -sf $(notdir $<) $@
@@ -172,8 +179,16 @@ ifndef GITHUB_TOKEN
 endif
 	${LICENSEI} cache
 
+${SETUP_ENVTEST}: IMPORT_PATH := sigs.k8s.io/controller-runtime/tools/setup-envtest
+${SETUP_ENVTEST}: VERSION := latest
+${SETUP_ENVTEST}: | ${BIN}
+	GOBIN=${BIN} go install ${IMPORT_PATH}@${VERSION}
+
+${ENVTEST_BIN_DIR}: | ${BIN}
+	mkdir -p $@
+
 ${BIN}:
-	mkdir -p ${BIN}
+	mkdir -p $@
 
 define go_install_binary
 find ${BIN} -name '$(notdir ${IMPORT_PATH})_*' -exec rm {} +

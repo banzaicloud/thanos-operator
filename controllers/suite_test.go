@@ -55,7 +55,8 @@ var _ = BeforeSuite(func() {
 
 		By("bootstrapping test environment")
 		testEnv = &envtest.Environment{
-			CRDDirectoryPaths: []string{filepath.Join("..", "config", "crd", "bases")},
+			BinaryAssetsDirectory: os.Getenv("ENVTEST_BINARY_ASSETS"),
+			CRDDirectoryPaths:     []string{filepath.Join("..", "config", "crd", "bases")},
 		}
 
 		var err error
