@@ -3,6 +3,7 @@ module github.com/banzaicloud/thanos-operator
 go 1.17
 
 require (
+	emperror.dev/emperror v0.33.0
 	emperror.dev/errors v0.8.0
 	github.com/MakeNowJust/heredoc v1.0.0
 	github.com/Masterminds/semver v1.5.0

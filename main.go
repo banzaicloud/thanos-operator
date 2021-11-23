@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/banzaicloud/thanos-operator/controllers"
+	"emperror.dev/emperror"
 	thanosv1alpha1 "github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	prometheus "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
 	"github.com/spf13/cast"
@@ -32,7 +32,10 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+
 	// +kubebuilder:scaffold:imports
+
+	"github.com/banzaicloud/thanos-operator/controllers"
 )
 
 const DefaultLeaderElectionID = "banzaicloud-thanos-operator"
@@ -42,11 +45,11 @@ func main() {
 
 	scheme := runtime.NewScheme()
 
-	_ = clientgoscheme.AddToScheme(scheme)
+	emperror.Panic(clientgoscheme.AddToScheme(scheme))
 
-	_ = thanosv1alpha1.AddToScheme(scheme)
-	_ = apiextensions.AddToScheme(scheme)
-	_ = prometheus.AddToScheme(scheme)
+	emperror.Panic(thanosv1alpha1.AddToScheme(scheme))
+	emperror.Panic(apiextensions.AddToScheme(scheme))
+	emperror.Panic(prometheus.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
 
 	var metricsAddr string
