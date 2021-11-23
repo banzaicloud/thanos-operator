@@ -40,8 +40,7 @@ check: check-diff lint license-check test
 check-circle: check-diff lint test
 
 .PHONY: check-diff
-check-diff: tidy
-	$(MAKE) genall
+check-diff: genall tidy
 	git diff --exit-code
 
 .PHONY: deploy
@@ -67,7 +66,7 @@ fmt: ## Run go fmt against code
 	cd pkg/sdk && go fmt ./...
 
 .PHONY: genall
-genall: generate manifests docs
+genall: generate manifests docs tidy
 	go generate ./...
 	cd pkg/sdk && go generate ./...
 
