@@ -41,17 +41,6 @@ import (
 const DefaultLeaderElectionID = "banzaicloud-thanos-operator"
 
 func main() {
-	setupLog := ctrl.Log.WithName("setup")
-
-	scheme := runtime.NewScheme()
-
-	emperror.Panic(clientgoscheme.AddToScheme(scheme))
-
-	emperror.Panic(thanosv1alpha1.AddToScheme(scheme))
-	emperror.Panic(apiextensions.AddToScheme(scheme))
-	emperror.Panic(prometheus.AddToScheme(scheme))
-	// +kubebuilder:scaffold:scheme
-
 	var metricsAddr string
 	var enableLeaderElection, enablePromCRDWatches bool
 	var leaderElectionId string
@@ -79,6 +68,17 @@ func main() {
 	}), zap.Level(zapcore.Level(-logLevel)), zap.RawZapOpts())
 
 	ctrl.SetLogger(zapLog)
+
+	setupLog := ctrl.Log.WithName("setup")
+
+	scheme := runtime.NewScheme()
+
+	emperror.Panic(clientgoscheme.AddToScheme(scheme))
+
+	emperror.Panic(thanosv1alpha1.AddToScheme(scheme))
+	emperror.Panic(apiextensions.AddToScheme(scheme))
+	emperror.Panic(prometheus.AddToScheme(scheme))
+	// +kubebuilder:scaffold:scheme
 
 	klogFlags := flag.NewFlagSet("klog", flag.ExitOnError)
 	klog.InitFlags(klogFlags)
