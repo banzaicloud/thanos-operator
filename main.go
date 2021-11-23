@@ -37,21 +37,18 @@ import (
 
 const DefaultLeaderElectionID = "banzaicloud-thanos-operator"
 
-var (
-	scheme   = runtime.NewScheme()
-	setupLog = ctrl.Log.WithName("setup")
-)
+func main() {
+	setupLog := ctrl.Log.WithName("setup")
 
-func init() {
+	scheme := runtime.NewScheme()
+
 	_ = clientgoscheme.AddToScheme(scheme)
 
 	_ = thanosv1alpha1.AddToScheme(scheme)
 	_ = apiextensions.AddToScheme(scheme)
 	_ = prometheus.AddToScheme(scheme)
 	// +kubebuilder:scaffold:scheme
-}
 
-func main() {
 	var metricsAddr string
 	var enableLeaderElection, enablePromCRDWatches bool
 	var leaderElectionId string
