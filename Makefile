@@ -119,7 +119,7 @@ list-all: ## List all make targets
 	@${MAKE} -pRrn : -f $(MAKEFILE_LIST) 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | sort
 
 .PHONY: manager
-manager: fmt generate vet ## Build manager binary
+manager: fmt generate lint ## Build manager binary
 	go build -o bin/manager main.go
 
 .PHONY: manifests
@@ -134,7 +134,7 @@ run: generate install ## Run against the configured Kubernetes cluster in ~/.kub
 	go run ./main.go
 
 .PHONY: test
-test: fmt genall lint vet ${ENVTEST_BINARY_ASSETS} ${KUBEBUILDER} ## Run tests
+test: fmt genall lint ${ENVTEST_BINARY_ASSETS} ${KUBEBUILDER} ## Run tests
 	ENVTEST_BINARY_ASSETS=${ENVTEST_BINARY_ASSETS} go test ./... -coverprofile cover.out
 	cd pkg/sdk && go test ./... -coverprofile cover-sdk.out
 
@@ -144,11 +144,6 @@ tidy: ## Run `go mod tidy` against all modules
 .PHONY: uninstall
 uninstall: manifests ## Uninstall CRDs from a cluster
 	kustomize build config/crd | kubectl delete -f -
-
-.PHONY: vet
-vet: ## Run go vet against code
-	go vet ./...
-	cd pkg/sdk && go vet ./...
 
 ## =========================
 ## ==  Tool dependencies  ==
