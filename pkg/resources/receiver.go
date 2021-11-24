@@ -20,31 +20,13 @@ import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
 	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 type ReceiverReconciler struct {
 	*v1alpha1.Receiver
 	reconciler.ResourceReconciler
-}
-
-func (t *ReceiverReconciler) GetCheck(port int32, path string) *corev1.Probe {
-	return &corev1.Probe{
-		Handler: corev1.Handler{
-			HTTPGet: &corev1.HTTPGetAction{
-				Path: path,
-				Port: intstr.FromInt(int(port)),
-			},
-		},
-		InitialDelaySeconds: 5,
-		TimeoutSeconds:      5,
-		PeriodSeconds:       30,
-		SuccessThreshold:    1,
-		FailureThreshold:    2,
-	}
 }
 
 func (t *ReceiverReconciler) GetCommonLabels() Labels {

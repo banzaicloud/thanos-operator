@@ -40,14 +40,7 @@ func GetPort(address string) int32 {
 	return 0
 }
 
-type ThanosComponentReconciler struct {
-	Thanos         *v1alpha1.Thanos
-	ThanosList     []v1alpha1.Thanos
-	StoreEndpoints []v1alpha1.StoreEndpoint
-	*reconciler.GenericResourceReconciler
-}
-
-func (t *ThanosComponentReconciler) GetCheck(port int32, path string) *corev1.Probe {
+func GetProbe(port int32, path string) *corev1.Probe {
 	return &corev1.Probe{
 		Handler: corev1.Handler{
 			HTTPGet: &corev1.HTTPGetAction{
@@ -61,6 +54,13 @@ func (t *ThanosComponentReconciler) GetCheck(port int32, path string) *corev1.Pr
 		SuccessThreshold:    1,
 		FailureThreshold:    2,
 	}
+}
+
+type ThanosComponentReconciler struct {
+	Thanos         *v1alpha1.Thanos
+	ThanosList     []v1alpha1.Thanos
+	StoreEndpoints []v1alpha1.StoreEndpoint
+	*reconciler.GenericResourceReconciler
 }
 
 func (t *ThanosComponentReconciler) GetCommonLabels() Labels {
