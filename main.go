@@ -56,6 +56,12 @@ func main() {
 	flag.IntVar(&logLevel, "verbosity", 1, "Log verbosity level")
 	flag.Parse()
 
+	klogFlags := flag.NewFlagSet("klog", flag.ExitOnError)
+	klog.InitFlags(klogFlags)
+	if err := klogFlags.Set("v", cast.ToString(logLevel)); err != nil {
+		fmt.Printf("%s - failed to set log level for klog, moving on.\n", err)
+	}
+
 	zapLog := zap.New(zap.JSONEncoder(func(config *zapcore.EncoderConfig) {
 		config.EncodeTime = zapcore.ISO8601TimeEncoder
 		config.EncodeLevel = func(level zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
@@ -68,6 +74,7 @@ func main() {
 	}), zap.Level(zapcore.Level(-logLevel)), zap.RawZapOpts())
 
 	ctrl.SetLogger(zapLog)
+	klog.SetLogger(zapLog)
 
 	setupLog := ctrl.Log.WithName("setup")
 
@@ -79,14 +86,6 @@ func main() {
 	emperror.Panic(apiextensions.AddToScheme(scheme))
 	emperror.Panic(prometheus.AddToScheme(scheme))
 	// +kubebuilder:scaffold:scheme
-
-	klogFlags := flag.NewFlagSet("klog", flag.ExitOnError)
-	klog.InitFlags(klogFlags)
-	err := klogFlags.Set("v", cast.ToString(logLevel))
-	if err != nil {
-		fmt.Printf("%s - failed to set log level for klog, moving on.\n", err)
-	}
-	klog.SetLogger(zapLog)
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                  scheme,
