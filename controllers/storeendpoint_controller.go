@@ -25,7 +25,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -34,7 +33,6 @@ import (
 type StoreEndpointReconciler struct {
 	Client client.Client
 	Log    logr.Logger
-	Scheme *runtime.Scheme
 }
 
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=storeendpoints,verbs=get;list;watch;create;update;patch;delete
