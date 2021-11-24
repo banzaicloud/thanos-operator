@@ -24,7 +24,6 @@ import (
 	"github.com/go-logr/logr"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -39,7 +38,6 @@ import (
 type ThanosPeerReconciler struct {
 	Client client.Client
 	Log    logr.Logger
-	Scheme *runtime.Scheme
 }
 
 // +kubebuilder:rbac:groups=monitoring.banzaicloud.io,resources=thanospeers,verbs=get;list;watch;create;update;patch;delete
