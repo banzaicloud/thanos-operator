@@ -52,10 +52,7 @@ func (t *ThanosComponentReconciler) GetCheck(port int32, path string) *corev1.Pr
 		Handler: corev1.Handler{
 			HTTPGet: &corev1.HTTPGetAction{
 				Path: path,
-				Port: intstr.IntOrString{
-					Type:   intstr.Int,
-					IntVal: port,
-				},
+				Port: intstr.FromInt(int(port)),
 			},
 		},
 		InitialDelaySeconds: 5,

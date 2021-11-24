@@ -32,31 +32,22 @@ func (r *receiverInstance) service() (runtime.Object, reconciler.DesiredState, e
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
-						Name:     "grpc",
-						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(receiver.GRPCAddress),
-						TargetPort: intstr.IntOrString{
-							Type:   intstr.String,
-							StrVal: "grpc",
-						},
+						Name:       "grpc",
+						Protocol:   corev1.ProtocolTCP,
+						Port:       int32(resources.GetPort(receiver.GRPCAddress)),
+						TargetPort: intstr.FromString("grpc"),
 					},
 					{
-						Name:     "http",
-						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(receiver.HTTPAddress),
-						TargetPort: intstr.IntOrString{
-							Type:   intstr.String,
-							StrVal: "http",
-						},
+						Name:       "http",
+						Protocol:   corev1.ProtocolTCP,
+						Port:       int32(resources.GetPort(receiver.HTTPAddress)),
+						TargetPort: intstr.FromString("http"),
 					},
 					{
-						Name:     "remote-write",
-						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(receiver.RemoteWriteAddress),
-						TargetPort: intstr.IntOrString{
-							Type:   intstr.String,
-							StrVal: "remote-write",
-						},
+						Name:       "remote-write",
+						Protocol:   corev1.ProtocolTCP,
+						Port:       int32(resources.GetPort(receiver.RemoteWriteAddress)),
+						TargetPort: intstr.FromString("remote-write"),
 					},
 				},
 				Selector:  r.getLabels(),
@@ -84,31 +75,22 @@ func (r *receiverInstance) commonService() (runtime.Object, reconciler.DesiredSt
 		Spec: corev1.ServiceSpec{
 			Ports: []corev1.ServicePort{
 				{
-					Name:     "grpc",
-					Protocol: corev1.ProtocolTCP,
-					Port:     10907,
-					TargetPort: intstr.IntOrString{
-						Type:   intstr.String,
-						StrVal: "grpc",
-					},
+					Name:       "grpc",
+					Protocol:   corev1.ProtocolTCP,
+					Port:       10907,
+					TargetPort: intstr.FromString("grpc"),
 				},
 				{
-					Name:     "http",
-					Protocol: corev1.ProtocolTCP,
-					Port:     10909,
-					TargetPort: intstr.IntOrString{
-						Type:   intstr.String,
-						StrVal: "http",
-					},
+					Name:       "http",
+					Protocol:   corev1.ProtocolTCP,
+					Port:       10909,
+					TargetPort: intstr.FromString("http"),
 				},
 				{
-					Name:     "remote-write",
-					Protocol: corev1.ProtocolTCP,
-					Port:     10908,
-					TargetPort: intstr.IntOrString{
-						Type:   intstr.String,
-						StrVal: "remote-write",
-					},
+					Name:       "remote-write",
+					Protocol:   corev1.ProtocolTCP,
+					Port:       10908,
+					TargetPort: intstr.FromString("remote-write"),
 				},
 			},
 			Selector: r.getLabels(),

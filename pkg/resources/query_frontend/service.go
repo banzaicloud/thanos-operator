@@ -32,13 +32,10 @@ func (q *QueryFrontend) service() (runtime.Object, reconciler.DesiredState, erro
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
-						Name:     "http",
-						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(queryFrontend.HttpAddress),
-						TargetPort: intstr.IntOrString{
-							Type:   intstr.String,
-							StrVal: "http",
-						},
+						Name:       "http",
+						Protocol:   corev1.ProtocolTCP,
+						Port:       resources.GetPort(queryFrontend.HttpAddress),
+						TargetPort: intstr.FromString("http"),
 					},
 				},
 				Selector: q.getLabels(),

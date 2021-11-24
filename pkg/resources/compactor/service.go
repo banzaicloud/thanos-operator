@@ -35,7 +35,7 @@ func (c *Compactor) service() (runtime.Object, reconciler.DesiredState, error) {
 						Protocol:   corev1.ProtocolTCP,
 						Name:       "http",
 						Port:       resources.GetPort(compactor.HTTPAddress),
-						TargetPort: intstr.IntOrString{IntVal: resources.GetPort(compactor.HTTPAddress)},
+						TargetPort: intstr.FromInt(int(resources.GetPort(compactor.HTTPAddress))),
 					},
 				},
 				Selector: c.getLabels(),

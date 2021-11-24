@@ -32,22 +32,16 @@ func (s *storeInstance) service() (runtime.Object, reconciler.DesiredState, erro
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
-						Name:     "grpc",
-						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(store.GRPCAddress),
-						TargetPort: intstr.IntOrString{
-							Type:   intstr.String,
-							StrVal: "grpc",
-						},
+						Name:       "grpc",
+						Protocol:   corev1.ProtocolTCP,
+						Port:       resources.GetPort(store.GRPCAddress),
+						TargetPort: intstr.FromString("grpc"),
 					},
 					{
-						Name:     "http",
-						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(store.HttpAddress),
-						TargetPort: intstr.IntOrString{
-							Type:   intstr.String,
-							StrVal: "http",
-						},
+						Name:       "http",
+						Protocol:   corev1.ProtocolTCP,
+						Port:       resources.GetPort(store.HttpAddress),
+						TargetPort: intstr.FromString("http"),
 					},
 				},
 				Selector:  s.getLabels(),

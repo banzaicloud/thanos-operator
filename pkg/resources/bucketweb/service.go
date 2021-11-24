@@ -33,13 +33,10 @@ func (b *BucketWeb) service() (runtime.Object, reconciler.DesiredState, error) {
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
-						Protocol: corev1.ProtocolTCP,
-						Name:     "http",
-						Port:     resources.GetPort(bucketWeb.HTTPAddress),
-						TargetPort: intstr.IntOrString{
-							Type:   intstr.Int,
-							IntVal: resources.GetPort(bucketWeb.HTTPAddress),
-						},
+						Protocol:   corev1.ProtocolTCP,
+						Name:       "http",
+						Port:       resources.GetPort(bucketWeb.HTTPAddress),
+						TargetPort: intstr.FromInt(int(resources.GetPort(bucketWeb.HTTPAddress))),
 					},
 				},
 				Selector: b.getLabels(),
