@@ -48,12 +48,8 @@ func (c *BucketWeb) Reconcile() (*reconcile.Result, error) {
 	})
 }
 
-func (b *BucketWeb) getName(suffix ...string) string {
-	name := Name
-	if len(suffix) > 0 {
-		name = name + "-" + suffix[0]
-	}
-	return b.QualifiedName(name)
+func (b *BucketWeb) getName() string {
+	return b.QualifiedName(Name)
 }
 
 func (b *BucketWeb) getLabels() resources.Labels {
