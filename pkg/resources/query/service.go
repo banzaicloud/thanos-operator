@@ -31,22 +31,16 @@ func (q *Query) service() (runtime.Object, reconciler.DesiredState, error) {
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
-						Name:     "grpc",
-						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(q.Thanos.Spec.Query.GRPCAddress),
-						TargetPort: intstr.IntOrString{
-							Type:   intstr.String,
-							StrVal: "grpc",
-						},
+						Name:       "grpc",
+						Protocol:   corev1.ProtocolTCP,
+						Port:       resources.GetPort(q.Thanos.Spec.Query.GRPCAddress),
+						TargetPort: intstr.FromString("grpc"),
 					},
 					{
-						Name:     "http",
-						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(q.Thanos.Spec.Query.HttpAddress),
-						TargetPort: intstr.IntOrString{
-							Type:   intstr.String,
-							StrVal: "http",
-						},
+						Name:       "http",
+						Protocol:   corev1.ProtocolTCP,
+						Port:       resources.GetPort(q.Thanos.Spec.Query.HttpAddress),
+						TargetPort: intstr.FromString("http"),
 					},
 				},
 				Selector: q.getLabels(),

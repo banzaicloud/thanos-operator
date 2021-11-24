@@ -32,22 +32,16 @@ func (r *ruleInstance) service() (runtime.Object, reconciler.DesiredState, error
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
-						Name:     "grpc",
-						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(rule.GRPCAddress),
-						TargetPort: intstr.IntOrString{
-							Type:   intstr.String,
-							StrVal: "grpc",
-						},
+						Name:       "grpc",
+						Protocol:   corev1.ProtocolTCP,
+						Port:       resources.GetPort(rule.GRPCAddress),
+						TargetPort: intstr.FromString("grpc"),
 					},
 					{
-						Name:     "http",
-						Protocol: corev1.ProtocolTCP,
-						Port:     resources.GetPort(rule.HttpAddress),
-						TargetPort: intstr.IntOrString{
-							Type:   intstr.String,
-							StrVal: "http",
-						},
+						Name:       "http",
+						Protocol:   corev1.ProtocolTCP,
+						Port:       resources.GetPort(rule.HttpAddress),
+						TargetPort: intstr.FromString("http"),
 					},
 				},
 				Selector:  r.getLabels(),

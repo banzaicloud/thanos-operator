@@ -49,22 +49,16 @@ func (e *endpointService) sidecarService() (runtime.Object, reconciler.DesiredSt
 			Spec: corev1.ServiceSpec{
 				Ports: []corev1.ServicePort{
 					{
-						Name:     "grpc",
-						Protocol: corev1.ProtocolTCP,
-						Port:     grpcPort,
-						TargetPort: intstr.IntOrString{
-							Type:   intstr.String,
-							StrVal: "grpc",
-						},
+						Name:       "grpc",
+						Protocol:   corev1.ProtocolTCP,
+						Port:       grpcPort,
+						TargetPort: intstr.FromString("grpc"),
 					},
 					{
-						Name:     "http",
-						Protocol: corev1.ProtocolTCP,
-						Port:     httpPort,
-						TargetPort: intstr.IntOrString{
-							Type:   intstr.String,
-							StrVal: "http",
-						},
+						Name:       "http",
+						Protocol:   corev1.ProtocolTCP,
+						Port:       httpPort,
+						TargetPort: intstr.FromString("http"),
 					},
 				},
 				Selector:  labels,

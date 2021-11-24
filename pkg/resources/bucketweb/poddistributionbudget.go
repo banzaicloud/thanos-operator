@@ -29,7 +29,7 @@ func (b *BucketWeb) podDistributionBucket() (runtime.Object, reconciler.DesiredS
 		return &policyv1beta1.PodDisruptionBudget{
 			ObjectMeta: bucketWeb.MetaOverrides.Merge(b.getMeta(b.getName())),
 			Spec: policyv1beta1.PodDisruptionBudgetSpec{
-				MinAvailable: &intstr.IntOrString{IntVal: 1},
+				MinAvailable: pointerToIntStr(intstr.FromInt(1)),
 				Selector:     &metav1.LabelSelector{},
 			},
 		}, reconciler.StatePresent, nil
@@ -38,4 +38,9 @@ func (b *BucketWeb) podDistributionBucket() (runtime.Object, reconciler.DesiredS
 	return &policyv1beta1.PodDisruptionBudget{
 		ObjectMeta: b.getMeta(b.getName()),
 	}, reconciler.StateAbsent, nil
+}
+
+//nolint:unused
+func pointerToIntStr(v intstr.IntOrString) *intstr.IntOrString {
+	return &v
 }
