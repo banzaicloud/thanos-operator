@@ -118,16 +118,15 @@ func (r *Receiver) Reconcile() (*reconcile.Result, error) {
 }
 
 func (r *receiverInstance) getLabels() resources.Labels {
-	groupLabels := resources.Labels{}
-	if r.receiverGroup != nil {
-		groupLabels["receiverGroup"] = r.receiverGroup.Name
-	}
-	labels := resources.Labels{
-		resources.NameLabel: v1alpha1.ReceiverName,
-	}.Merge(
+	labels := utils.MergeLabels(
+		resources.Labels{
+			resources.NameLabel: v1alpha1.ReceiverName,
+		},
 		r.GetCommonLabels(),
-		groupLabels,
 	)
+	if r.receiverGroup != nil {
+		labels["receiverGroup"] = r.receiverGroup.Name
+	}
 	return labels
 }
 

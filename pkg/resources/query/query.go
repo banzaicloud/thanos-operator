@@ -19,6 +19,7 @@ import (
 	"regexp"
 	"sort"
 
+	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/resources/rule"
 	"github.com/banzaicloud/thanos-operator/pkg/resources/store"
@@ -62,12 +63,12 @@ func (q *Query) Reconcile() (*reconcile.Result, error) {
 }
 
 func (q *Query) getLabels() resources.Labels {
-	labels := resources.Labels{
-		resources.NameLabel: v1alpha1.QueryName,
-	}.Merge(
+	return utils.MergeLabels(
+		resources.Labels{
+			resources.NameLabel: v1alpha1.QueryName,
+		},
 		q.GetCommonLabels(),
 	)
-	return labels
 }
 
 func (q *Query) getName(suffix ...string) string {

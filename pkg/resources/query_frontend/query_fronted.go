@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/resources/query"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
@@ -53,12 +54,12 @@ func (q *QueryFrontend) Reconcile() (*reconcile.Result, error) {
 }
 
 func (q *QueryFrontend) getLabels() resources.Labels {
-	labels := resources.Labels{
-		resources.NameLabel: v1alpha1.QueryFrontendName,
-	}.Merge(
+	return utils.MergeLabels(
+		resources.Labels{
+			resources.NameLabel: v1alpha1.QueryFrontendName,
+		},
 		q.GetCommonLabels(),
 	)
-	return labels
 }
 
 func (q *QueryFrontend) getName(suffix ...string) string {
