@@ -97,13 +97,13 @@ type Store struct {
 }
 
 func (s *storeInstance) getLabels() resources.Labels {
-	labels := resources.Labels{
-		resources.NameLabel:     v1alpha1.StoreName,
-		resources.StoreEndpoint: s.StoreEndpoint.Name,
-	}.Merge(
+	return utils.MergeLabels(
+		resources.Labels{
+			resources.NameLabel:     v1alpha1.StoreName,
+			resources.StoreEndpoint: s.StoreEndpoint.Name,
+		},
 		s.GetCommonLabels(),
 	)
-	return labels
 }
 
 func (s *Store) setArgs(args []string) []string {

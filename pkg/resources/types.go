@@ -61,12 +61,3 @@ func Dispatch(rr reconciler.ResourceReconciler, resourceList []Resource) (*recon
 	}
 	return nil, nil
 }
-
-func (l Labels) Merge(labelGroups ...Labels) Labels {
-	for _, labels := range labelGroups {
-		for k, v := range labels {
-			l[k] = v
-		}
-	}
-	return l
-}

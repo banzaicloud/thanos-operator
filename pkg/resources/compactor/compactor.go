@@ -15,6 +15,7 @@
 package compactor
 
 import (
+	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/imdario/mergo"
@@ -55,10 +56,12 @@ func (c *Compactor) getName() string {
 }
 
 func (c *Compactor) getLabels() resources.Labels {
-	labels := resources.Labels{
-		resources.NameLabel: c.getName(),
-	}.Merge(c.GetCommonLabels())
-	return labels
+	return utils.MergeLabels(
+		resources.Labels{
+			resources.NameLabel: c.getName(),
+		},
+		c.GetCommonLabels(),
+	)
 }
 
 func (c *Compactor) getMeta() metav1.ObjectMeta {

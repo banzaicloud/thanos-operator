@@ -14,6 +14,7 @@
 package bucketweb
 
 import (
+	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/imdario/mergo"
@@ -56,10 +57,12 @@ func (b *BucketWeb) getName(suffix ...string) string {
 }
 
 func (b *BucketWeb) getLabels() resources.Labels {
-	labels := resources.Labels{
-		resources.NameLabel: b.getName(),
-	}.Merge(b.GetCommonLabels())
-	return labels
+	return utils.MergeLabels(
+		resources.Labels{
+			resources.NameLabel: b.getName(),
+		},
+		b.GetCommonLabels(),
+	)
 }
 
 func (b *BucketWeb) getMeta(name string) metav1.ObjectMeta {

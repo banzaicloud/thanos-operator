@@ -119,13 +119,13 @@ func (r *Rule) Reconcile() (*reconcile.Result, error) {
 }
 
 func (r *ruleInstance) getLabels() resources.Labels {
-	labels := resources.Labels{
-		resources.NameLabel:     v1alpha1.RuleName,
-		resources.StoreEndpoint: r.StoreEndpoint.Name,
-	}.Merge(
+	return utils.MergeLabels(
+		resources.Labels{
+			resources.NameLabel:     v1alpha1.RuleName,
+			resources.StoreEndpoint: r.StoreEndpoint.Name,
+		},
 		r.GetCommonLabels(),
 	)
-	return labels
 }
 
 func (r *Rule) getQueryEndpoints() []string {
