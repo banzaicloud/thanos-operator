@@ -23,7 +23,6 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -45,15 +44,11 @@ func (r *ReceiverReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	result := ctrl.Result{}
 	log := r.Log.WithValues("receivers", req.NamespacedName)
 
-	receivers := &monitoringv1alpha1.Receiver{}
-	err := r.Client.Get(ctx, req.NamespacedName, receivers)
-	if err != nil {
-		if apierrors.IsNotFound(err) {
-			return result, nil
-		}
-		return result, err
+	rec := &monitoringv1alpha1.Receiver{}
+	if err := r.Client.Get(ctx, req.NamespacedName, rec); err != nil {
+		return result, client.IgnoreNotFound(err)
 	}
-	receiverReconciler := resources.NewReceiverReconciler(receivers, reconciler.NewReconcilerWith(r.Client, reconciler.WithLog(log)))
+	receiverReconciler := resources.NewReceiverReconciler(rec, reconciler.NewReconcilerWith(r.Client, reconciler.WithLog(log)))
 
 	reconcilers := []resources.ComponentReconciler{
 		receiver.New(receiverReconciler).Reconcile,
