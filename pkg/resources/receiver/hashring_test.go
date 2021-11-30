@@ -17,9 +17,11 @@ package receiver
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
-func TestHashRingMarshal(t *testing.T) {
+func TestHashRingGroupMarshal(t *testing.T) {
 	input := []HashRingGroup{
 		{
 			HashRing:  "test",
@@ -29,13 +31,6 @@ func TestHashRingMarshal(t *testing.T) {
 	}
 	expected := `[{"hashring":"test","endpoints":["endpoint1","endpoint2"],"tenants":["test"]}]`
 	result, err := json.Marshal(input)
-	if err != nil {
-		t.Error(err)
-	}
-	if expected != string(result) {
-		t.Errorf("expected: %s != %s", expected, result)
-	}
-}
-
-func TestGenerateHashring(t *testing.T) {
+	require.NoError(t, err)
+	require.Equal(t, expected, string(result))
 }
