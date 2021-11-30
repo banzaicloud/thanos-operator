@@ -83,7 +83,7 @@ func (r *receiverInstance) hashring() (runtime.Object, reconciler.DesiredState, 
 		return nil, nil, err
 	}
 	configmap := &v1.ConfigMap{
-		ObjectMeta: r.GetObjectMeta(r.getName("hashring-config")),
+		ObjectMeta: r.receiverExt.getMeta("hashring-config"),
 		Data: map[string]string{
 			"hashring.json": configuration,
 		},
