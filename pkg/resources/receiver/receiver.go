@@ -31,6 +31,11 @@ type receiverExt struct {
 	*v1alpha1.Receiver
 }
 
+func (r receiverExt) getMeta(suffix ...string) metav1.ObjectMeta {
+	meta := r.GetObjectMeta(r.getName(suffix...))
+	return meta
+}
+
 func (r receiverExt) getName(suffix ...string) string {
 	return resources.QualifiedName(append([]string{r.Name, v1alpha1.ReceiverName}, suffix...)...)
 }
@@ -77,7 +82,7 @@ func (r *receiverInstance) getVolumeMeta(name string) metav1.ObjectMeta {
 }
 
 func (r *receiverInstance) getMeta(suffix ...string) metav1.ObjectMeta {
-	meta := r.GetObjectMeta(r.getName(suffix...))
+	meta := r.receiverExt.getMeta(suffix...)
 	meta.Labels = r.getLabels()
 	return meta
 }
