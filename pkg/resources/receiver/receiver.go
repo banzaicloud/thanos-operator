@@ -47,11 +47,7 @@ func (r *receiverInstance) getVolumeMeta(name string) metav1.ObjectMeta {
 }
 
 func (r *receiverInstance) getMeta(suffix ...string) metav1.ObjectMeta {
-	nameSuffix := ""
-	if len(suffix) > 0 {
-		nameSuffix = suffix[0]
-	}
-	meta := r.GetObjectMeta(r.getName(nameSuffix))
+	meta := r.GetObjectMeta(r.getName(suffix...))
 	meta.Labels = r.getLabels()
 	return meta
 }
