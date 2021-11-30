@@ -18,17 +18,55 @@ import (
 	"github.com/banzaicloud/operator-tools/pkg/utils"
 	"github.com/banzaicloud/thanos-operator/pkg/resources"
 	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
-	"github.com/imdario/mergo"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-type Receiver struct {
-	*resources.ReceiverReconciler
+func New(receiver *v1alpha1.Receiver) *Receiver {
+	return &Receiver{
+		Receiver: receiver,
+	}
 }
 
+type Receiver struct {
+	*v1alpha1.Receiver
+}
+
+func (r Receiver) GetCommonLabels() resources.Labels {
+	return resources.Labels{
+		resources.ManagedByLabel: r.Name,
+	}
+}
+
+func (r Receiver) QualifiedName(name string) string {
+	return r.Name + "-" + name
+}
+
+func (r Receiver) GetObjectMeta(name string) metav1.ObjectMeta {
+	return metav1.ObjectMeta{
+		Name:      name,
+		Namespace: r.Namespace,
+		OwnerReferences: []metav1.OwnerReference{
+			{
+				APIVersion: r.APIVersion,
+				Kind:       r.Kind,
+				Name:       r.Name,
+				UID:        r.UID,
+				Controller: utils.BoolPointer(true),
+			},
+		},
+	}
+}
+
+//func (r *Receiver) GetServiceURLS() []string {
+//	var urls []string
+//	for _, endpoint := range r.StoreEndpoints {
+//		urls = append(urls, (&receiverInstance{r, endpoint.DeepCopy()}).getSvc())
+//	}
+//	return urls
+//}
+
 type receiverInstance struct {
-	*Receiver
+	Receiver
 	receiverGroup *v1alpha1.ReceiverGroup
 }
 
@@ -50,49 +88,6 @@ func (r *receiverInstance) getMeta(suffix ...string) metav1.ObjectMeta {
 	meta := r.GetObjectMeta(r.getName(suffix...))
 	meta.Labels = r.getLabels()
 	return meta
-}
-
-func New(reconciler *resources.ReceiverReconciler) *Receiver {
-	return &Receiver{
-		reconciler,
-	}
-}
-
-func (r *Receiver) resourceFactory() ([]resources.Resource, error) {
-	var resourceList []resources.Resource
-
-	resourceList = append(resourceList, (&receiverInstance{r, nil}).commonService)
-
-	for _, group := range r.Spec.ReceiverGroups {
-		err := mergo.Merge(&group, v1alpha1.DefaultReceiverGroup)
-		if err != nil {
-			return nil, err
-		}
-		resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).statefulset)
-		resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).hashring)
-		resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).service)
-		resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).serviceMonitor)
-		resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).ingressGRPC)
-		resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).ingressHTTP)
-	}
-
-	return resourceList, nil
-}
-
-//func (r *Receiver) GetServiceURLS() []string {
-//	var urls []string
-//	for _, endpoint := range r.StoreEndpoints {
-//		urls = append(urls, (&receiverInstance{r, endpoint.DeepCopy()}).getSvc())
-//	}
-//	return urls
-//}
-
-func (r *Receiver) Reconcile() (*reconcile.Result, error) {
-	resources, err := r.resourceFactory()
-	if err != nil {
-		return nil, err
-	}
-	return r.ReconcileResources(resources)
 }
 
 func (r *receiverInstance) getLabels() resources.Labels {
