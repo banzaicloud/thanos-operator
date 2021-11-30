@@ -40,7 +40,7 @@ type ComponentReconciler func() (*reconcile.Result, error)
 // Resource redeclaration of function with return type kubernetes Object
 type Resource func() (runtime.Object, reconciler.DesiredState, error)
 
-type Labels map[string]string
+type Labels = map[string]string
 
 func Dispatch(rr reconciler.ResourceReconciler, resourceList []Resource) (*reconcile.Result, error) {
 	for _, res := range resourceList {
