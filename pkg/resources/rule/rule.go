@@ -44,7 +44,7 @@ func (r *ruleInstance) getName(suffix ...string) string {
 }
 
 func (r *ruleInstance) getVolumeMeta(name string) metav1.ObjectMeta {
-	meta := r.GetNameMeta(name, "")
+	meta := r.GetNameMeta(name)
 	meta.OwnerReferences = []metav1.OwnerReference{
 		{
 			APIVersion: r.StoreEndpoint.APIVersion,
@@ -63,7 +63,7 @@ func (r *ruleInstance) getMeta(suffix ...string) metav1.ObjectMeta {
 	if len(suffix) > 0 {
 		nameSuffix = suffix[0]
 	}
-	meta := r.GetNameMeta(r.getName(nameSuffix), "")
+	meta := r.GetNameMeta(r.getName(nameSuffix))
 	meta.OwnerReferences = []metav1.OwnerReference{
 		{
 			APIVersion: r.StoreEndpoint.APIVersion,

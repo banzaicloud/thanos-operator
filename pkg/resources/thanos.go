@@ -73,19 +73,15 @@ func (t *ThanosComponentReconciler) QualifiedName(name string) string {
 	return fmt.Sprintf("%s-%s", t.Thanos.Name, name)
 }
 
-func (t *ThanosComponentReconciler) GetNameMeta(name string, namespaceOverride string) metav1.ObjectMeta {
-	namespace := t.Thanos.Namespace
-	if namespaceOverride != "" {
-		namespace = namespaceOverride
-	}
+func (t *ThanosComponentReconciler) GetNameMeta(name string) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Name:      name,
-		Namespace: namespace,
+		Namespace: t.Thanos.Namespace,
 	}
 }
 
-func (t *ThanosComponentReconciler) GetObjectMeta(name string, namespaceOverride string) metav1.ObjectMeta {
-	meta := t.GetNameMeta(name, namespaceOverride)
+func (t *ThanosComponentReconciler) GetObjectMeta(name string) metav1.ObjectMeta {
+	meta := t.GetNameMeta(name)
 	meta.OwnerReferences = []metav1.OwnerReference{
 		{
 			APIVersion: t.Thanos.APIVersion,

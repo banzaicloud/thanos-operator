@@ -43,7 +43,7 @@ func (s *storeInstance) getName() string {
 }
 
 func (s *storeInstance) getMeta() metav1.ObjectMeta {
-	meta := s.GetNameMeta(s.getName(), "")
+	meta := s.GetNameMeta(s.getName())
 	meta.OwnerReferences = []metav1.OwnerReference{
 		{
 			APIVersion: s.StoreEndpoint.APIVersion,
