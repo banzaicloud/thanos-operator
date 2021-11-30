@@ -39,25 +39,20 @@ func (t *ObjectStoreReconciler) QualifiedName(name string) string {
 	return fmt.Sprintf("%s-%s", t.ObjectStore.Name, name)
 }
 
-func (t *ObjectStoreReconciler) GetNameMeta(name string) metav1.ObjectMeta {
+func (t *ObjectStoreReconciler) GetObjectMeta(name string) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Name:      name,
 		Namespace: t.ObjectStore.Namespace,
-	}
-}
-
-func (t *ObjectStoreReconciler) GetObjectMeta(name string) metav1.ObjectMeta {
-	meta := t.GetNameMeta(name)
-	meta.OwnerReferences = []metav1.OwnerReference{
-		{
-			APIVersion: t.ObjectStore.APIVersion,
-			Kind:       t.ObjectStore.Kind,
-			Name:       t.ObjectStore.Name,
-			UID:        t.ObjectStore.UID,
-			Controller: utils.BoolPointer(true),
+		OwnerReferences: []metav1.OwnerReference{
+			{
+				APIVersion: t.ObjectStore.APIVersion,
+				Kind:       t.ObjectStore.Kind,
+				Name:       t.ObjectStore.Name,
+				UID:        t.ObjectStore.UID,
+				Controller: utils.BoolPointer(true),
+			},
 		},
 	}
-	return meta
 }
 
 func (t *ObjectStoreReconciler) ReconcileResources(resourceList []Resource) (*reconcile.Result, error) {
