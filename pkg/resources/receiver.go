@@ -39,19 +39,15 @@ func (t *ReceiverReconciler) QualifiedName(name string) string {
 	return fmt.Sprintf("%s-%s", t.Receiver.Name, name)
 }
 
-func (t *ReceiverReconciler) GetNameMeta(name string, namespaceOverride string) metav1.ObjectMeta {
-	namespace := t.Receiver.Namespace
-	if namespaceOverride != "" {
-		namespace = namespaceOverride
-	}
+func (t *ReceiverReconciler) GetNameMeta(name string) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Name:      name,
-		Namespace: namespace,
+		Namespace: t.Receiver.Namespace,
 	}
 }
 
 func (t *ReceiverReconciler) GetObjectMeta(name string) metav1.ObjectMeta {
-	meta := t.GetNameMeta(name, "")
+	meta := t.GetNameMeta(name)
 	meta.OwnerReferences = []metav1.OwnerReference{
 		{
 			APIVersion: t.Receiver.APIVersion,

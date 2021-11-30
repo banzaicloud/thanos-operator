@@ -78,12 +78,8 @@ func (q *QueryFrontend) GetHTTPServiceURL() string {
 	return fmt.Sprintf("http://%s:%d", q.GetHTTPService(), resources.GetPort(q.Thanos.Spec.QueryFrontend.HttpAddress))
 }
 
-func (q *QueryFrontend) getMeta(name string, params ...string) metav1.ObjectMeta {
-	namespace := ""
-	if len(params) > 0 {
-		namespace = params[0]
-	}
-	meta := q.GetObjectMeta(name, namespace)
+func (q *QueryFrontend) getMeta(name string) metav1.ObjectMeta {
+	meta := q.GetObjectMeta(name)
 	meta.Labels = q.getLabels()
 	return meta
 }
