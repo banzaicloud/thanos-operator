@@ -39,25 +39,20 @@ func (t *ReceiverReconciler) QualifiedName(name string) string {
 	return fmt.Sprintf("%s-%s", t.Receiver.Name, name)
 }
 
-func (t *ReceiverReconciler) GetNameMeta(name string) metav1.ObjectMeta {
+func (t *ReceiverReconciler) GetObjectMeta(name string) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Name:      name,
-		Namespace: t.Receiver.Namespace,
-	}
-}
-
-func (t *ReceiverReconciler) GetObjectMeta(name string) metav1.ObjectMeta {
-	meta := t.GetNameMeta(name)
-	meta.OwnerReferences = []metav1.OwnerReference{
-		{
-			APIVersion: t.Receiver.APIVersion,
-			Kind:       t.Receiver.Kind,
-			Name:       t.Receiver.Name,
-			UID:        t.Receiver.UID,
-			Controller: utils.BoolPointer(true),
+		Namespace: t.Namespace,
+		OwnerReferences: []metav1.OwnerReference{
+			{
+				APIVersion: t.APIVersion,
+				Kind:       t.Kind,
+				Name:       t.Name,
+				UID:        t.UID,
+				Controller: utils.BoolPointer(true),
+			},
 		},
 	}
-	return meta
 }
 
 func (t *ReceiverReconciler) ReconcileResources(resourceList []Resource) (*reconcile.Result, error) {
