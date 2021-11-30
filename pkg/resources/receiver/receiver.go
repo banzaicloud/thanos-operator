@@ -41,16 +41,7 @@ func (r *receiverInstance) getName(suffix ...string) string {
 }
 
 func (r *receiverInstance) getVolumeMeta(name string) metav1.ObjectMeta {
-	meta := r.GetNameMeta(name)
-	meta.OwnerReferences = []metav1.OwnerReference{
-		{
-			APIVersion: r.APIVersion,
-			Kind:       r.Kind,
-			Name:       r.Name,
-			UID:        r.UID,
-			Controller: utils.BoolPointer(true),
-		},
-	}
+	meta := r.GetObjectMeta(name)
 	meta.Labels = r.getLabels()
 	return meta
 }
@@ -60,16 +51,7 @@ func (r *receiverInstance) getMeta(suffix ...string) metav1.ObjectMeta {
 	if len(suffix) > 0 {
 		nameSuffix = suffix[0]
 	}
-	meta := r.GetNameMeta(r.getName(nameSuffix))
-	meta.OwnerReferences = []metav1.OwnerReference{
-		{
-			APIVersion: r.APIVersion,
-			Kind:       r.Kind,
-			Name:       r.Name,
-			UID:        r.UID,
-			Controller: utils.BoolPointer(true),
-		},
-	}
+	meta := r.GetObjectMeta(r.getName(nameSuffix))
 	meta.Labels = r.getLabels()
 	return meta
 }
