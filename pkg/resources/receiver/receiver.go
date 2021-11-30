@@ -31,14 +31,14 @@ type receiverExt struct {
 	*v1alpha1.Receiver
 }
 
+func (r receiverExt) getName(suffix ...string) string {
+	return resources.QualifiedName(append([]string{r.Name, v1alpha1.ReceiverName}, suffix...)...)
+}
+
 func (r receiverExt) GetCommonLabels() resources.Labels {
 	return resources.Labels{
 		resources.ManagedByLabel: r.Name,
 	}
-}
-
-func (r receiverExt) QualifiedName(name string) string {
-	return r.Name + "-" + name
 }
 
 func (r receiverExt) GetObjectMeta(name string) metav1.ObjectMeta {
@@ -68,14 +68,6 @@ func (r receiverExt) GetObjectMeta(name string) metav1.ObjectMeta {
 type receiverInstance struct {
 	receiverExt
 	receiverGroup *v1alpha1.ReceiverGroup
-}
-
-func (r *receiverInstance) getName(suffix ...string) string {
-	name := r.QualifiedName(v1alpha1.ReceiverName)
-	if len(suffix) > 0 && suffix[0] != "" {
-		name = name + "-" + suffix[0]
-	}
-	return name
 }
 
 func (r *receiverInstance) getVolumeMeta(name string) metav1.ObjectMeta {
