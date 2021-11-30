@@ -47,7 +47,7 @@ func getResources(receiver *v1alpha1.Receiver) (resourceList []resources.Resourc
 		return
 	}
 
-	r := *New(receiver)
+	r := extend(receiver)
 	resourceList = append(resourceList, (&receiverInstance{r, nil}).commonService)
 
 	for _, group := range receiver.Spec.ReceiverGroups {
