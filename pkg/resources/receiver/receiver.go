@@ -21,27 +21,27 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func New(receiver *v1alpha1.Receiver) *Receiver {
-	return &Receiver{
-		Receiver: receiver,
+func extend(r *v1alpha1.Receiver) receiverExt {
+	return receiverExt{
+		Receiver: r,
 	}
 }
 
-type Receiver struct {
+type receiverExt struct {
 	*v1alpha1.Receiver
 }
 
-func (r Receiver) GetCommonLabels() resources.Labels {
+func (r receiverExt) GetCommonLabels() resources.Labels {
 	return resources.Labels{
 		resources.ManagedByLabel: r.Name,
 	}
 }
 
-func (r Receiver) QualifiedName(name string) string {
+func (r receiverExt) QualifiedName(name string) string {
 	return r.Name + "-" + name
 }
 
-func (r Receiver) GetObjectMeta(name string) metav1.ObjectMeta {
+func (r receiverExt) GetObjectMeta(name string) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Name:      name,
 		Namespace: r.Namespace,
@@ -57,7 +57,7 @@ func (r Receiver) GetObjectMeta(name string) metav1.ObjectMeta {
 	}
 }
 
-//func (r *Receiver) GetServiceURLS() []string {
+//func (r receiverExt) GetServiceURLS() []string {
 //	var urls []string
 //	for _, endpoint := range r.StoreEndpoints {
 //		urls = append(urls, (&receiverInstance{r, endpoint.DeepCopy()}).getSvc())
@@ -66,7 +66,7 @@ func (r Receiver) GetObjectMeta(name string) metav1.ObjectMeta {
 //}
 
 type receiverInstance struct {
-	Receiver
+	receiverExt
 	receiverGroup *v1alpha1.ReceiverGroup
 }
 
