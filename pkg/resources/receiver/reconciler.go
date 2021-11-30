@@ -49,13 +49,13 @@ func getResources(receiver *v1alpha1.Receiver) (resourceList []resources.Resourc
 
 	r := extend(receiver)
 	resourceList = append(resourceList, (&receiverInstance{r, nil}).commonService)
+	resourceList = append(resourceList, r.hashringConfig)
 
 	for _, group := range receiver.Spec.ReceiverGroups {
 		if err = mergo.Merge(&group, v1alpha1.DefaultReceiverGroup); err != nil {
 			return
 		}
 		resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).statefulset)
-		resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).hashring)
 		resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).service)
 		resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).serviceMonitor)
 		resourceList = append(resourceList, (&receiverInstance{r, group.DeepCopy()}).ingressGRPC)

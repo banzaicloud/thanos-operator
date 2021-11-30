@@ -24,6 +24,42 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
+func (r receiverExt) hashringConfig() (runtime.Object, reconciler.DesiredState, error) {
+	hashringConfig := make([]HashRingGroup, len(r.Spec.ReceiverGroups))
+	for i := range r.Spec.ReceiverGroups {
+		receiverGroup := &r.Spec.ReceiverGroups[i]
+		hashringConfig[i].HashRing = receiverGroup.Name
+		hashringConfig[i].Tenants = receiverGroup.Tenants
+		hashringConfig[i].Endpoints = r.generateEndpointsForGroup(receiverGroup)
+	}
+	hashringConfigJSON, err := json.Marshal(hashringConfig)
+	if err != nil {
+		return nil, nil, err
+	}
+	configmap := &v1.ConfigMap{
+		ObjectMeta: r.getMeta("hashring-config"),
+		Data: map[string]string{
+			"hashring.json": string(hashringConfigJSON),
+		},
+	}
+	return configmap, reconciler.StatePresent, nil
+}
+
+func (r receiverExt) generateEndpointsForGroup(group *v1alpha1.ReceiverGroup) (endpoints []string) {
+	replicas := int(group.Replicas)
+	if replicas == 0 {
+		replicas = 1
+	}
+
+	name := r.getName(group.Name)
+
+	endpoints = make([]string, replicas)
+	for i := range endpoints {
+		endpoints[i] = fmt.Sprintf("%s-%d.%s:10907", name, i, name)
+	}
+	return
+}
+
 type HashRingGroup struct {
 	HashRing  string   `json:"hashring,omitempty"`
 	Endpoints []string `json:"endpoints,omitempty"`
@@ -49,44 +85,3 @@ type HashRingGroup struct {
 //	}
 //	return false
 //}
-
-func (r *receiverInstance) generateEndpointsForGroup(group v1alpha1.ReceiverGroup) []string {
-	var endpoints []string
-	replicas := int(group.Replicas)
-	if replicas == 0 {
-		replicas = 1
-	}
-	name := r.getName(group.Name)
-	for i := 0; i < replicas; i++ {
-		endpoints = append(endpoints, fmt.Sprintf("%s-%d.%s:10907", name, i, name))
-	}
-	return endpoints
-}
-
-func (r *receiverInstance) generateHashring() (string, error) {
-	hashringConfig := make([]HashRingGroup, len(r.Spec.ReceiverGroups))
-	for i, receiverGroup := range r.Spec.ReceiverGroups {
-		hashringConfig[i].HashRing = receiverGroup.Name
-		hashringConfig[i].Tenants = receiverGroup.Tenants
-		hashringConfig[i].Endpoints = r.generateEndpointsForGroup(receiverGroup)
-	}
-	result, err := json.Marshal(hashringConfig)
-	if err != nil {
-		return "", err
-	}
-	return string(result), nil
-}
-
-func (r *receiverInstance) hashring() (runtime.Object, reconciler.DesiredState, error) {
-	configuration, err := r.generateHashring()
-	if err != nil {
-		return nil, nil, err
-	}
-	configmap := &v1.ConfigMap{
-		ObjectMeta: r.receiverExt.getMeta("hashring-config"),
-		Data: map[string]string{
-			"hashring.json": configuration,
-		},
-	}
-	return configmap, reconciler.StatePresent, nil
-}
