@@ -48,10 +48,10 @@ func (r *ReceiverReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	if err := r.Client.Get(ctx, req.NamespacedName, rec); err != nil {
 		return result, client.IgnoreNotFound(err)
 	}
-	receiverReconciler := resources.NewReceiverReconciler(rec, reconciler.NewReconcilerWith(r.Client, reconciler.WithLog(log)))
+	receiverReconciler := receiver.NewReconciler(rec, reconciler.NewReconcilerWith(r.Client, reconciler.WithLog(log)))
 
 	reconcilers := []resources.ComponentReconciler{
-		receiver.New(receiverReconciler).Reconcile,
+		receiverReconciler.Reconcile,
 	}
 
 	return resources.RunReconcilers(reconcilers)
