@@ -18,81 +18,78 @@ import (
 	"emperror.dev/errors"
 	"github.com/banzaicloud/operator-tools/pkg/merge"
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
+	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-func (r *receiverInstance) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
-	if r.receiverGroup.GRPCIngress != nil {
-		endpointIngress := r.receiverGroup.GRPCIngress
-		pathType := netv1.PathTypeImplementationSpecific
-		ingress := &netv1.Ingress{
-			ObjectMeta: r.receiverGroup.MetaOverrides.Merge(r.getMeta(r.receiverGroup.Name + "-grpc")),
-			Spec: netv1.IngressSpec{
-				Rules: []netv1.IngressRule{
-					{
-						Host: endpointIngress.Host,
-						IngressRuleValue: netv1.IngressRuleValue{
-							HTTP: &netv1.HTTPIngressRuleValue{
-								Paths: []netv1.HTTPIngressPath{
-									{
-										Path:     endpointIngress.Path,
-										PathType: &pathType,
-										Backend: netv1.IngressBackend{
-											Service: &netv1.IngressServiceBackend{
-												Name: r.getName(r.receiverGroup.Name),
-												Port: netv1.ServiceBackendPort{
-													Name: "grpc",
-												},
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		}
-		if endpointIngress.Certificate != "" {
-			ingress.Spec.TLS = []netv1.IngressTLS{
-				{
-					Hosts:      []string{endpointIngress.Host},
-					SecretName: endpointIngress.Certificate,
-				},
-			}
-		}
-		return ingress, reconciler.StatePresent, nil
+func (r receiverInstance) ingressGRPC() (runtime.Object, reconciler.DesiredState, error) {
+	ingress := &netv1.Ingress{
+		ObjectMeta: r.receiverGroup.MetaOverrides.Merge(r.getMeta(r.receiverGroup.Name + "-grpc")),
 	}
-	delete := &netv1.Ingress{
-		ObjectMeta: r.getMeta(r.receiverGroup.Name + "-grpc"),
+	desiredState := reconciler.StateAbsent
+	if ingressDef := r.receiverGroup.GRPCIngress; ingressDef != nil {
+		configurator := ingressConfigurator{
+			Ingress:         ingressDef,
+			ServiceName:     r.getName(r.receiverGroup.Name),
+			ServicePortName: "grpc",
+		}
+		if err := configurator.configureIngress(ingress); err != nil {
+			return nil, nil, err
+		}
+
+		desiredState = reconciler.StatePresent
 	}
-	return delete, reconciler.StateAbsent, nil
+	return ingress, desiredState, nil
 }
 
-func (r *receiverInstance) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
-	if r.receiverGroup.HTTPIngress != nil {
-		endpointIngress := r.receiverGroup.HTTPIngress
-		pathType := netv1.PathTypeImplementationSpecific
-		ingress := &netv1.Ingress{
-			ObjectMeta: r.receiverGroup.MetaOverrides.Merge(r.getMeta(r.receiverGroup.Name + "-remote-write")),
-			Spec: netv1.IngressSpec{
-				Rules: []netv1.IngressRule{
-					{
-						Host: endpointIngress.Host,
-						IngressRuleValue: netv1.IngressRuleValue{
-							HTTP: &netv1.HTTPIngressRuleValue{
-								Paths: []netv1.HTTPIngressPath{
-									{
-										Path:     endpointIngress.Path,
-										PathType: &pathType,
-										Backend: netv1.IngressBackend{
-											Service: &netv1.IngressServiceBackend{
-												Name: r.getName(r.receiverGroup.Name),
-												Port: netv1.ServiceBackendPort{
-													Name: "remote-write",
-												},
-											},
+func (r receiverInstance) ingressHTTP() (runtime.Object, reconciler.DesiredState, error) {
+	ingress := &netv1.Ingress{
+		ObjectMeta: r.receiverGroup.MetaOverrides.Merge(r.getMeta(r.receiverGroup.Name + "-remote-write")),
+	}
+	desiredState := reconciler.StateAbsent
+	if ingressDef := r.receiverGroup.HTTPIngress; ingressDef != nil {
+		configurator := ingressConfigurator{
+			Ingress:         ingressDef,
+			ServiceName:     r.getName(r.receiverGroup.Name),
+			ServicePortName: "remote-write",
+		}
+		if err := configurator.configureIngress(ingress); err != nil {
+			return nil, nil, err
+		}
+
+		desiredState = reconciler.StatePresent
+	}
+	return ingress, desiredState, nil
+}
+
+type ingressConfigurator struct {
+	*v1alpha1.Ingress
+	ServiceName     string
+	ServicePortName string
+}
+
+func (i ingressConfigurator) configureIngress(ingress *netv1.Ingress) error {
+	if i.Ingress == nil {
+		return nil
+	}
+
+	pathType := netv1.PathTypeImplementationSpecific
+	ingress.Spec = netv1.IngressSpec{
+		Rules: []netv1.IngressRule{
+			{
+				Host: i.Host,
+				IngressRuleValue: netv1.IngressRuleValue{
+					HTTP: &netv1.HTTPIngressRuleValue{
+						Paths: []netv1.HTTPIngressPath{
+							{
+								Path:     i.Path,
+								PathType: &pathType,
+								Backend: netv1.IngressBackend{
+									Service: &netv1.IngressServiceBackend{
+										Name: i.ServiceName,
+										Port: netv1.ServiceBackendPort{
+											Name: i.ServicePortName,
 										},
 									},
 								},
@@ -101,26 +98,21 @@ func (r *receiverInstance) ingressHTTP() (runtime.Object, reconciler.DesiredStat
 					},
 				},
 			},
+		},
+	}
+	if i.Certificate != "" {
+		ingress.Spec.TLS = []netv1.IngressTLS{
+			{
+				Hosts:      []string{i.Host},
+				SecretName: i.Certificate,
+			},
 		}
-		if endpointIngress.Certificate != "" {
-			ingress.Spec.TLS = []netv1.IngressTLS{
-				{
-					Hosts:      []string{endpointIngress.Host},
-					SecretName: endpointIngress.Certificate,
-				},
-			}
+	}
+	if i.IngressOverrides != nil {
+		if err := merge.Merge(ingress, i.IngressOverrides); err != nil {
+			return errors.WrapIf(err, "unable to merge overrides to base object")
 		}
-		if endpointIngress.IngressOverrides != nil {
-			err := merge.Merge(ingress, endpointIngress.IngressOverrides)
-			if err != nil {
-				return ingress, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
-			}
-		}
+	}
 
-		return ingress, reconciler.StatePresent, nil
-	}
-	delete := &netv1.Ingress{
-		ObjectMeta: r.getMeta(r.receiverGroup.Name + "-grpc"),
-	}
-	return delete, reconciler.StateAbsent, nil
+	return nil
 }
