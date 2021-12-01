@@ -63,7 +63,7 @@ func (Component) ResourceBuilders(parent reconciler.ResourceOwner, config interf
 
 	r := extend(receiver)
 	builders = append(builders,
-		(&receiverInstance{r, nil}).commonService,
+		r.commonService,
 		r.hashringConfig,
 	)
 

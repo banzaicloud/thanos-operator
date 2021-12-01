@@ -31,19 +31,26 @@ type receiverExt struct {
 	*v1alpha1.Receiver
 }
 
+func (r receiverExt) getLabels() resources.Labels {
+	return resources.Labels{
+		resources.ManagedByLabel: r.Name,
+		resources.NameLabel:      v1alpha1.ReceiverName,
+	}
+}
+
 func (r receiverExt) getMeta(suffix ...string) metav1.ObjectMeta {
 	meta := r.GetObjectMeta(r.getName(suffix...))
 	return meta
 }
 
-func (r receiverExt) getName(suffix ...string) string {
-	return resources.QualifiedName(append([]string{r.Name, v1alpha1.ReceiverName}, suffix...)...)
+func (r receiverExt) getMetaWithLabels() metav1.ObjectMeta {
+	meta := r.getMeta()
+	meta.Labels = r.getLabels()
+	return meta
 }
 
-func (r receiverExt) GetCommonLabels() resources.Labels {
-	return resources.Labels{
-		resources.ManagedByLabel: r.Name,
-	}
+func (r receiverExt) getName(suffix ...string) string {
+	return resources.QualifiedName(append([]string{r.Name, v1alpha1.ReceiverName}, suffix...)...)
 }
 
 func (r receiverExt) GetObjectMeta(name string) metav1.ObjectMeta {
@@ -88,12 +95,7 @@ func (r *receiverInstance) getMeta(suffix ...string) metav1.ObjectMeta {
 }
 
 func (r *receiverInstance) getLabels() resources.Labels {
-	labels := utils.MergeLabels(
-		resources.Labels{
-			resources.NameLabel: v1alpha1.ReceiverName,
-		},
-		r.GetCommonLabels(),
-	)
+	labels := r.receiverExt.getLabels()
 	if r.receiverGroup != nil {
 		labels["receiverGroup"] = r.receiverGroup.Name
 	}
