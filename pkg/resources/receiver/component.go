@@ -68,15 +68,17 @@ func (Component) ResourceBuilders(parent reconciler.ResourceOwner, config interf
 	)
 
 	for _, group := range receiver.Spec.ReceiverGroups {
+		group := group
 		if err := mergo.Merge(&group, v1alpha1.DefaultReceiverGroup); err != nil {
 			return
 		}
+		g := receiverInstance{r, &group}
 		builders = append(builders,
-			(&receiverInstance{r, group.DeepCopy()}).statefulset,
-			(&receiverInstance{r, group.DeepCopy()}).service,
-			(&receiverInstance{r, group.DeepCopy()}).serviceMonitor,
-			(&receiverInstance{r, group.DeepCopy()}).ingressGRPC,
-			(&receiverInstance{r, group.DeepCopy()}).ingressHTTP,
+			g.statefulset,
+			g.service,
+			g.serviceMonitor,
+			g.ingressGRPC,
+			g.ingressHTTP,
 		)
 	}
 
