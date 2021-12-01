@@ -69,9 +69,9 @@ func (r *receiverInstance) service() (runtime.Object, reconciler.DesiredState, e
 	return delete, reconciler.StateAbsent, nil
 }
 
-func (r *receiverInstance) commonService() (runtime.Object, reconciler.DesiredState, error) {
+func (r receiverExt) commonService() (runtime.Object, reconciler.DesiredState, error) {
 	service := &corev1.Service{
-		ObjectMeta: r.getMeta(),
+		ObjectMeta: r.getMetaWithLabels(),
 		Spec: corev1.ServiceSpec{
 			Ports: []corev1.ServicePort{
 				{
