@@ -21,30 +21,27 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-func (r *receiverInstance) serviceMonitor() (runtime.Object, reconciler.DesiredState, error) {
-	if r.receiverGroup.Metrics != nil && r.receiverGroup.Metrics.ServiceMonitor {
-		metrics := r.receiverGroup.Metrics
-		serviceMonitor := &prometheus.ServiceMonitor{
-			ObjectMeta: r.receiverGroup.MetaOverrides.Merge(r.getMeta(r.receiverGroup.Name)),
-			Spec: prometheus.ServiceMonitorSpec{
-				Endpoints: []prometheus.Endpoint{
-					{
-						Port:          "http",
-						Path:          metrics.Path,
-						Interval:      metrics.Interval,
-						ScrapeTimeout: metrics.Timeout,
-					},
+func (r receiverInstance) serviceMonitor() (runtime.Object, reconciler.DesiredState, error) {
+	serviceMonitor := &prometheus.ServiceMonitor{
+		ObjectMeta: r.receiverGroup.MetaOverrides.Merge(r.getMeta(r.receiverGroup.Name)),
+	}
+	desiredState := reconciler.StateAbsent
+	if metrics := r.receiverGroup.Metrics; metrics != nil && metrics.ServiceMonitor {
+		serviceMonitor.Spec = prometheus.ServiceMonitorSpec{
+			Endpoints: []prometheus.Endpoint{
+				{
+					Port:          "http",
+					Path:          metrics.Path,
+					Interval:      metrics.Interval,
+					ScrapeTimeout: metrics.Timeout,
 				},
-				Selector: v1.LabelSelector{
-					MatchLabels: r.getLabels(),
-				},
-				SampleLimit: 0,
 			},
+			Selector: v1.LabelSelector{
+				MatchLabels: r.getLabels(),
+			},
+			SampleLimit: 0,
 		}
-		return serviceMonitor, reconciler.StatePresent, nil
+		desiredState = reconciler.StatePresent
 	}
-	delete := &prometheus.ServiceMonitor{
-		ObjectMeta: r.getMeta(r.receiverGroup.Name),
-	}
-	return delete, reconciler.StateAbsent, nil
+	return serviceMonitor, desiredState, nil
 }
