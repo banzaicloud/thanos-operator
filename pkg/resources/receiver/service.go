@@ -24,49 +24,41 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-func (r *receiverInstance) service() (runtime.Object, reconciler.DesiredState, error) {
-	if r.receiverGroup != nil {
-		receiver := r.receiverGroup
-		service := &corev1.Service{
-			ObjectMeta: receiver.MetaOverrides.Merge(r.getMeta(receiver.Name)),
-			Spec: corev1.ServiceSpec{
-				Ports: []corev1.ServicePort{
-					{
-						Name:       "grpc",
-						Protocol:   corev1.ProtocolTCP,
-						Port:       int32(resources.GetPort(receiver.GRPCAddress)),
-						TargetPort: intstr.FromString("grpc"),
-					},
-					{
-						Name:       "http",
-						Protocol:   corev1.ProtocolTCP,
-						Port:       int32(resources.GetPort(receiver.HTTPAddress)),
-						TargetPort: intstr.FromString("http"),
-					},
-					{
-						Name:       "remote-write",
-						Protocol:   corev1.ProtocolTCP,
-						Port:       int32(resources.GetPort(receiver.RemoteWriteAddress)),
-						TargetPort: intstr.FromString("remote-write"),
-					},
+func (r receiverInstance) service() (runtime.Object, reconciler.DesiredState, error) {
+	service := &corev1.Service{
+		ObjectMeta: r.receiverGroup.MetaOverrides.Merge(r.getMeta(r.receiverGroup.Name)),
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{
+				{
+					Name:       "grpc",
+					Protocol:   corev1.ProtocolTCP,
+					Port:       int32(resources.GetPort(r.receiverGroup.GRPCAddress)),
+					TargetPort: intstr.FromString("grpc"),
 				},
-				Selector:  r.getLabels(),
-				ClusterIP: corev1.ClusterIPNone,
-				Type:      corev1.ServiceTypeClusterIP,
+				{
+					Name:       "http",
+					Protocol:   corev1.ProtocolTCP,
+					Port:       int32(resources.GetPort(r.receiverGroup.HTTPAddress)),
+					TargetPort: intstr.FromString("http"),
+				},
+				{
+					Name:       "remote-write",
+					Protocol:   corev1.ProtocolTCP,
+					Port:       int32(resources.GetPort(r.receiverGroup.RemoteWriteAddress)),
+					TargetPort: intstr.FromString("remote-write"),
+				},
 			},
-		}
-		if receiver.ServiceOverrides != nil {
-			err := merge.Merge(service, receiver.ServiceOverrides)
-			if err != nil {
-				return service, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
-			}
-		}
-		return service, reconciler.StatePresent, nil
+			Selector:  r.getLabels(),
+			ClusterIP: corev1.ClusterIPNone,
+			Type:      corev1.ServiceTypeClusterIP,
+		},
 	}
-	delete := &corev1.Service{
-		ObjectMeta: r.getMeta(r.receiverGroup.Name),
+	if r.receiverGroup.ServiceOverrides != nil {
+		if err := merge.Merge(service, r.receiverGroup.ServiceOverrides); err != nil {
+			return service, reconciler.StatePresent, errors.WrapIf(err, "unable to merge overrides to base object")
+		}
 	}
-	return delete, reconciler.StateAbsent, nil
+	return service, reconciler.StatePresent, nil
 }
 
 func (r receiverExt) commonService() (runtime.Object, reconciler.DesiredState, error) {
