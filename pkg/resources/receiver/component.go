@@ -16,7 +16,6 @@ package receiver
 
 import (
 	"github.com/banzaicloud/operator-tools/pkg/reconciler"
-	"github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	monitoringv1alpha1 "github.com/banzaicloud/thanos-operator/pkg/sdk/api/v1alpha1"
 	"github.com/imdario/mergo"
 	prometheus "github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring/v1"
@@ -69,7 +68,7 @@ func (Component) ResourceBuilders(parent reconciler.ResourceOwner, config interf
 
 	for _, group := range receiver.Spec.ReceiverGroups {
 		group := group
-		if err := mergo.Merge(&group, v1alpha1.DefaultReceiverGroup); err != nil {
+		if err := mergo.Merge(&group, monitoringv1alpha1.DefaultReceiverGroup); err != nil {
 			return
 		}
 		g := receiverInstance{r, &group}
