@@ -15,7 +15,7 @@ jobs:
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag banzaicloud/thanos-operator:latest
     - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
-      uses: anchore/scan-action@main
+      uses: anchore/scan-action@v3
       with:
         image: "banzaicloud/thanos-operator:latest"
         acs-report-enable: true
