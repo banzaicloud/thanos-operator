@@ -1,0 +1,13 @@
+ignore:
+  - vulnerability: CVE-2021-22570
+    fix-state: unknown
+    package:
+      name: google.golang.org/protobuf
+      version: v1.26.0
+      type: go-module
+  - vulnerability: CVE-2015-5237
+    fix-state: unknown
+    package:
+      name: google.golang.org/protobuf
+      version: v1.26.0
+      type: go-module
