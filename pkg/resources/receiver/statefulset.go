@@ -52,7 +52,6 @@ func (r receiverInstance) statefulset() (runtime.Object, reconciler.DesiredState
 								"--receive.hashrings-file=/etc/hashring/hashring.json",
 								fmt.Sprintf("--receive.replication-factor=%d", 1),
 								"--label=receive_replica=\"$(NAME)\"",
-								"--log.level=debug",
 							},
 							Env: []corev1.EnvVar{
 								{
