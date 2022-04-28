@@ -197,6 +197,12 @@ Do not create lockfile in TSDB data directory. In any case, the lockfiles will b
 
 Default: -
 
+### logLevel (string, optional) {#receivergroup-loglevel}
+
+Log level 
+
+Default: -
+
 
 ## ReceiverStatus
 
