@@ -421,6 +421,7 @@ spec:
                       type: object
                     logLevel:
                       type: string
+                      default: debug
                     metaOverrides:
                       properties:
                         annotations:
