@@ -17,7 +17,6 @@ package resources
 import (
 	"fmt"
 	"reflect"
-	"strconv"
 	"strings"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,30 +27,34 @@ func GetArgs(input interface{}) []string {
 	value := strctVal(input)
 	elements := StructElements(value)
 	for _, element := range elements {
-		var val string
+		var arg string
 		tagArgFormat, _ := parseTagWithName(element.Field.Tag.Get("thanos"))
 		if tagArgFormat != "" {
 			switch i := element.Value.Interface().(type) {
 			case v1.Duration:
 				if i.Duration != 0 {
-					val = i.String()
+					arg = fmt.Sprintf(tagArgFormat, i.String())
 				}
 			case int:
 				if i != 0 {
-					strconv.Itoa(i)
+					arg = fmt.Sprintf(tagArgFormat, i)
 				}
 			case string:
-				val = i
+				arg = fmt.Sprintf(tagArgFormat, i)
 			case bool:
 				// Bool params are switches don't need to render value
 				if i {
-					args = append(args, tagArgFormat)
+					arg = tagArgFormat
+				}
+			case *bool:
+				if *i {
+					arg = tagArgFormat
 				}
 			default:
-				val = ""
+				arg = ""
 			}
-			if val != "" {
-				args = append(args, fmt.Sprintf(tagArgFormat, val))
+			if arg != "" {
+				args = append(args, arg)
 			}
 		}
 	}
