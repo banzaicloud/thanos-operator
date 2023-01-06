@@ -7,20 +7,13 @@ on:
     tags:
       - "[0-9]+.[0-9]+.[0-9]+"
 
+env:
+  PLATFORMS: linux/amd64,linux/arm64,linux/arm/v7
+
 jobs:
   docker:
     name: Docker
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        platform: [linux/amd64,linux/arm64,linux/arm/v7]
-        include:
-          - platform: linux/amd64
-            goarch: amd64
-          - platform: linux/arm64
-            goarch: arm64
-          - platform: linux/arm/v7
-            goarch: arm
 
     steps:
       - name: Checkout code
@@ -63,9 +56,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           file: Dockerfile
-          platforms: ${{ matrix.platform }}
-          build-args: 
-            ARCH=${{ matrix.goarch }}
+          platforms: ${{ env.PLATFORMS }}
           push: true
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
