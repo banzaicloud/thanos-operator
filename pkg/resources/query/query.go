@@ -180,6 +180,12 @@ func (q *Query) setArgs(originArgs []string) []string {
 			args = append(args, fmt.Sprintf("--selector-label=%s=%s", k, v))
 		}
 	}
+	if query.ExtraArgs != nil {
+		for _, v := range query.ExtraArgs {
+			args = append(args, v)
+		}
+	}
+
 	// Add discovery args
 	args = append(args, q.getStoreEndpoints()...)
 

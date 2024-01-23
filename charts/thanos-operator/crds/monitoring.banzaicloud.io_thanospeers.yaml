@@ -3295,6 +3295,10 @@ spec:
                             type: object
                         type: object
                     type: object
+                  extraArgs:
+                    items:
+                      type: string
+                    type: array
                   grafanaDatasource:
                     type: boolean
                   grpcAddress:

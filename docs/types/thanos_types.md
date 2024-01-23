@@ -388,6 +388,12 @@ create Grafana data source
 
 Default: -
 
+### extraArgs ([]string, optional) {#query-extraargs}
+
+Extra arguments to be added to the container 
+
+Default: -
+
 
 ## ThanosDiscovery
 
