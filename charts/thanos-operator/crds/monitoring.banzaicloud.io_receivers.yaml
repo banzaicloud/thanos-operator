@@ -419,6 +419,9 @@ spec:
                       additionalProperties:
                         type: string
                       type: object
+                    logLevel:
+                      type: string
+                      default: debug
                     metaOverrides:
                       properties:
                         annotations:

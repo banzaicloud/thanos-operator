@@ -105,6 +105,8 @@ type ReceiverGroup struct {
 	TSDBWalCompression *bool `json:"tsdbWalCompression,omitempty" thanos:"--tsdb.wal-compression"`
 	// Do not create lockfile in TSDB data directory. In any case, the lockfiles will be deleted on next startup.
 	TSDBNoLockfile *bool `json:"tsdbNoLockfile,omitempty" thanos:"--tsdb.no-lockfile"`
+	// Log level
+	LogLevel string `json:"logLevel,omitempty" thanos:"--log.level=%s"`
 }
 
 // ObjectStoreStatus defines the observed state of ObjectStore
